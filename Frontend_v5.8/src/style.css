@@ -1,0 +1,105 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.el-header {
+  /* background-color: #392f2f;
+  color: #333; */
+  background-color: #4ca1c1;
+  background-size: cover;
+  color: #f9fcff;
+  text-align: center;
+  height: 60px;
+  line-height: 60px;
+}
+
+.el-footer {
+  background-color: #1c6e9d;
+  color: white;
+  text-align: center;
+  height: 60px;
+  line-height: 60px;
+}
+
+
+.el-aside {
+  background-color: #D3DCE6;
+  color: #333;
+  text-align: center;
+  /* height: 100vh; */
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+
+.test {
+  height: 75%;
+  background-color: white;
+  position: relative;
+  background-image: url('assets/结果可视化.png');
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.el-button {
+  font-size: 17px;
+  width: 100%;
+}
+
+.dialog-footer button:first-child {
+  margin-right: 10px;
+}
+
+.dialog-input {
+  width: 140px;
+}
+
+/* body > .el-container {
+  height: 91vh;
+} */
+/* 
+.el-container:nth-child(5) .el-aside,
+.el-container:nth-child(6) .el-aside {
+  height: 91vh;
+}
+
+.el-container:nth-child(7) .el-aside {
+  height: 91vh;
+} */
+
+.setting-button {
+  width: 250px;
+  font-size: 17px;
+  margin-left: 100px;
+}
+
+.el-dialog {
+  z-index: 2000 !important;
+  /* 使用 !important 确保覆盖其他样式 */
+}
+
+.test {
+  background-color: #657e9f;
+}
+
+/* 自定义文件列表样式 */
+.custom-file-list {
+  position: absolute;
+  left: 90px; /* 按钮宽度减去一些边距 */
+  bottom: 20px; /* 与上传按钮底部对齐 */
+  width: 200px; /* 根据需要调整宽度 */
+
+  background-color: #f9f9f9; /* 根据需要调整背景颜色 */
+  border: 1px solid #dcdfe6;
+  /* padding: 5px; */
+  z-index: 10;
+}
+
+.result-image {
+  width: 300px;
+  height: 400px
+}
