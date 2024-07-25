@@ -1,10 +1,10 @@
 <template>
   <div class="clearfix" style="width: 250px">
     <a-radio-group v-model:value="loadingDataModel">
-      <a-radio :value="1">本地文件</a-radio>
+      <a-radio :value="1" style="margin-right: 50px;">本地文件</a-radio>
       <a-radio :value="2">服务器文件</a-radio>
     </a-radio-group>
-    <a-row :gutter="16">
+    <a-row>
       <a-col :span="12">
         <a-upload
           :file-list="fileList"
@@ -12,7 +12,7 @@
           @remove="handleRemove"
           :before-upload="beforeUpload"
         >
-          <a-button>
+          <a-button style="margin-top: 16px;" :disabled="loadingDataModel == 2">
             <upload-outlined></upload-outlined>
             选择文件
           </a-button>
@@ -21,7 +21,7 @@
           type="primary"
           :disabled="fileList.length === 0 || loadingDataModel == 2"
           :loading="uploading"
-          style="margin-top: 16px"
+          style="margin-top: 20px"
           @click="handleUpload"
           
         >
@@ -31,7 +31,7 @@
       <a-col :span="12">
         
         
-        <a-button type="default" style="margin-top: 16px; margin-left: 8px" @click="switchDrawer" :disabled="loadingDataModel == 1"
+        <a-button type="default" style="margin-top: 16px; margin-left: 2px" @click="switchDrawer" :disabled="loadingDataModel == 1"
           >查看历史文件</a-button
         >
       </a-col>

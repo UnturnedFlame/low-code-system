@@ -14,11 +14,11 @@
         </div>
       </el-header>
       <el-container>
-        <el-aside width="210px">
-          <div style="font-size: 20px; font-weight: 700; background-color: #80a5ba; width: 210px; color: #f9fbfa;">
+        <el-aside width="250px">
+          <div style="font-size: 20px; font-weight: 700; background-color: #80a5ba; width: 250px; color: #f9fbfa;">
             算法选择区</div>
-          <div style="background-color: #eff3f6; width: 210px;height: 600px;">
-            <el-scrollbar height="800px" min-size="35" style="margin-left: 10px;">
+          <div style="background-color: #eff3f6; width: 250px;height: 600px;">
+            <el-scrollbar height="600px" min-size="35" style="margin-left: 10px;">
               <el-column v-for="item in menuList2">
                 <el-row><el-button style="width: 150px; margin-top: 10px; background-color: #4599be; color: white; "
                     icon="ArrowDown" @click="menu_details_second[item.label] = !menu_details_second[item.label]">
@@ -53,7 +53,7 @@
             </el-scrollbar>
 
           </div>
-          <div style="font-size: 20px; font-weight: 700; background-color: #80a5ba; width: 210px; color: #f9fbfa;">
+          <div style="font-size: 20px; font-weight: 700; background-color: #80a5ba; width: 250px; color: #f9fbfa;">
             加载数据
           </div>
           <!-- <el-radio-group v-model="loadingDataModel" class="ml-4">
@@ -3290,7 +3290,7 @@ body {
   /*color: #333;*/
   text-align: center;
   position: relative;
-  background-image: url('./assets/可视化建模.png');
+  background-image: url('../assets/可视化建模.png');
   background-position: center;
   background-size: contain;
   /* height: 50vh; */
