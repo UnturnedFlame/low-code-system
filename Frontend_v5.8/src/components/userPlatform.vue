@@ -1853,9 +1853,7 @@ const run = () => {
     return
   } else {
     const filename = file_list.value[0].name
-    console.log('filename: ' + filename)
     const filetype = filename.substring(filename.lastIndexOf('.'))
-    console.log('filetype: ' + filetype)
     if (filetype != '.xlsx' && filetype != '.npy' && filetype != '.wav' && filetype != '.audio' && filetype != '.csv' && filetype != '.mat') {
       ElNotification({
         title: 'WARNING',
@@ -2813,18 +2811,6 @@ const delete_model_confirm = () => {
     // 处理错误，例如显示一个错误消息  
     console.error(error);
   });
-  // axios.delete(url + row.id)  
-  //   .then((response) => {  
-  //     if(response.data.message == 'deleteSuccessfully'){ 
-  //       if (index !== -1) {  
-  //           // 删除前端表中数据
-  //           tableData.value.splice(index, 1)
-  //       }  
-  //     }   
-  //   }).catch(error => {  
-  //     // 处理错误，例如显示一个错误消息  
-  //     console.error(error);  
-  //   });  
 }
 
 // 查看模型信息
@@ -2977,67 +2963,38 @@ function updateStatus(status) {
 }
 
 
-const upload = ref()
-
-const handleExceed = (files) => {
-  if (upload.value){
-    upload.value.clearFiles()
-    const file = files[0]
-    file.uid = genFileId()
-    upload.value.handleStart(file)
-  }
-}
-
-const submitUpload = () => {
-
-  upload.value.submit()
-}
-
-
-const handleRemove: UploadProps['onRemove'] = file => {
-  const index = fileList.value.indexOf(file);
-  const newFileList = fileList.value.slice();
-  newFileList.splice(index, 1);
-  fileList.value = newFileList;
-};
-
-const beforeUpload: UploadProps['beforeUpload'] = file => {
-  fileList.value = [...(fileList.value || []), file];
-  return false;
-};
-
 // 上传文件到服务端
-const loadingDataModel = ref('local')
-const upload_data_to_server = () => {
-  let datafile = file_list.value[0].raw
+// const loadingDataModel = ref('local')
+// const upload_data_to_server = () => {
+//   let datafile = file_list.value[0].raw
 
-  const data = new FormData()
-  data.append("file", datafile)
+//   const data = new FormData()
+//   data.append("file", datafile)
 
-  api.post(
-    '/upload_datafile/',
-    data
-  ).then(response => {
-    if (response.data.message == 'save data success'){
-      ElMessage({
-        message: '成功上传文件到服务器',
-        type: 'success'
-      })
-    }else if (response.data.message == 'data file already exists'){
-      ElMessage({
-        message: '同名文件已经存在',
-        type: 'error'
-      })
-    }
-  })
-  .catch(error => {
-    console.log('upload_data_to_server_error: ', error)
-    ElMessage({
-      message: '上传文件失败',
-      type: 'error'
-    })
-  })
-}
+//   api.post(
+//     '/upload_datafile/',
+//     data
+//   ).then(response => {
+//     if (response.data.message == 'save data success'){
+//       ElMessage({
+//         message: '成功上传文件到服务器',
+//         type: 'success'
+//       })
+//     }else if (response.data.message == 'data file already exists'){
+//       ElMessage({
+//         message: '同名文件已经存在',
+//         type: 'error'
+//       })
+//     }
+//   })
+//   .catch(error => {
+//     console.log('upload_data_to_server_error: ', error)
+//     ElMessage({
+//       message: '上传文件失败',
+//       type: 'error'
+//     })
+//   })
+// }
 
 const api = axios.create({
   baseURL: 'http://127.0.0.1:8000',
@@ -3061,34 +3018,77 @@ api.interceptors.request.use(function (config) {
   return Promise.reject(error);
 })
 
-const delete_dataset_confirm_visible = ref(false)
-const fetchedDataFiles = ref([])
-// 获取用户历史文件
-const fetch_data = () => {
-  models_drawer.value = false
-  data_drawer.value = true
 
-  api.get('/fetch_datafiles/')
-    .then(response => {
-      let dataInfo = response.data
-      fetchedDataFiles.value.length = 0
-      for (let item of dataInfo) {
-        fetchedDataFiles.value.push(item)
-      }
-    })
-    .catch(error => {
-      console.log('fetch_datafiles_error: ',error)
-    })
-}
+const fetchedDataFiles = ref<any[]>([])
+// 获取用户历史文件
+// const fetch_data = () => {
+//   models_drawer.value = false
+//   data_drawer.value = true
+
+//   api.get('/fetch_datafiles/')
+//     .then(response => {
+//       let dataInfo = response.data
+//       fetchedDataFiles.value.length = 0
+//       for (let item of dataInfo) {
+//         fetchedDataFiles.value.push(item)
+//       }
+//     })
+//     .catch(error => {
+//       console.log('fetch_datafiles_error: ',error)
+//     })
+// }
 
 // 用户选择历史数据
 const use_dataset = () => {
 
 }
 
-const handleSwitchDrawer = (drawerState: boolean) => {
+
+const delete_dataset_confirm_visible = ref(false)
+let row_dataset: any = null
+let index_dataset: any = null
+// 用户删除历史数据
+const delete_dataset = (index_in: any, row_in: any) => {
+  index_dataset = index_in
+  row_dataset = row_in
+  delete_dataset_confirm_visible.value = true
+}
+
+const delete_dataset_confirm = () => {
+
+  api.get('/delete_datafile?filename=' + row_dataset.dataset_name)
+    .then((response: any) => {
+      if (response.data.code == 200){
+        // 删除前端表中数据
+        fetchedDataFiles.value.splice(index_dataset, 1)
+        delete_dataset_confirm_visible.value = false
+        ElMessage({
+          message: '文件删除成功',
+          type: 'success'
+        })
+      }else if(response.data.code == 400){
+        ElMessage({
+          message: '删除失败: ' + response.data.message,
+          type: 'error'
+        })
+      }
+     
+    })
+    .catch(error => {
+      console.log('delete_datafile_error: ', error)
+      ElMessage({
+        message: '删除失败',
+        type: 'error'
+      })
+    })
+}
+
+const handleSwitchDrawer = (fetchData: any[]) => {
   models_drawer.value = false
-  data_drawer.value = drawerState
+  data_drawer.value = true
+
+  fetchedDataFiles.value.length = 0
+  fetchedDataFiles.value = fetchData
 }
 
 </script>

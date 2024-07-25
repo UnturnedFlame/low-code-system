@@ -25,7 +25,7 @@
           @click="handleUpload"
           
         >
-          {{ uploading ? "Uploading" : "上传至服务器" }}
+          {{ uploading ? "正在上传" : "上传至服务器" }}
         </a-button>
       </a-col>
       <a-col :span="12">
@@ -35,6 +35,15 @@
           >查看历史文件</a-button
         >
       </a-col>
+      <div>
+       
+        <a-modal v-model:open="uploadConfirmDialog" title="提交所保存文件信息" :confirm-loading="confirmLoading" @ok="handleOk">
+          <a-space direction="vertical">
+            <a-input v-model:value="filename" placeholder="请输入文件名" />
+            <a-input v-model:value="description" autofocus placeholder="请输入文件描述" />
+          </a-space>
+        </a-modal>
+      </div>
     </a-row>
   </div>
 </template>
@@ -45,6 +54,52 @@ import { message } from "ant-design-vue";
 import type { UploadProps } from "ant-design-vue";
 import { defineEmits } from "vue";
 import { defineProps } from "vue";
+
+
+
+const confirmLoading = ref<boolean>(false);
+const uploadConfirmDialog = ref<boolean>(false);
+const filename = ref<string>("");
+const description = ref<string>("");
+const handleOk = () => {
+  
+  confirmLoading.value = true;
+  const formData = new FormData();
+  //   fileList.value.forEach((file: UploadProps["fileList"][number]) => {
+  //     formData.append("file", file as any);
+  //   });
+  formData.append("file", fileList.value[0]);
+  formData.append("filename", filename.value);
+  formData.append("description", description.value);
+  uploading.value = true;
+
+  props.api
+    .post("http://localhost:8000/upload_datafile/", formData)
+    .then((response: any) => {
+        if(response.data.message == 'save data success'){
+            fileList.value = [];
+            uploading.value = false;
+            message.success("数据文件上传成功");
+
+            confirmLoading.value = false;
+            uploadConfirmDialog.value = false;
+        }else{
+            uploading.value = false;
+            message.error("文件上传失败, "+response.data.message);
+            confirmLoading.value = false;
+        }
+      
+    })
+    .catch((error:any) => {
+      uploading.value = false;
+      confirmLoading.value = false;
+      message.error("上传失败, "+error);
+    });
+  // setTimeout(() => {
+  //   uploadConfirmDialog.value = false;
+  //   confirmLoading.value = false;
+  // }, 2000);
+};
 
 const fileList = ref<UploadProps["fileList"]>([]);
 const uploading = ref<boolean>(false);
@@ -70,35 +125,26 @@ const beforeUpload: UploadProps["beforeUpload"] = (file) => {
 };
 
 const handleUpload = () => {
-  const formData = new FormData();
-  //   fileList.value.forEach((file: UploadProps["fileList"][number]) => {
-  //     formData.append("file", file as any);
-  //   });
-  formData.append("file", fileList.value[0]);
-  uploading.value = true;
 
-  props.api
-    .post("http://localhost:8000/upload_datafile", JSON.stringify(formData))
-    .then((response: any) => {
-        if(response.data.message == 'save data success'){
-            fileList.value = [];
-            uploading.value = false;
-            message.success("数据文件上传成功");
-        }else{
-            message.error("文件上传失败, "+response.data.message);
-        }
-      
-    })
-    .catch((error:any) => {
-      uploading.value = false;
-      message.error("上传失败, "+error);
-    });
+  uploadConfirmDialog.value = true
+
 };
 
-let drawerState = false;
 const emit = defineEmits(["switchDrawer"]);
 const switchDrawer = () => {
-    drawerState = !drawerState;
-    emit("switchDrawer", drawerState);
+    let url = 'http://127.0.0.1:8000/fetch_datafiles/'
+    let fetchedDatasetsInfo: any[] = []
+    props.api.request({
+      method: 'GET',
+      url: url
+    })
+    .then((response: any) => {
+      let datasetInfo = response.data
+      fetchedDatasetsInfo.length = 0
+      for (let item of datasetInfo){
+        fetchedDatasetsInfo.push(item)
+      }
+    })
+    emit("switchDrawer", fetchedDatasetsInfo);
 };
 </script>
