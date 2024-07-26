@@ -40,6 +40,12 @@ algorithm_introduction = {
 }
 
 
+def add_user_dir(example_with_selected_features: dict):
+    if not example_with_selected_features.get('user_dir') and example_with_selected_features.get('filepath'):
+        split_path = example_with_selected_features['filepath'].split('/')
+        example_with_selected_features['user_dir'] = os.path.join(split_path[-2], split_path[-1])
+
+
 def encode_image_to_base64(image_path):
     """
     将PNG文件编码为Base64字符串。
@@ -68,7 +74,7 @@ class Reactor:
                                     ['音频分离', '声纹识别', '说话人注册', '添加噪声', '插值处理', '特征提取',
                                      '层次分析模糊综合评估', '小波变换', '特征选择', '故障诊断', '趋势预测',
                                      '无量纲化']}
-
+        self.data_stream = {'filepath': '', 'raw_data': None, 'extracted_features': None, 'filename': '', 'user_dir': None}
         self.gradio_app = None
         self.schedule = None
         self.lightning_model = None
@@ -219,8 +225,15 @@ class Reactor:
             features_extracted, filename = load_data(features_save_path)
         self.module_configuration['特征提取']['result'] = features_extracted
         self.results_to_response['特征提取']['features_with_name'] = features_with_name
+        self.data_stream['filename'] = filename
+        self.data_stream['filepath'] = datafile
+        self.data_stream['extracted_features'] = features_extracted
+        self.data_stream['raw_data'] = data
+        self.data_stream['features'] = features
+        add_user_dir(self.data_stream)
 
-        return {'data': features_extracted, 'features': features, 'filename': filename, 'filepath': datafile}
+        # return {'data': features_extracted, 'features': features, 'filename': filename, 'filepath': datafile}
+        return self.data_stream
 
     # 层次分析模糊综合评估法
     def ahp_f(self, data_with_selected_features, multiple_sensor=False):
@@ -267,7 +280,7 @@ class Reactor:
 
     # 特征选择
     def feature_selection(self, data_with_selected_features, multiple_sensor=False):
-        data = data_with_selected_features.get('data')
+        data = data_with_selected_features.get('extracted_features')
         feature_names = data_with_selected_features.get('features')
         filename = data_with_selected_features.get('filename')
         filepath = data_with_selected_features.get('filepath')
@@ -309,7 +322,8 @@ class Reactor:
             self.module_configuration['故障诊断']['result']['信号波形图'] = figure_path
         elif 'gru' in use_algorithm:
             input_data, _ = load_data(example_with_selected_features)
-            diagnosis_result, figure_path = diagnose_with_gru_model(input_data)
+
+            diagnosis_result, figure_path = diagnose_with_gru_model({'data': input_data, 'filepath': example_with_selected_features})
             pass_data = {'data': example_with_selected_features}
         elif 'lstm' in use_algorithm:
             input_data, _ = load_data(example_with_selected_features)

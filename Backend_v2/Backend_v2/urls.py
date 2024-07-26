@@ -33,7 +33,7 @@ urlpatterns = [
     path("shut/", views.shut),
     path("save_model/", views.save_model),
     path("user_save_model/", views.user_save_model),
-    path("upload_datafile/", views.upload_datafile),
+    path("upload_datafile/", views.your_view_function),
     path("delete_datafile/", views.delete_datafile),
     path("fetch_models/", views.fetch_models),
     path("user_fetch_models/", views.user_fetch_models),
@@ -49,6 +49,7 @@ urlpatterns = [
     path('admin_fetch_models/', views.admin_fetch_models),
     path('admin_delete_model/', views.admin_delete_model),
     path('admin_fetch_users/', views.fetch_users),
+    path('admin_reset_user_password/', views.admin_reset_user_password),
     path('add_user/', views.add_user),
     path('delete_user/', views.delete_user)
 ]

@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "app1",
+    "app1.apps.App1Config",
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders'
@@ -69,7 +69,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5174'
 ]
 
-ROOT_URLCONF = "Backend_v2.urls"
+ROOT_URLCONF = "Backend_v2.Backend_v2.urls"
 
 TEMPLATES = [
     {

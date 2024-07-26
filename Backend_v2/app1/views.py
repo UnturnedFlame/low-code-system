@@ -72,18 +72,18 @@ User = get_user_model()
 def run_with_local_datafile(request):
     if request.method == 'POST':
         datafile = request.FILES.get('file', None)
-        # token = extract_jwt_from_request(request)
+        token = extract_jwt_from_request(request)
         try:
-            # payload = verify_jwt(token, settings.SECRET_KEY)
-            # username = payload.get('username')
-            # user = User.objects.get(username=username)
+            payload = verify_jwt(token, settings.SECRET_KEY)
+            username = payload.get('username')
+            user = User.objects.get(username=username)
             if datafile is None:
                 return JsonResponse({'message': 'datafile is required'}, status=400)
             else:
                 # 打开特定的文件进行二进制的写操作
                 # print(os.path.exists('/recv_file/'))
-                # save_path = f"./app1/recv_file/examples/{username}/{datafile.name}"
-                save_path = f"./app1/recv_file/examples/{datafile.name}"
+                save_path = f"./app1/recv_file/examples/{username}/{datafile.name}"
+                # save_path = f"./app1/recv_file/examples/{datafile.name}"
                 if not os.path.exists(save_path):
                     os.makedirs(save_path)
                 with open(save_path, 'wb+') as f:
@@ -257,6 +257,24 @@ def delete_model(request):
     return JsonResponse({'message': 'deleteSuccessful'})
 
 
+def admin_reset_user_password(request):
+    if request.method == 'GET':
+        jobNumber = request.GET.get('jobNumber')
+
+        user = User.objects.filter(jobNumber=jobNumber).first()
+
+        if user:
+            length = 8
+            characters = string.ascii_letters + string.digits  # 大小写字母和数字
+            new_password = ''.join(random.choice(characters) for _ in range(length))
+            user.set_password(new_password)
+            user.save()
+
+            return JsonResponse({'message': f'密码重置成功，新密码为{new_password}', 'code': 200})
+        else:
+            return JsonResponse({'message': '重置密码失败, 未找到该用户', 'code': 400})
+
+
 # 管理员删除用户模型
 def admin_delete_model(request):
     if request.method == 'GET':
@@ -286,15 +304,21 @@ def user_delete_model(request):
 def upload_datafile(request):
     if request.method == 'POST':
         datafile = request.FILES.get('file', None)
+        filename = request.POST.get('filename')
+        description = request.POST.get('description')
+        print("datafile: ", datafile)
+        print("filename: ", filename)
+        print("description: ", description)
         token = extract_jwt_from_request(request)
         try:
             payload = verify_jwt(token, settings.SECRET_KEY)
             username = payload.get('username')
 
             if datafile is not None:
-                save_path = f"./app1/recv_file/examples/{username}/{datafile.name}"
-                if not os.path.exists(save_path):
-                    os.makedirs(save_path)
+                user_save_dir = f"./app1/recv_file/examples/{username}"
+                if not os.path.exists(user_save_dir):
+                    os.makedirs(user_save_dir)
+                save_path = os.path.join(user_save_dir, datafile.name)
                 with open(save_path, 'wb+') as f:
                     # 分块写入文件
                     for chunk in datafile.chunks():
@@ -313,6 +337,48 @@ def upload_datafile(request):
 
         except jwt.ExpiredSignatureError:
             return JsonResponse({'message': '用户签名过期'})
+
+
+def your_view_function(request):
+    if request.method == 'POST':
+        try:
+            datafile = request.FILES.get('file', None)
+            filename = request.POST.get('filename')
+            description = request.POST.get('description')
+
+            # 打印接收到的数据
+            print("datafile: ", datafile)
+            print("filename: ", filename)
+            print("description: ", description)
+
+            token = extract_jwt_from_request(request)
+            payload = verify_jwt(token, settings.SECRET_KEY)
+            username = payload.get('username')
+
+            if datafile is not None:
+                user_save_dir = f"./app1/recv_file/examples/{username}"
+                if not os.path.exists(user_save_dir):
+                    os.makedirs(user_save_dir)
+
+                    # 检查目录权限（可选）
+                if not os.access(user_save_dir, os.W_OK):
+                    raise PermissionError(f"无法写入目录 {user_save_dir}")
+
+                save_path = os.path.join(user_save_dir, datafile.name)
+
+                try:
+                    with open(save_path, 'wb+') as f:
+                        # 分块写入文件
+                        for chunk in datafile.chunks():
+                            f.write(chunk)
+                except Exception as e:
+                    # 捕获并打印文件写入时的任何异常
+                    print(f"写入文件时发生错误: {e}")
+                    raise  # 可选：重新抛出异常以便上层处理
+
+        except Exception as e:
+            # 捕获并打印处理文件时的任何异常
+            print(f"处理文件时发生错误: {e}")
 
 
 # 用户获取上传的文件数据
