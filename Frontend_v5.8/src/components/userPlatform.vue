@@ -613,9 +613,9 @@
 
               <h2 style=" margin-bottom: 25px; color: #253b45;">用户数据文件</h2>
 
-              <el-table :data="fetchedDatafiles" height="500" stripe style="width: 100%">
+              <el-table :data="fetchedDataFiles" height="500" stripe style="width: 100%">
                 
-                <el-table-column :width="100" property="id" label="文件序号" />
+                <!-- <el-table-column :width="100" property="id" label="文件序号" /> -->
                 <el-table-column :width="150" property="dataset_name" label="文件名称" />
                 <el-table-column :width="200" property="description" label="文件描述"/>
                 <el-table-column :width="200" label="操作">
@@ -696,7 +696,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, nextTick, ref } from 'vue'
+import { onMounted, nextTick, ref, reactive } from 'vue'
 import { jsPlumb } from 'jsplumb'
 import { ElNotification, ElMessage } from "element-plus";
 import axios from 'axios';
@@ -3085,10 +3085,25 @@ const delete_dataset_confirm = () => {
 
 const handleSwitchDrawer = (fetchData: any[]) => {
   models_drawer.value = false
-  data_drawer.value = true
+  
 
   fetchedDataFiles.value.length = 0
-  fetchedDataFiles.value = fetchData
+  // fetchData.forEach(element => {
+  //   fetchedDataFiles.value.push(element)
+  // });
+  for (let item of fetchData){
+    fetchedDataFiles.value.push(item)
+  }
+  nextTick(() => {
+    console.log('nextTick')
+    console.log('fetchedDataFiles: ', fetchedDataFiles.value)
+  })
+
+  data_drawer.value = true
+  
+  // Object.assign(fetchedDataFiles, fetchData)
+  console.log('fetchData: ', fetchData)
+  console.log('fetchedDataFiles: ', fetchedDataFiles.value)
 }
 
 </script>

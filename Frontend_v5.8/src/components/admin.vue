@@ -6,6 +6,10 @@
       <div class="text-header">
         <h3>后台管理</h3>
       </div>
+      <div class="user-info-container" id="userInfo" style="position: absolute; right: 55px; top: 15px; color: white;">
+        <span style="margin-right: 10px;">欢迎！ {{ username }}</span>
+        <span @click="logout" class="clickable">退出登录</span>
+      </div>
       <!-- 使用v-for遍历menus数组渲染菜单项 -->
       <el-menu class="el-menu" :collapse="isCollapse" :collapse-transition="false">
         <el-menu-item v-for="menu in menus" :key="menu.key" @click="handleMenuClick(menu)">
@@ -58,12 +62,18 @@ import {useRouter} from "vue-router";
 import addUser from "./addUser.vue";
 
 const store = useAllDataStore()
+const username = window.localStorage.getItem('username')
 
 const isCollapse = computed(() =>store.state.isCollapse)
 const width = computed(() =>store.state.isCollapse ? '54px' : '150px')
 
 
 const router = useRouter();
+
+const logout = () => {
+  router.push('/')
+  console.log('用户退出登录')
+}
 //处理菜单收缩
 const handleCollapse =() => {
   store.state.isCollapse = !store.state.isCollapse
