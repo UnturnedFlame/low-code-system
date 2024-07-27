@@ -6,6 +6,10 @@
       <div class="text-header">
         <h3>后台管理</h3>
       </div>
+      <div class="user-info-container" id="userInfo" style="position: absolute; right: 50px; top: 20px; color: white;">
+          <span style="margin-right: 10px;">欢迎！ {{ username }}</span>
+          <span @click="logout" class="clickable">退出登录</span>
+      </div>
       <!-- 使用v-for遍历menus数组渲染菜单项 -->
       <el-menu class="el-menu" :collapse="isCollapse" :collapse-transition="false">
         <el-menu-item v-for="menu in menus" :key="menu.key" @click="handleMenuClick(menu)">
@@ -59,6 +63,8 @@ import addUser from "./addUser.vue";
 
 const store = useAllDataStore()
 
+const username = window.localStorage.getItem('username')
+
 const isCollapse = computed(() =>store.state.isCollapse)
 const width = computed(() =>store.state.isCollapse ? '54px' : '150px')
 
@@ -88,6 +94,10 @@ const handleMenuClick = (menu) => {
   // 使用 Vue Router 的 router 实例进行跳转
   router.push({ path }); // 使用路径进行跳转
 };
+
+const logout = () => {
+  router.push('/')
+}
 </script>
 
 
@@ -134,5 +144,10 @@ const handleMenuClick = (menu) => {
 .el-menu {
   border-right: none;
 
+}
+
+.clickable:hover {
+  cursor: pointer;
+  color: #007BFF;
 }
 </style>

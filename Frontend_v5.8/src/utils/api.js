@@ -13,7 +13,7 @@ const api = axios.create({
 api.interceptors.request.use(function (config) {
     // 从localStorage获取JWT
     let token = window.localStorage.getItem('jwt');
-    console.log('the token is: ', token)
+    // console.log('the token is: ', token)
 
     // 将JWT添加到请求的Authorization头部
     if (token) {

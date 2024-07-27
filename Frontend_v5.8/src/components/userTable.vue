@@ -11,7 +11,7 @@
     <el-table-column prop="id" label="ID" />
     <el-table-column prop="jobNumber" label="工号"  />
     <el-table-column prop="username" label="姓名"  />
-    <el-table-column prop="password" label="密码" />
+    <!-- <el-table-column prop="password" label="密码" /> -->
     <el-table-column prop="email" label="邮箱"  />
     <el-table-column label="操作" >
       <template #default="scope" >
@@ -39,28 +39,15 @@ const router = useRouter();
 
 
 //模拟数据，对接时把tableData替换成真实数据
-const tableData = ref([
-  {
-    id: 1,
-    username: '张三',
-    jobNumber: '78239',
-    mailbox: '341763799@qq.com',
-    password: '123456'
-  },
-  {
-    id: 2,
-    name: '李四',
-    password: 'abcdef',
-    jobNumber: '782',
-    mailbox: '341763666@qq.com',
-  },
-  // 更多行数据...
-]);
+const tableData = ref([]);
 
 const handleDelete = (index, row) => {
   console.log('删除行数据：', index, row);
+  if (!window.confirm('确定删除该用户吗？')){
+    return 
+  }
   // 向服务器发送删除请求
-  api.get('/delete_user/?jobNumber=' + row.jobNumber)
+  api.get('delete_user/?jobNumber=' + row.jobNumber)
       .then(response => {
         if (response.data.message === 'user deleted success'){
           console.log('删除成功：', response.data);
@@ -85,7 +72,7 @@ const handleDelete = (index, row) => {
 
 const handleResetPassword = (index, row) => {
   // 向服务器发送删除请求
-  api.get('/admin_reset_user_password/?jobNumber=' + row.jobNumber)
+  api.get('/administration/reset_user_password/?jobNumber=' + row.jobNumber)
       .then(response => {
         if (response.data.code === 200){
           console.log('重置成功：', response.data);
@@ -115,7 +102,7 @@ const goToAddUserPage =() =>{
 const fetchTableData = async () => {
   try {
     // 发起 GET 请求获取数据
-    const response = await api.get('/admin_fetch_users/');
+    const response = await api.get('/administration/fetch_users_info/');
     // 将响应数据赋值给 tableData
     tableData.value = response.data;
   } catch (error) {

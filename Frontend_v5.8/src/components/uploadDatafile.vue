@@ -132,12 +132,9 @@ const handleUpload = () => {
 
 const emit = defineEmits(["switchDrawer"]);
 const switchDrawer = () => {
-    let url = 'http://127.0.0.1:8000/fetch_datafiles/'
+    let url = 'user/fetch_datafiles/'
     let fetchedDatasetsInfo: any[] = []
-    props.api.request({
-      method: 'GET',
-      url: url
-    })
+    props.api.get(url)
     .then((response: any) => {
       let datasetInfo = response.data
       fetchedDatasetsInfo.length = 0

@@ -605,14 +605,7 @@
             <el-col>
               <h2 style="margin-bottom: 25px; color: #253b45">用户数据文件</h2>
 
-<<<<<<< HEAD
               <el-table :data="fetchedDataFiles" height="500" stripe style="width: 100%">
-                <!-- <el-table-column :width="100" property="id" label="文件序号" /> -->
-=======
-              <el-table :data="fetchedDatafiles" height="500" stripe style="width: 100%">
-                
-                <el-table-column :width="100" property="id" label="文件序号" />
->>>>>>> parent of d421d7b (feat: V6.0 改动前)
                 <el-table-column :width="150" property="dataset_name" label="文件名称" />
                 <el-table-column :width="200" property="description" label="文件描述" />
                 <el-table-column :width="200" label="操作">
@@ -681,77 +674,6 @@
 
         </el-drawer>
 
-        <!-- 以抽屉的形式打开用户历史数据 -->
-        <el-drawer v-model="data_drawer" direction="ltr">
-
-          <div style="display: flex; flex-direction: column; ">
-            <el-col>
-
-              <h2 style=" margin-bottom: 25px; color: #253b45;">用户数据文件</h2>
-
-              <el-table :data="fetchedDataFiles" height="500" stripe style="width: 100%">
-                
-                <!-- <el-table-column :width="100" property="id" label="文件序号" /> -->
-                <el-table-column :width="150" property="dataset_name" label="文件名称" />
-                <el-table-column :width="200" property="description" label="文件描述"/>
-                <el-table-column :width="200" label="操作">
-                  <template #default="scope">
-                    <el-button size="small" type="primary" style="width: 50px;" @click="use_dataset(scope.row)">
-                      使用
-                    </el-button>
-                    <el-button size="small" type="danger" style="width: 50px;"
-                      @click="delete_dataset(scope.$index, scope.row)">
-                      删除
-                    </el-button>
-                    <!-- <el-popover placement="bottom" :width='500' trigger="click">
-                      <el-descriptions :title="model_name" :column="3" :size="size" direction="vertical"
-                        :style="blockMargin">
-                        <el-descriptions-item label="使用模块" :span="3">
-                          <el-tag size="small" v-for="algorithm in model_algorithms">{{ algorithm }}</el-tag>
-                        </el-descriptions-item>
-                        <el-descriptions-item label="算法参数" :span="3">
-                          <div v-for="item in model_params">{{ item.模块名 }}: {{ item.算法 }}</div>
-                        </el-descriptions-item>
-                      </el-descriptions>
-                      <template #reference>
-                        <el-button size="small" type="info" style="width: 80px" @click="show_model_info(scope.row)">
-                          查看模型
-                        </el-button>
-                      </template>
-                    </el-popover> -->
-                  </template>
-                </el-table-column>
-              </el-table>
-
-              <el-dialog v-model="delete_dataset_confirm_visible" title="提示" width="500">
-                <span style="font-size: 20px;">确定删除该数据文件吗？</span>
-                <template #footer>
-                  <el-button style=" width: 150px;" @click="delete_dataset_confirm_visible = false">取消</el-button>
-                  <el-button style="width: 150px; margin-right: 70px;" type="primary"
-                    @click="delete_dataset_confirm">确定</el-button>
-                </template>
-              </el-dialog>
-
-              <!-- <el-dialog v-model="dialogFormVisible" title="保存模型" draggable width="40%">
-                <el-form :model="model_info_form">
-                  <el-form-item label="模型名称" :label-width='140'>
-                    <el-input style="width: 160px;" v-model="model_info_form.name" autocomplete="off" />
-                  </el-form-item>
-                </el-form>
-                <span class="dialog-footer">
-                  <el-button style="margin-left: 400px; width: 150px;" @click="dialogFormVisible = false">取消</el-button>
-                  <el-button style="width: 150px;" type="primary" @click="save_model_confirm">确定</el-button>
-                </span>
-              </el-dialog> -->
-
-            </el-col>
-          
-          </div>
-
-        </el-drawer>
-
-
-
       </el-container>
       <el-footer style="height: 35px; position: relative;"><span
           style="position: absolute; top: -15px;">welcome!</span></el-footer>
@@ -772,25 +694,16 @@
 </template>
 
 <script lang="ts" setup>
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { onMounted, nextTick, ref, reactive } from "vue";
-import { jsPlumb } from "jsplumb";
-=======
+
 import { onMounted, nextTick, ref } from 'vue'
 import { jsPlumb } from 'jsplumb'
->>>>>>> parent of d421d7b (feat: V6.0 改动前)
-=======
-import { onMounted, nextTick, ref, reactive } from 'vue'
-import { jsPlumb } from 'jsplumb'
->>>>>>> parent of c1f8aae (用户平台建模功能改动)
 import { ElNotification, ElMessage } from "element-plus";
 import axios from 'axios';
 import { DraggableContainer } from "@v3e/vue3-draggable-resizable";
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import uploadDatafile from './uploadDatafile.vue';
-import type { UploadProps } from 'ant-design-vue';
+
 
 
 const router = useRouter()
@@ -3015,15 +2928,6 @@ const startModeling = () => {
   }
 }
 
-//删除文件
-const handleDelete = (file) => {
-  // 使用splice方法并确保使用其返回值
-  const index = file_list.value.findIndex(f => f.uid === file.uid);
-  if (index !== -1) {
-    file_list.value.splice(index, 1)[0];
-
-  }
-}
 
 // 建模状态更新
 function updateStatus(status) {
@@ -3106,23 +3010,7 @@ api.interceptors.request.use(function (config) {
 
 
 const fetchedDataFiles = ref<any[]>([])
-// 获取用户历史文件
-// const fetch_data = () => {
-//   models_drawer.value = false
-//   data_drawer.value = true
 
-//   api.get('/fetch_datafiles/')
-//     .then(response => {
-//       let dataInfo = response.data
-//       fetchedDataFiles.value.length = 0
-//       for (let item of dataInfo) {
-//         fetchedDataFiles.value.push(item)
-//       }
-//     })
-//     .catch(error => {
-//       console.log('fetch_datafiles_error: ',error)
-//     })
-// }
 
 // 用户选择历史数据
 const use_dataset = () => {
@@ -3170,13 +3058,8 @@ const delete_dataset_confirm = () => {
 }
 
 const handleSwitchDrawer = (fetchData: any[]) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
+
   models_drawer.value = false;
-=======
-  models_drawer.value = false
-  
->>>>>>> parent of c1f8aae (用户平台建模功能改动)
 
   fetchedDataFiles.value.length = 0
   // fetchData.forEach(element => {
@@ -3193,25 +3076,9 @@ const handleSwitchDrawer = (fetchData: any[]) => {
   data_drawer.value = true
   
   // Object.assign(fetchedDataFiles, fetchData)
-<<<<<<< HEAD
   console.log("fetchData: ", fetchData);
   console.log("fetchedDataFiles: ", fetchedDataFiles.value);
 };
-=======
-  models_drawer.value = false
-  data_drawer.value = true
-
-  fetchedDataFiles.value.length = 0
-  fetchedDataFiles.value = fetchData
-}
-
->>>>>>> parent of d421d7b (feat: V6.0 改动前)
-=======
-  console.log('fetchData: ', fetchData)
-  console.log('fetchedDataFiles: ', fetchedDataFiles.value)
-}
-
->>>>>>> parent of c1f8aae (用户平台建模功能改动)
 </script>
 
 <style>

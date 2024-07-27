@@ -58,6 +58,8 @@
 import {onMounted, ref} from "vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import api from "../utils/api.js";
+
 const fetchedModelsInfo = ref([])
 
 onMounted(() => {
@@ -65,7 +67,7 @@ onMounted(() => {
 });
 const fetch_models = () => {
   let url = 'http://127.0.0.1:8000/admin_fetch_models/'
-  axios.request({
+  api.request({
     method: 'GET',
     url: url
   }).then((response) => {
