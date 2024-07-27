@@ -817,8 +817,14 @@
             <el-col>
               <h2 style="margin-bottom: 25px; color: #253b45">用户数据文件</h2>
 
+<<<<<<< HEAD
               <el-table :data="fetchedDataFiles" height="500" stripe style="width: 100%">
                 <!-- <el-table-column :width="100" property="id" label="文件序号" /> -->
+=======
+              <el-table :data="fetchedDatafiles" height="500" stripe style="width: 100%">
+                
+                <el-table-column :width="100" property="id" label="文件序号" />
+>>>>>>> parent of d421d7b (feat: V6.0 改动前)
                 <el-table-column :width="150" property="dataset_name" label="文件名称" />
                 <el-table-column :width="200" property="description" label="文件描述" />
                 <el-table-column :width="200" label="操作">
@@ -906,8 +912,13 @@
 </template>
 
 <script lang="ts" setup>
+<<<<<<< HEAD
 import { onMounted, nextTick, ref, reactive } from "vue";
 import { jsPlumb } from "jsplumb";
+=======
+import { onMounted, nextTick, ref } from 'vue'
+import { jsPlumb } from 'jsplumb'
+>>>>>>> parent of d421d7b (feat: V6.0 改动前)
 import { ElNotification, ElMessage } from "element-plus";
 import axios from "axios";
 import { computed } from "vue";
@@ -3176,6 +3187,7 @@ const delete_dataset_confirm = () => {
 };
 
 const handleSwitchDrawer = (fetchData: any[]) => {
+<<<<<<< HEAD
   models_drawer.value = false;
 
   fetchedDataFiles.value.length = 0;
@@ -3196,6 +3208,15 @@ const handleSwitchDrawer = (fetchData: any[]) => {
   console.log("fetchData: ", fetchData);
   console.log("fetchedDataFiles: ", fetchedDataFiles.value);
 };
+=======
+  models_drawer.value = false
+  data_drawer.value = true
+
+  fetchedDataFiles.value.length = 0
+  fetchedDataFiles.value = fetchData
+}
+
+>>>>>>> parent of d421d7b (feat: V6.0 改动前)
 </script>
 
 <style>

@@ -85,7 +85,7 @@ const handleDelete = (index, row) => {
 
 const handleResetPassword = (index, row) => {
   // 向服务器发送删除请求
-  api.get('/administration/reset_user_password/?jobNumber=' + row.jobNumber)
+  api.get('/admin_reset_user_password/?jobNumber=' + row.jobNumber)
       .then(response => {
         if (response.data.code === 200){
           console.log('重置成功：', response.data);

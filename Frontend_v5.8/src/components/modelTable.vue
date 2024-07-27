@@ -2,7 +2,7 @@
   <div style="display: flex; flex-direction: column; ">
     <el-col>
 
-      <!-- <h2 style=" margin-bottom: 25px; color: #253b45;">模型管理</h2> -->
+      <h2 style=" margin-bottom: 25px; color: #253b45;">模型管理</h2>
 
       <el-table :data="fetchedModelsInfo" stripe style="width: 100%">
         <el-popover placement="bottom-start" title="模型信息" :width="400" trigger="hover" content="这是模型信息">

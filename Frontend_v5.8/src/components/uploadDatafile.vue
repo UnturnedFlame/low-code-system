@@ -52,8 +52,8 @@ import { ref } from "vue";
 import { UploadOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import type { UploadProps } from "ant-design-vue";
-// import { defineEmits } from "vue";
-// import { defineProps } from "vue";
+import { defineEmits } from "vue";
+import { defineProps } from "vue";
 
 
 
@@ -132,7 +132,7 @@ const handleUpload = () => {
 
 const emit = defineEmits(["switchDrawer"]);
 const switchDrawer = () => {
-    let url = 'http://127.0.0.1:8000/user_fetch_datafiles/'
+    let url = 'http://127.0.0.1:8000/fetch_datafiles/'
     let fetchedDatasetsInfo: any[] = []
     props.api.request({
       method: 'GET',
