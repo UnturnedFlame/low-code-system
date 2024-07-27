@@ -2,7 +2,7 @@
   <div style="display: flex; flex-direction: column; ">
     <el-col>
 
-      <h2 style=" margin-bottom: 25px; color: #253b45;">模型管理</h2>
+      <!-- <h2 style=" margin-bottom: 25px; color: #253b45;">模型管理</h2> -->
 
       <el-table :data="fetchedModelsInfo" stripe style="width: 100%">
         <el-popover placement="bottom-start" title="模型信息" :width="400" trigger="hover" content="这是模型信息">
@@ -61,6 +61,7 @@ import {onMounted, ref} from "vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import api from "../utils/api.js";
+import {labels_for_algorithms} from "./constant.ts";
 
 const fetchedModelsInfo = ref([])
 
@@ -100,7 +101,7 @@ const show_model_info = (row) => {
   let node_list = objects.nodeList         // 模型节点信息
   let connection = objects.connection     // 模型连接顺序
 
-  model_name.value = row.name
+  model_name.value = row.model_name
   model_algorithms.value = connection
   model_params.value.length = 0
   node_list.forEach(element => {

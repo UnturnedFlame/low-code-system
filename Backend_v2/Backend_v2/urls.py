@@ -51,7 +51,7 @@ urlpatterns = [
     path('administration/delete_user_model/', views.admin_delete_model),
     path('administration/fetch_users_info/', views.admin_fetch_user_info),
     path('administration/fetch_users_datafiles/', views.admin_fetch_users_datafiles),
-    path('administration/delete_datafiles/', views.admin_delete_users_files),
+    path('administration/delete_user_datafile/', views.admin_delete_users_files),
     path('administration/reset_user_password/', views.admin_reset_user_password),
     path('add_user/', views.add_user),
     path('delete_user/', views.delete_user)

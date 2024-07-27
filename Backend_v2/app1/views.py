@@ -252,7 +252,7 @@ def admin_fetch_user_info(request):
             payload = verify_jwt(token, settings.SECRET_KEY)
             username = payload.get('username')
             user = User.objects.get(username=username)
-            print('groups:', user.groups.all())
+
             admin_group = Group.objects.filter(name='admin').first()
             if admin_group in user.groups.all():
                 print('访问到用户信息')
@@ -324,19 +324,30 @@ def admin_delete_users_files(request):
     if request.method == 'GET':
         file_id = request.GET.get('datafile_id')
         token = extract_jwt_from_request(request)
+        print('token: ', token)
+        print('datafile_id: ', file_id)
 
         try:
             payload = verify_jwt(token, settings.SECRET_KEY)
-            user = User.objects.get(username=payload['username'])
-            if not user or 'admin' not in user.groups:
+            user = User.objects.get(username=payload.get('username'))
+            admin_group = Group.objects.filter(name='admin').first()
+            print('admin_group: ', admin_group)
+            if admin_group not in user.groups.all():
+                print('没有权限删除用户数据')
                 return JsonResponse({'message': '没有权限删除用户数据', 'code': 400})
+            print('具有权限删除用户数据')
             datafile = models.SavedDatasetsFromUser.objects.filter(id=file_id).first()
 
             if datafile:
-                file_path = datafile.file_path
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-                datafile.delete()
+                try:
+
+                    file_path = datafile.file_path
+                    print('file_path: ', file_path)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                    datafile.delete()
+                except Exception as e:
+                    print(str(e))
                 return JsonResponse({'message': '删除用户数据成功', 'code': 200})
             else:
                 return JsonResponse({'message': '找不到对应文件', 'code': 404})

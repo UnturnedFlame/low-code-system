@@ -53,7 +53,6 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import axios from "axios";
 import type { Rule } from 'ant-design-vue/es/form';
-import type { FormInstance } from 'ant-design-vue';
 
 // const checkCodeUrl = "api/checkCode?" + new Date().getTime();
 //表单

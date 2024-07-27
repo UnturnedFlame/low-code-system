@@ -41,25 +41,7 @@ const fetchTableData = async () => {
     // 这里可以添加更多的错误处理逻辑，如用户提示等
   }
 };
-// const fetchTableData = async () => {
-//   try {
-//     api.request({
-//       method: 'get',
-//       url: "http://127.0.0.1:8000/administration/fetch_users_datafiles/",
-//     })
-//     .then(response => {
-//       tableData.value.length = 0
-//       response.data.forEach(element => {
-//         tableData.value.push(element)
-//       });
-//     })
-//     .catch(error => {
-//       console.log(error);
-//     });
-//   } catch (error) {
-//     // 错误处理，例如显示一个错误消息
-//     console.error('Failed to fetch table data:', error);
-//   }
+
 // 组件挂载后获取数据
 onMounted(() => {
   fetchTableData();
@@ -71,7 +53,7 @@ const handleDelete = async (index, row) => {
     return;
   }
   try {
-    api.get('http://127.0.0.1:8000/administration/delete_datafiles?datafile_id=' + row.id)
+    api.get('administration/delete_user_datafile/?datafile_id=' + row.id)
     .then(response=>{
       if(response.data.code == 200){
         ElMessage({

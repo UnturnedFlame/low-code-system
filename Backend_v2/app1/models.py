@@ -72,7 +72,7 @@ class SavedModelFromUser(models.Model):
 class SavedDatasetsFromUser(models.Model):
     owner = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="数据所有者")
     dataset_name = models.CharField(verbose_name="数据文件名", max_length=32, null=False, blank=False, default='')
-    file_path = models.FileField(verbose_name="文件存放路径", max_length=255, null=False, blank=False, default='')
+    file_path = models.CharField(verbose_name="文件存放路径", max_length=255, null=False, blank=False, default='')
     description = models.TextField(verbose_name="文件描述", null=False, blank=False, default='无')
 
     # 联合去重
