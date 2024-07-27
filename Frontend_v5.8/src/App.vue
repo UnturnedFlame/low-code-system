@@ -1,14 +1,18 @@
 <template>
-  <div>
+  
     <router-view></router-view>
-  </div>
+  
 
 </template>
 
 <script setup>
+import userPlatform from './components/userPlatform.vue';
+
+
 
 </script>
 
-<style scoped>
+<style>
 
 </style>
+

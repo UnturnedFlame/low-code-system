@@ -35,6 +35,8 @@ CORS_ALLOW_METHODS = (
 data_file_root_dir = './app1/recv_file/examples'
 
 User = get_user_model()
+
+
 # def homepage(request):
 #     if request.method == "GET":
 #         return render(request, "homepage.html")
@@ -92,10 +94,10 @@ def run_with_local_datafile(request):
                         f.write(chunk)
 
                 # 保存文件路径到数据库
-                # if not models.SavedModelFromUser.objects.filter(owner=user, dataset_name=datafile.name).exists():
-                #     saved_data = models.SavedDatasetsFromUser.objects.create(owner=user, dataset_name=datafile.name,
-                #                                                              file_path=save_path)
-                #     saved_data.save()
+                if not models.SavedModelFromUser.objects.filter(owner=user, dataset_name=datafile.name).exists():
+                    saved_data = models.SavedDatasetsFromUser.objects.create(owner=user, dataset_name=datafile.name,
+                                                                             file_path=save_path)
+                    saved_data.save()
 
                 params = json.loads(request.POST.get('params'))
                 print(params)
@@ -120,7 +122,7 @@ def run_with_local_datafile(request):
                 # speech_processing_results = processing(module_list, algorithm_dict, params_dict)
                 # 构建用于结果展示的页面
 
-                return JsonResponse({'status': 'success', 'results': results})
+                return JsonResponse({'status': 'success', 'results': results, 'code': 200})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=401)
     if request.method == 'GET':
@@ -192,7 +194,6 @@ def user_save_model(request):
             user = User.objects.get(username=username)
 
             if not models.SavedModelFromUser.objects.filter(model_name=model_name, author=user).exists():
-
                 models.SavedModelFromUser.objects.create(author=user, model_name=model_name, model_info=params_json)
 
                 return JsonResponse({'message': 'save model success', 'code': 200})
@@ -227,7 +228,7 @@ def user_fetch_models(request):
             return JsonResponse({'message': str(e)}, status=401)
 
 
-def admin_fetch_models(request):
+def admin_fetch_users_models(request):
     if request.method == 'GET':
         all_user_models = models.SavedModelFromUser.objects.all()
 
@@ -236,6 +237,7 @@ def admin_fetch_models(request):
                 'id': model.id,
                 'model_name': model.model_name,
                 'model_info': model.model_info,
+                'author': model.author.username,
                 'jobNumber': model.author.jobNumber
             } for model in all_user_models
         ]
@@ -245,8 +247,22 @@ def admin_fetch_models(request):
 
 def admin_fetch_user_info(request):
     if request.method == 'GET':
-        all_users = User.objects.all().values()
-        return JsonResponse(list(all_users), safe=False)
+        token = extract_jwt_from_request(request)
+        try:
+            payload = verify_jwt(token, settings.SECRET_KEY)
+            username = payload.get('username')
+            user = User.objects.get(username=username)
+            print('groups:', user.groups.all())
+            admin_group = Group.objects.filter(name='admin').first()
+            if admin_group in user.groups.all():
+                print('访问到用户信息')
+                all_users = User.objects.all().values()
+                return JsonResponse(list(all_users), safe=False)
+            else:
+                print('没有访问权限')
+                return JsonResponse({'message': '没有访问权限', 'code': 400})
+        except Exception as e:
+            return JsonResponse({'error': str(e), 'code': 401})
 
 
 # 删除模型操作
@@ -286,6 +302,48 @@ def admin_delete_model(request):
             return JsonResponse({'message': str(e)}, status=400)
 
 
+# 管理员获取用户数据文件
+def admin_fetch_users_datafiles(request):
+    if request.method == 'GET':
+        all_data_files = models.SavedDatasetsFromUser.objects.all()
+
+        posts = [
+            {
+                'id': file_info.id,
+                'owner': file_info.owner.username,
+                'dataset_name': file_info.dataset_name,
+                'description': file_info.description
+            } for file_info in all_data_files
+        ]
+
+        return JsonResponse(posts, safe=False)
+
+
+# 管理员删除用户数据文件
+def admin_delete_users_files(request):
+    if request.method == 'GET':
+        file_id = request.GET.get('datafile_id')
+        token = extract_jwt_from_request(request)
+
+        try:
+            payload = verify_jwt(token, settings.SECRET_KEY)
+            user = User.objects.get(username=payload['username'])
+            if not user or 'admin' not in user.groups:
+                return JsonResponse({'message': '没有权限删除用户数据', 'code': 400})
+            datafile = models.SavedDatasetsFromUser.objects.filter(id=file_id).first()
+
+            if datafile:
+                file_path = datafile.file_path
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                datafile.delete()
+                return JsonResponse({'message': '删除用户数据成功', 'code': 200})
+            else:
+                return JsonResponse({'message': '找不到对应文件', 'code': 404})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+
 # 用户删除模型
 def user_delete_model(request):
     if request.method == 'GET':
@@ -323,11 +381,13 @@ def upload_datafile(request):
                     # 分块写入文件
                     for chunk in datafile.chunks():
                         f.write(chunk)
-                if not models.SavedDatasetsFromUser.objects.filter(owner=username,
-                                                                   dataset_name=datafile.name).exists():
-                    user = User.objects.get(username=username)
+                user = User.objects.get(username=username)
+                if not models.SavedDatasetsFromUser.objects.filter(owner=user,
+                                                                   dataset_name=filename).exists():
+
                     saved_data = models.SavedDatasetsFromUser.objects.create(owner=user,
-                                                                             dataset_name=datafile.name,
+                                                                             dataset_name=filename,
+                                                                             description=description,
                                                                              file_path=save_path)
                     saved_data.save()
                     return JsonResponse({'message': 'save data success', 'code': 200})
@@ -339,62 +399,65 @@ def upload_datafile(request):
             return JsonResponse({'message': '用户签名过期'})
 
 
-def your_view_function(request):
-    if request.method == 'POST':
-        try:
-            datafile = request.FILES.get('file', None)
-            filename = request.POST.get('filename')
-            description = request.POST.get('description')
-
-            # 打印接收到的数据
-            print("datafile: ", datafile)
-            print("filename: ", filename)
-            print("description: ", description)
-
-            token = extract_jwt_from_request(request)
-            payload = verify_jwt(token, settings.SECRET_KEY)
-            username = payload.get('username')
-
-            if datafile is not None:
-                user_save_dir = f"./app1/recv_file/examples/{username}"
-                if not os.path.exists(user_save_dir):
-                    os.makedirs(user_save_dir)
-
-                    # 检查目录权限（可选）
-                if not os.access(user_save_dir, os.W_OK):
-                    raise PermissionError(f"无法写入目录 {user_save_dir}")
-
-                save_path = os.path.join(user_save_dir, datafile.name)
-
-                try:
-                    with open(save_path, 'wb+') as f:
-                        # 分块写入文件
-                        for chunk in datafile.chunks():
-                            f.write(chunk)
-                except Exception as e:
-                    # 捕获并打印文件写入时的任何异常
-                    print(f"写入文件时发生错误: {e}")
-                    raise  # 可选：重新抛出异常以便上层处理
-
-        except Exception as e:
-            # 捕获并打印处理文件时的任何异常
-            print(f"处理文件时发生错误: {e}")
+# def your_view_function(request):
+#     if request.method == 'POST':
+#         try:
+#             datafile = request.FILES.get('file', None)
+#             filename = request.POST.get('filename')
+#             description = request.POST.get('description')
+#
+#             # 打印接收到的数据
+#             print("datafile: ", datafile)
+#             print("filename: ", filename)
+#             print("description: ", description)
+#
+#             token = extract_jwt_from_request(request)
+#             payload = verify_jwt(token, settings.SECRET_KEY)
+#             username = payload.get('username')
+#
+#             if datafile is not None:
+#                 user_save_dir = f"./app1/recv_file/examples/{username}"
+#                 if not os.path.exists(user_save_dir):
+#                     os.makedirs(user_save_dir)
+#
+#                     # 检查目录权限（可选）
+#                 if not os.access(user_save_dir, os.W_OK):
+#                     raise PermissionError(f"无法写入目录 {user_save_dir}")
+#
+#                 save_path = os.path.join(user_save_dir, datafile.name)
+#
+#                 try:
+#                     with open(save_path, 'wb+') as f:
+#                         # 分块写入文件
+#                         for chunk in datafile.chunks():
+#                             f.write(chunk)
+#                 except Exception as e:
+#                     # 捕获并打印文件写入时的任何异常
+#                     print(f"写入文件时发生错误: {e}")
+#                     raise  # 可选：重新抛出异常以便上层处理
+#
+#         except Exception as e:
+#             # 捕获并打印处理文件时的任何异常
+#             print(f"处理文件时发生错误: {e}")
 
 
 # 用户获取上传的文件数据
-def fetch_datafiles(request):
+def user_fetch_datafiles(request):
     if request.method == 'GET':
         token = extract_jwt_from_request(request)
 
         try:
             payload = jwt.decode(token, settings.SECRET_KEY)
             username = payload.get('username')
+            print(f'接收到来自用户{username}的获取数据请求')
             user = User.objects.get(username=username)
             objects = models.SavedDatasetsFromUser.objects.filter(owner=user)
 
             posts = [
                 {
+                    'id': obj.id,
                     'dataset_name': obj.dataset_name,
+                    'description': obj.description,
                     'owner': obj.owner.username,
 
                 } for obj in objects
@@ -454,8 +517,6 @@ def run_with_datafile_on_cloud(request):
             return JsonResponse({'message': 'signature expired', 'code': 401})
 
 
-
-
 # def login_user(request):
 #     if request.method == 'POST':
 #         username = request.GET.get('username')
@@ -479,6 +540,7 @@ def run_with_datafile_on_cloud(request):
 #             return JsonResponse({'message': 'invalid password'})
 
 
+# 用户登录
 def login(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -493,7 +555,7 @@ def login(request):
 
         user = User.objects.filter(username=username).first()
         if not user:
-            return JsonResponse({'message': 'user not exists'})
+            return JsonResponse({'message': 'user not exists', 'code': 400})
         # 获取用户角色
         user_groups = user.groups.all()
         print(user_groups)
@@ -502,7 +564,7 @@ def login(request):
         user_is_in_specific_group = any(group.name == specific_group_name for group in user_groups)
         if not user_is_in_specific_group:
             print('不存在该角色的用户')
-            return JsonResponse({'message': 'user not exists'})
+            return JsonResponse({'message': 'user not exists', 'code': 400})
         print('user.password: ', user.password)
         # 检查登录密码
         if authenticate(request, username=username, password=password):
@@ -668,3 +730,14 @@ def register(request):
         else:
             print('auth error: ', auth)
             return JsonResponse({'code': 400, 'message': auth})
+
+
+# 验证用户是否为管理员
+def is_administrator(username):
+    user = User.objects.get(username=username)
+    admin_group = Group.objects.filter('admin').first()
+
+    if admin_group in user.groups.all():
+        return True
+    else:
+        return False

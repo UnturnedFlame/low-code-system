@@ -8,8 +8,10 @@
         <el-popover placement="bottom-start" title="模型信息" :width="400" trigger="hover" content="这是模型信息">
         </el-popover>
         <el-table-column  property="id" label="序号" />
-        <el-table-column  property="jobNumber" label="工号" />
         <el-table-column  property="model_name" label="模型名称" />
+        <el-table-column  property="author" label="作者" />
+        <el-table-column  property="jobNumber" label="工号" />
+        
         <el-table-column  label="操作">
           <template #default="scope">
 
@@ -66,7 +68,7 @@ onMounted(() => {
   fetch_models();
 });
 const fetch_models = () => {
-  let url = 'http://127.0.0.1:8000/admin_fetch_models/'
+  let url = 'http://127.0.0.1:8000/administration/fetch_users_models/'
   api.request({
     method: 'GET',
     url: url
@@ -112,7 +114,7 @@ const show_model_info = (row) => {
 const delete_model_confirm = () => {
 
   // 发送删除请求到后端，row 是要删除的数据行
-  let url = 'http://127.0.0.1:8000/admin_delete_model/?row_id=' + row.id
+  let url = 'http://127.0.0.1:8000/administration/delete_user_model/?row_id=' + row.id
   axios.request({
     method: 'GET',
     url: url

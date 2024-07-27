@@ -2,8 +2,6 @@ import axios from 'axios'
 
 
 
-
-//这里的端口是后端程序的运行端口
 const api = axios.create({
     baseURL: 'http://127.0.0.1:8000/',
 });

@@ -150,8 +150,8 @@
 
             <!-- <el-button type="primary" style="font-size: 18px; width: 180px;" @click="drawer = true">打开功能区</el-button> -->
 
-            <DraggableContainer>
-              <Vue3DraggableResizable :draggable="true" :resizable="false" v-for="(item, index) in nodeList" :initH="90" :initW="123"
+            <DraggableContainer :reference-line-visible="false">
+              <Vue3DraggableResizable :draggable="true" :resizable="false" v-for="(item, index) in nodeList" 
                 :key="item.nodeId" class="node-info" :id="item.id" :style="item.nodeContainerStyle"
                 :ref="el => nodeRef[index] = el" @click="resultShow(item)">
                 <el-popover placement="bottom" title="参数配置" :width="400" trigger="contextmenu">
@@ -581,7 +581,6 @@
               <el-dialog v-model="delete_model_confirm_visible" title="提示" width="500">
                 <span style="font-size: 20px;">确定删除该模型吗？</span>
                 <template #footer>
-<<<<<<< HEAD
                   <el-button
                     style="width: 150px"
                     @click="delete_model_confirm_visible = false"
@@ -648,11 +647,6 @@
                     @click="delete_dataset_confirm"
                     >确定</el-button
                   >
-=======
-                  <el-button style=" width: 150px;" @click="delete_model_confirm_visible = false">取消</el-button>
-                  <el-button style="width: 150px; margin-right: 70px;" type="primary"
-                    @click="delete_model_confirm">确定</el-button>
->>>>>>> parent of c1f8aae (用户平台建模功能改动)
                 </template>
               </el-dialog>
 
@@ -1904,7 +1898,7 @@ const run = () => {
   processing.value = true
 
   // console.log("",data)
-  api.post('http://127.0.0.1:8000/homepage/', data,
+  api.post('user/run_with_local_datafile/', data,
     {
       headers: { "Content-Type": 'multipart/form-data' }
     }
@@ -2059,7 +2053,7 @@ const handleDragend = (ev, algorithm, node) => {
   // 拖拽进来相对于地址栏偏移量
   const evClientX = ev.clientX
   const evClientY = ev.clientY
-  let left = evClientX - 280 + 'px'
+  let left = evClientX - 300 + 'px'
   let top = 50 + 'px'
   const nodeId = node.id
   const nodeInfo = {
@@ -2154,7 +2148,7 @@ const handleMouseup = (ev, data) => { // 在图表中拖拽节点时，设置他
 
         // node.value.nodeContainerStyle.left = ev.clientX + 'px'
         // node.value.nodeContainerStyle.top = ev.clientY + 'px'
-        nodeList.value[i].nodeContainerStyle.left = ev.clientX - 270 + 'px'
+        nodeList.value[i].nodeContainerStyle.left = ev.clientX - 300 + 'px'
         nodeList.value[i].nodeContainerStyle.top = ev.clientY - 100 + 'px'
       }
     }
@@ -2822,7 +2816,7 @@ const show_model_info = (row) => {
   let node_list = objects.nodeList         // 模型节点信息   
   let connection = objects.connection     // 模型连接顺序
 
-  model_name.value = row.name
+  model_name.value = row.model_name
   model_algorithms.value = connection
   model_params.value.length = 0
   node_list.forEach(element => {
@@ -3009,7 +3003,7 @@ api.interceptors.request.use(function (config) {
 })
 
 
-const fetchedDataFiles = ref<any[]>([])
+const fetchedDataFiles = ref<Object[]>([])
 
 
 // 用户选择历史数据
@@ -3061,7 +3055,7 @@ const handleSwitchDrawer = (fetchData: any[]) => {
 
   models_drawer.value = false;
 
-  fetchedDataFiles.value.length = 0
+  fetchedDataFiles.value = []
   // fetchData.forEach(element => {
   //   fetchedDataFiles.value.push(element)
   // });

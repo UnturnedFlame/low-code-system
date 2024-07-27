@@ -71,7 +71,7 @@ const handleDelete = async (index, row) => {
     return;
   }
   try {
-    api.get('administration/delete_datafiles?datafile_id=' + row.id)
+    api.get('http://127.0.0.1:8000/administration/delete_datafiles?datafile_id=' + row.id)
     .then(response=>{
       if(response.data.code == 200){
         ElMessage({
