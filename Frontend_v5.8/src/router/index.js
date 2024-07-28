@@ -45,6 +45,11 @@ const routes = [
         name: 'test',
         component: () =>import("../components/uploadDatafile.vue")
     },
+    {
+        path: '/resetPassword',
+        name: 'resetPassword',
+        component: () =>import("../components/resetPassword.vue")
+    }
 
 ];
 

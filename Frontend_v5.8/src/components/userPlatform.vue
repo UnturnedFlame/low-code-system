@@ -56,90 +56,9 @@
           <div style="font-size: 20px; font-weight: 700; background-color: #80a5ba; width: 250px; color: #f9fbfa;">
             加载数据
           </div>
-          <!-- <el-radio-group v-model="loadingDataModel" class="ml-4">
-            <el-radio label="local" size="larger">本地文件</el-radio>
-            <el-radio label="remote" size="larger">服务器文件</el-radio>
-          </el-radio-group>
-          <span style="position: relative;"> -->
-            <!-- <el-upload action="" :auto-upload="false" v-model:file-list="file_list" :before-upload="checkFileType"
-              limit="1" style="position: absolute; right: -35px; top: 20px;" :show-file-list="false" >
-              <el-button type="primary" style=" width: 125px; font-size: 17px; border-radius: 7px 2px 2px 7px;"
-                icon="FolderAdd" :disabled="loadingDataModel == 'remote'">
-                本地文件
-              </el-button>
-              
-
-            </el-upload>
-            
-            
-            <template v-if="file_list.length > 0">
-              <div class="custom-file-list"
-                style="display: flex; justify-content: space-between; align-items: center;">
-                <p v-for="file in file_list" :key="file.uid"
-                  style="width: 180px; text-overflow: ellipsis; /* 当文本超出时显示省略号 */overflow: hidden; /* 隐藏超出部分的文本 */">
-                  {{ file.name }}
-                </p>
-                
-                <el-button v-for="file in file_list" style="position: relative; float: right; width: 5px;" icon="close"
-                  @click="handleDelete(file)">
-                </el-button>
-              </div>
-            </template> -->
-            <!-- <a-upload
-              v-model:file-list="file_list"
-              list-type="picture"
-              :max-count="1"
-              :before-upload="beforeUpload" 
-              @remove="handleRemove"
-            >
-              <a-button>
-                <upload-outlined></upload-outlined>
-                本地文件
-              </a-button>
-            </a-upload> -->
-            <!-- <el-upload
-              :ref="upload"
-              class="upload-demo"
-              action=""
-              :limit="1"
-              :on-exceed="handleExceed"
-              :auto-upload="false"
-            >
-              <template #trigger>
-                <el-button type="primary">select file</el-button>
-              </template>
-              <el-button class="ml-3" type="success" @click="submitUpload">
-                upload to server
-              </el-button>
-              <template #tip>
-                <div class="el-upload__tip text-red">
-                  limit 1 file, new file will cover the old file
-                </div>
-              </template>
-            </el-upload> -->
-            <!-- <el-button type="success"
-              style="width: 55px; font-size: 17px; position: absolute; right: -90px; top: 20px; border-radius: 2px 7px 7px 2px;" 
-              @click="upload_data_to_server" :disabled="file_list.length == 0 || loadingDataModel == 'remote'">上传</el-button> -->
-
-
-          <!-- </span> -->
-          <!-- <span style="position: relative;" v-if="loadingDataModel == 'remote'">
-            <el-button type="primary" style="width: 175px; font-size: 17px; position: absolute; right: -85px; top: 20px;"
-              @click="fetch_data" :disabled="loadingDataModel == 'local'">用户历史数据</el-button>
-            
-          </span> -->
-          <!-- <span style="position: relative; ">
-            <el-button type="primary" style="width: 175px; font-size: 17px; position: absolute; right: -85px; top: 80px;"
-              @click="fetch_data" :disabled="loadingDataModel == 'local'">用户历史数据</el-button>
-            
-          </span> -->
-
-          <!-- <el-button-group style="position: absolute; bottom: 90px;  width: 125px;">
-            <el-button type="info" style="width: 125px; font-size: 17px;" @click="">上传</el-button>
-            <el-button type="info" style="width: 125px; font-size: 17px;">已保存数据</el-button>
-
-          </el-button-group> -->
+          
           <uploadDatafile @switchDrawer="handleSwitchDrawer" :api="api"/>
+          <div>已加载数据：{{ using_datafile }}</div>
         </el-aside>
 
         <el-main @dragover.prevent ref="efContainerRef" id="efContainer "
@@ -614,6 +533,7 @@
                       type="primary"
                       style="width: 50px"
                       @click="use_dataset(scope.row)"
+                      :loading="loading_data"
                     >
                       使用
                     </el-button>
@@ -1834,34 +1754,40 @@ const username = ref('')
 //上传文件，点击开始
 const run = () => {
 
-  // console.log("文件列表:", Object.keys(content_json.algorithms).length)
-  // console.log("json:", content_json)
   // 发送文件到后端
-  if (!file_list.value.length) {
-    ElNotification({
-      title: 'WARNING',
-      message: '数据文件不能为空,请先上传数据',
-      type: 'warning',
+  // if (!file_list.value.length) {
+  //   ElNotification({
+  //     title: 'WARNING',
+  //     message: '数据文件不能为空,请先上传数据',
+  //     type: 'warning',
+  //   })
+  //   return
+  // } else {
+  //   const filename = file_list.value[0].name
+  //   const filetype = filename.substring(filename.lastIndexOf('.'))
+  //   if (filetype != '.xlsx' && filetype != '.npy' && filetype != '.wav' && filetype != '.audio' && filetype != '.csv' && filetype != '.mat') {
+  //     ElNotification({
+  //       title: 'WARNING',
+  //       message: '文件类型只能为xlsx、npy、wav、audio、csv、mat',
+  //       type: 'warning',
+  //     })
+  //     return
+  //   }
+  // }
+
+
+  // let datafile = file_list.value[0].raw
+  if (!using_datafile.value){
+    ElMessage({
+      message: '请先加载数据',
+      type: 'warning'
     })
     return
-  } else {
-    const filename = file_list.value[0].name
-    const filetype = filename.substring(filename.lastIndexOf('.'))
-    if (filetype != '.xlsx' && filetype != '.npy' && filetype != '.wav' && filetype != '.audio' && filetype != '.csv' && filetype != '.mat') {
-      ElNotification({
-        title: 'WARNING',
-        message: '文件类型只能为xlsx、npy、wav、audio、csv、mat',
-        type: 'warning',
-      })
-      return
-    }
   }
 
-
-  let datafile = file_list.value[0].raw
-
   const data = new FormData()
-  data.append("file", datafile)
+  console.log('datafile: ', using_datafile.value)
+  data.append("file_name", using_datafile.value)
   data.append('params', JSON.stringify(content_json))
   ElNotification.info({
     title: 'SUCCESS',
@@ -1898,7 +1824,7 @@ const run = () => {
   processing.value = true
 
   // console.log("",data)
-  api.post('user/run_with_local_datafile/', data,
+  api.post('user/run_with_datafile_on_cloud/', data,
     {
       headers: { "Content-Type": 'multipart/form-data' }
     }
@@ -3005,14 +2931,8 @@ api.interceptors.request.use(function (config) {
 
 const fetchedDataFiles = ref<Object[]>([])
 
-
-let loaded_datafile = ''
-
-// 用户选择历史数据
-const use_dataset = () => {
-  
-}
-
+// 用户目前选择的数据文件
+const using_datafile = ref('')
 
 const delete_dataset_confirm_visible = ref(false)
 let row_dataset: any = null
@@ -3051,6 +2971,22 @@ const delete_dataset_confirm = () => {
         type: 'error'
       })
     })
+}
+
+
+const loading_data = ref(false)
+// 用户选择历史数据
+const use_dataset = (row_in: any) => {
+  loading_data.value = true
+  setTimeout(() => {
+    loading_data.value = false
+    using_datafile.value = row_in.dataset_name
+    ElMessage({
+      message: '数据加载成功',
+      type: 'success'
+    })
+}, 1000)
+  
 }
 
 const handleSwitchDrawer = (fetchData: any[]) => {

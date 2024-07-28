@@ -13,9 +13,7 @@
           <a-form-item label='账号' name="username">
             <a-input placeholder="请输入账号" v-model:value="formState.username" size="large" type="text">
               <template #prefix>
-                <a-icon>
-                  <User />
-                </a-icon>
+                <user-outlined />
               </template>
             </a-input>
           </a-form-item>
@@ -23,9 +21,7 @@
             <a-input placeholder="请输入密码" v-model:value="formState.password" size="large" type="password"
               @keyup.enter.native="login()">
               <template #prefix>
-                <el-icon>
-                  <Lock />
-                </el-icon>
+                <lock-outlined />
               </template>
             </a-input>
           </a-form-item>
@@ -34,12 +30,21 @@
               v-model:value="formState.role" size="large"  placeholder="请选择角色">
               <a-select-option value="user">用户</a-select-option>
               <a-select-option value="admin">管理员</a-select-option>
+              
             </a-select>
+            
           </a-form-item>
           <a-form-item label="">
             <a-button type="primary"  html-type="submit" style="width: 100%;" @click="login()" size="large">登录</a-button>
           </a-form-item>
         </a-form>
+        <div style="position:absolute;  right:5px;bottom: 0px;">
+          <el-button @click="goToResetPassword"
+                     class="button">
+          忘记密码?
+        </el-button>
+        </div>
+
 
       </div>
     </div>
@@ -53,6 +58,7 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import axios from "axios";
 import type { Rule } from 'ant-design-vue/es/form';
+import { UserOutlined, LockOutlined, ClusterOutlined } from '@ant-design/icons-vue';
 
 // const checkCodeUrl = "api/checkCode?" + new Date().getTime();
 //表单
@@ -73,6 +79,10 @@ const formState = reactive({
 // const rules: Record<string, Rule[]> = {
 //   password: [{ required: true, validator: validatePass, trigger: 'change' }],
 // };
+
+const goToResetPassword =() =>{
+  router.push("/resetPassword")
+}
 
 const rules: Record<string, Rule[]> = {
   username: [
@@ -228,6 +238,14 @@ const login = () => {
       font-size: 22px;
       text-align: center;
       margin-bottom: 22px;
+    }
+
+    .button {
+      border: none;
+      background-color: transparent;
+      padding: 0;
+      margin: 0;
+      float: right;
     }
   }
 
