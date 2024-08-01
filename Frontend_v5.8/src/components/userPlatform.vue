@@ -64,7 +64,7 @@
         <el-main @dragover.prevent ref="efContainerRef" id="efContainer "
           style="height: auto; width: 600px; padding: 0px;">
           <div
-            style=" position: relative; height: 25%; font-size: 20px; color: #003e50; font-weight: 500; font-family:Arial, Helvetica, sans-serif;  background-position: center;">
+            style=" position: relative; height: 32%; font-size: 20px; color: #003e50; font-weight: 500; font-family:Arial, Helvetica, sans-serif;  background-position: center;">
             <div id="statusIndicator" class="status-indicator">未建立模型</div>
 
             <!-- <el-button type="primary" style="font-size: 18px; width: 180px;" @click="drawer = true">打开功能区</el-button> -->
@@ -78,13 +78,21 @@
                   <el-row v-if="item.use_algorithm != null && item.id != '1.2'"
                     v-for="(value, key) in item.parameters[item.use_algorithm]"
                     :key="item.parameters[item.use_algorithm].keys">
-                    <el-col :span="8"><span>{{ labels_for_params[key] }}</span></el-col>
-                    <el-col :span="16"><el-input style="width:190px" :disabled="false"
+                    <el-col :span="8" style="align-content: center;"><span style="margin-left: 10px; font-size: 15px;">{{ labels_for_params[key] }}：</span></el-col>
+                    <el-col :span="16"><el-input style="width:190px" :disabled="false" type="number"
                         v-model="item.parameters[item.use_algorithm][key]" /></el-col>
+                    <!-- <el-input style="width:190px" :disabled="false"
+                    v-model="item.parameters[item.use_algorithm][key]">
+                        <template #prefix>
+                          <div>
+                            {{ labels_for_params[key] }}
+                          </div>
+                        </template>
+                    </el-input> -->
                   </el-row>
                   <!-- 特征提取选择要显示的特征 -->
                   <el-row v-if="item.id == '1.2'">
-                    <el-col :span="8"><el-text style="width: auto; font-size: 18px;">选择特征</el-text></el-col>
+                    <el-col :span="8" style="align-content: center;"><el-text style="margin-left: 10px; font-size: 15px;">选择特征：</el-text></el-col>
                     <el-col :span="16">
                       <div class="m-4">
                         <el-select v-model="features" multiple collapse-tags collapse-tags-tooltip
@@ -150,12 +158,13 @@
               </div>
             </template> -->
             <div
-              style="position: absolute; right: 17px; bottom: 20px; width: 1000px; height: auto;display: flex; justify-content: space-between; align-items: center;">
+              style="position: absolute; right: 17px; bottom: 10px; width: 1400px; height: auto;display: flex; justify-content: space-between; align-items: center;">
+              <el-button type="info" round style="width: 125px; font-size: 17px; background-color: #606266; "
+                @click="fetch_models" icon="More">
+                历史模型
+              </el-button>
               <el-space size="large">
-                <el-button type="info" round style="width: 125px; font-size: 17px; background-color: #606266;"
-                  @click="fetch_models" icon="More">
-                  历史模型
-                </el-button>
+                
                 <!-- <el-upload action="" :auto-upload="false" v-model:file-list="file_list" :before-upload="checkFileType"
                           limit="1" >
                     <el-button type="info" round style="position: absolute; width: 125px; font-size: 17px; "  icon="FolderAdd">
@@ -325,9 +334,17 @@
                     <el-row v-if="item.use_algorithm != null && item.id != '1.3'"
                       v-for="(value, key) in item.parameters[item.use_algorithm]"
                       :key="item.parameters[item.use_algorithm].keys">
-                      <el-col :span="8"><span>{{ labels_for_params[key] }}</span></el-col>
+                      <!-- <el-col :span="8"><span>{{ labels_for_params[key] }}</span></el-col>
                       <el-col :span="16"><el-input style="width:190px" :disabled="false"
-                          v-model="item.parameters[item.use_algorithm][key]" /></el-col>
+                          v-model="item.parameters[item.use_algorithm][key]" /></el-col> -->
+                          <el-input style="width:190px" :disabled="false"
+                            v-model="item.parameters[item.use_algorithm][key]">
+                            <template #prefix>
+                              <div>
+                                {{ labels_for_params[key] }}
+                              </div>
+                            </template>
+                          </el-input>
                     </el-row>
                   </div>
                 </el-tab-pane>
@@ -341,10 +358,13 @@
             <!-- <span style="width: auto; height: auto;">
               <el-text v-if="showPlainIntroduction" :v-model="introduction" type="success" size="large">{{ introduction }}</el-text>
             </span> -->
-            <v-md-preview v-if="showPlainIntroduction" :text="introduction_to_show"
+            <el-scollbar height="400px">
+              <v-md-preview v-if="showPlainIntroduction" :text="introduction_to_show"
               style="text-align: left;"></v-md-preview>
-            <v-md-preview v-if="showStatusMessage" :text="status_message_to_show"
-              style="text-align: center;"></v-md-preview>
+              <v-md-preview v-if="showStatusMessage" :text="status_message_to_show"
+                style="text-align: center;"></v-md-preview>
+            </el-scollbar>
+            
             <!-- <el-table id="progress" :v-loading="loading" element-loading-text="正在处理" :data="tableData" style="width: 100%; height: 250px ;" v-if="loading">
             </el-table> -->
             <!-- <span  :v-loading="loading" element-loading-text="正在处理" element-loading-background="rgba(122, 122, 122, 0.8)" style="width: 100%; height: 100%;"></span> -->
@@ -374,7 +394,7 @@
               </el-scrollbar>
             </div> -->
 
-            <el-scrollbar height="600px" v-if="result_show">
+            <el-scrollbar height="570px" v-if="result_show">
               <!-- 健康评估可视化 -->
               <el-tabs class="demo-tabs" type="card" v-model="activeName1" v-if="display_health_evaluation">
                 <el-tab-pane label="层级有效指标" name="first">
@@ -425,7 +445,7 @@
 
                 <br>
                 <img :src="fault_diagnosis_figure" alt="fault_diagnosis_figure" class="result_image"
-                  style="width: 900px; height: 580px;" />
+                  style="width: 800px; height: 450px;" />
               </div>
               <!-- 故障趋势预测可视化 -->
               <div v-if="display_fault_regression" style="margin-top: 20px; font-size: 18px;">
@@ -439,7 +459,7 @@
                 </div>
                 <br>
                 <img :src="fault_regression_figure" alt="fault_regression_figure" class="result_image"
-                  style="width: 900px; height: 580px;" />
+                  style="width: 800px; height: 450px;" />
               </div>
               <!-- 插值处理结果可视化 -->
               <div v-if="display_interpolation" style="margin-top: 20px; font-size: 18px;">
@@ -447,6 +467,8 @@
                 <img :src="interpolation_figure" alt="interpolation_figure" class="result_image"
                   style="width: 900px; height: 450px;" />
               </div>
+              <!-- 无量纲化可视化 -->
+              <div v-if="display_normalization" style="margin-top: 20px; font-size: 18px;"></div>
             </el-scrollbar>
 
           </div>
@@ -685,12 +707,12 @@ const menuList2 = ref([{
     },
     {
       label: '特征选择', id: '1.3', use_algorithm: null, parameters: {
-        'feature_imp': {},
-        'mutual_information_importance': {},
-        'correlation_coefficient_importance': {},
-        'feature_imp_multiple': {},
-        'mutual_information_importance_multiple': {},
-        'correlation_coefficient_importance_multiple': {}
+        'feature_imp': {num_features: 10},
+        'mutual_information_importance': {num_features: 10},
+        'correlation_coefficient_importance': {num_features: 10},
+        'feature_imp_multiple': {num_features: 10},
+        'mutual_information_importance_multiple': {num_features: 10},
+        'correlation_coefficient_importance_multiple': {num_features: 10}
       }, tip_show: false, tip: '对提取到的特征进行特征选择'
     },
     {
@@ -761,7 +783,8 @@ const recommended_settings = {
 const labels_for_params = {
   SNR: '信噪比',
   layers: '网络层数',
-  num_workers: '工作线程数'
+  num_workers: '工作线程数',
+  num_features: '选取特征数量',
 }
 
 const labels_for_algorithms = {
@@ -1440,45 +1463,6 @@ const deff = {
 }
 const done = ref(false)
 const dialogmodle = ref(false)
-//刷新
-// const start = () => {
-//   isshow.value = true
-//   const loading = ElLoading.service({
-//     lock: true,
-//     text: 'Loading',
-//     background: 'rgba(0, 0, 0, 0.7)',
-//   })
-//   setTimeout(() => {
-//     loading.close()
-//   }, 6000)
-
-//   axios.request({
-//     method: 'GET',
-//     url: 'http://127.0.0.1:8000/homepage/',
-//   });
-//   setTimeout(function () {
-//     // 为 iframe 的 src 属性添加一个查询参数，比如当前的时间戳，以强制刷新
-//     var iframe = document.getElementById('my_gradio_app');
-//     var currentSrc = iframe.src;
-//     var newSrc = currentSrc.split('?')[0]; // 移除旧的查询参数
-//     iframe.src = newSrc + '?updated=' + new Date().getTime();
-//   }, 2000);
-
-// }
-
-// 刷新按钮
-// const display_module = { label: '' }
-// const renovate = () => {
-//   if (display_module.label != '')
-//     resultShow(display_module)
-// }
-
-
-//检查文件类型
-const checkFileType = (file) => {
-  console.log(file)
-  console.log(file.name)
-}
 
 let model_check_right = false
 // 检查模型
@@ -1492,7 +1476,91 @@ const check_model = () => {
     module_schedule.push(nodeList.value[0].label)
     algorithm_schedule.push(nodeList.value[0].label_display)
   } else {
-    module_schedule = linkedList.get_all_nodes()
+    // module_schedule = linkedList.get_all_nodes()
+    let all_connections = plumbIns.getConnections();
+    console.log('all_connections: ', all_connections)
+    // 获取连线元素的单向映射
+    let connectionsMap: any = {};  
+    all_connections.forEach(connection => {  
+      const sourceId = connection.sourceId; 
+      const targetId = connection.targetId;  
+    
+      // 如果源元素ID不在connectionsMap中，则初始化为空数组  
+      if (!connectionsMap[sourceId]) {  
+          connectionsMap[sourceId] = [];  
+      }
+      connectionsMap[sourceId].push(targetId);  
+    })
+    // console.log('connectionsMap: ', connectionsMap)
+    
+    // 寻找逻辑上的第一个元素
+    function findStartElement(connectionsMap: any) {  
+      // 创建一个集合来存储所有元素的ID  
+      const allElements = new Set(Object.keys(connectionsMap).concat(...Object.values(connectionsMap).map(list => list)));  
+    
+      // 遍历所有元素，查找没有入度的元素  
+      for (const elementId of allElements) {  
+          let hasIncomingConnection = false;  
+          for (const connections of Object.values(connectionsMap)) {  
+              if (connections.includes(elementId)) {  
+                  hasIncomingConnection = true;  
+                  break;  
+              }  
+          }  
+          if (!hasIncomingConnection) {  
+              return elementId; // 找到没有入度的元素，即起点  
+          }  
+      }  
+    
+      // 如果没有找到没有入度的元素，则可能图不是线性的，或者connectionsMap构建有误  
+      throw new Error("No start element found. The graph may not be linear or the connectionsMap may be incorrect.");  
+    }
+    let startElementId = findStartElement(connectionsMap);
+    
+    // 寻找逻辑上的下一个元素
+    function findNextElementIdInSequence(currentElementId, connectionsMap) {  
+      
+      const connections = connectionsMap[currentElementId];  
+    
+      // 假设序列是线性的 
+      if (connections && connections.length > 0) {  
+          return connections[0]; // 返回序列中的下一个元素ID  
+      }  
+      return null;  
+    }
+    
+    function traverseLinearSequence(startElementId, connectionsMap, visited = new Set(), order = []) {  
+      // 检查是否已访问过当前元素  
+      if (visited.has(startElementId)) {  
+          return;  
+      }  
+    
+      visited.add(startElementId); // 标记为已访问  
+      order.push(startElementId); // 将元素添加到顺序数组中  
+     
+      let nextElementId = findNextElementIdInSequence(startElementId, connectionsMap);  
+    
+      if (nextElementId !== null) {  
+          // 递归遍历下一个元素  
+          traverseLinearSequence(nextElementId, connectionsMap, visited, order);  
+      }  
+    
+      return order;  
+    }
+    let sequenceOrder = traverseLinearSequence(startElementId, connectionsMap);  
+    console.log('sequenceOrder: ', sequenceOrder);
+    nodeList.value.forEach(node => {
+      let id = node.id
+      let label = node.label
+      let algorithm = node.label_display
+      id_to_module[id] = label
+      algorithms.push(algorithm)
+    })
+    
+    sequenceOrder.forEach(id => {
+      module_schedule.push(id_to_module[id])
+    });
+    
 
     for (let i = 0; i < module_schedule.length; i++) {
       let module = module_schedule[i]
@@ -1503,13 +1571,7 @@ const check_model = () => {
       });
     }
   }
-  nodeList.value.forEach(node => {
-    let id = node.id
-    let label = node.label
-    let algorithm = node.label_display
-    id_to_module[id] = label
-    algorithms.push(algorithm)
-  })
+  
 
   let module_str = Object.values(module_schedule).join('')
   let algorithm_str = Object.values(algorithm_schedule).join('')
@@ -1587,8 +1649,7 @@ const check_model = () => {
           let current = linkedList.search('特征提取')
           let next = current.next.value
           let target_id = label_to_id(next)
-          console.log('source_id: ', source_id)
-          console.log('target_id', target_id)
+
           let connection = plumbIns.getConnections({ source: source_id, traget: target_id })
           console.log('connection: ', connection)
 
@@ -1645,8 +1706,7 @@ const check_model = () => {
               let current = linkedList.search('故障诊断')
               let next = current.next.value
               let target_id = label_to_id(next)
-              console.log('source_id: ', source_id)
-              console.log('target_id', target_id)
+              
               let connection = plumbIns.getConnections({ source: source_id, traget: target_id })
               console.log('connection: ', connection)
 
@@ -1849,6 +1909,8 @@ const run = () => {
         percentage.value = 100;
         canShutdown.value = true
         status_message_to_show.value = status_message.success
+        results_view_clear()
+
         showStatusMessage.value = true
         showPlainIntroduction.value = false
       } else {
@@ -2339,20 +2401,20 @@ const feature_extraction_display = (results_object) => {
   for (const sensor in features_group_by_sensor) {
     let features_of_sensor = features_group_by_sensor[sensor].slice()
     features_of_sensor.unshift(sensor)
-    console.log('features_of_sensor: ', features_of_sensor)
+    // console.log('features_of_sensor: ', features_of_sensor)
     datas.push(features_of_sensor)
     // features_of_sensor.splice(0, 1)
   }
-  console.log('features_name: ', features_name)
-  console.log('datas: ', datas)
-  let i = { prop: '', label: '', width: '' }
+  // console.log('features_name: ', features_name)
+  // console.log('datas: ', datas)
+  // let i = { prop: '', label: '', width: '' }
   columns.value.length = 0
   features_name.forEach(element => {
-    console.log('element: ', element)
+    // console.log('element: ', element)
     columns.value.push({ prop: element, label: element, width: 180 })
   });
 
-  console.log('columns: ', columns)
+  // console.log('columns: ', columns)
   // 转换数据为对象数组  
   transformedData.value = datas.map((row, index) => {
     const obj = {};
@@ -2361,16 +2423,11 @@ const feature_extraction_display = (results_object) => {
     });
     return obj;
   });
-  console.log('transformedData: ', transformedData)
-  // console.log('table_datas: ', datas)
-  // console.log('table_columns: ', features_name)
-  // features_name.splice(0, 1)
-
-  // 构造el-table数据对象
+ 
 }
 
 
-// 特征提取结果可视化
+// 特征选择结果可视化
 const display_feature_selection = ref(false)
 const feature_selection_figure = ref('')
 const features_selected = ref('')
@@ -2441,6 +2498,17 @@ const interpolation_display = (results_object) => {
   interpolation_figure.value = 'data:image/png;base64,' + figure1
 }
 
+// 无量纲化可视化
+const display_normalization = ref(false)
+
+const normalization_display = (results_object: any) => {
+  display_normalization.value = true
+
+  let raw_data = results_object.raw_data
+  let scaled_data = results_object.scaled_data
+
+}
+
 
 // 清除可视化区域
 const results_view_clear = () => {
@@ -2476,7 +2544,7 @@ const resultShow = (item) => {
 
     if (missionComplete.value) {
       if (item.label != '层次分析模糊综合评估' && item.label != '特征提取' && item.label != '特征选择' && item.label != '故障诊断'
-        && item.label != '趋势预测' && item.label != '特征提取'
+        && item.label != '趋势预测' && item.label != '特征提取' && item.label != '插值处理' && item.label != '无量纲化'
       ) {
         showPlainIntroduction.value = false
         showStatusMessage.value = false
@@ -2523,6 +2591,9 @@ const resultShow = (item) => {
         } else if (item.label == '插值处理') {
           let results_to_show = response_results.插值处理
           interpolation_display(results_to_show)
+        } else if (item.label == '无量纲化') {
+          let results_to_show = response_results.无量纲化
+          normalization_display(results_to_show)
         }
         else {
           ElMessage({

@@ -58,7 +58,7 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import axios from "axios";
 import type { Rule } from 'ant-design-vue/es/form';
-import { UserOutlined, LockOutlined, ClusterOutlined } from '@ant-design/icons-vue';
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 
 // const checkCodeUrl = "api/checkCode?" + new Date().getTime();
 //表单

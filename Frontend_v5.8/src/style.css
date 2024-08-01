@@ -36,7 +36,7 @@
 
 
 .test {
-  height: 75%;
+  height: 68%;
   background-color: white;
   position: relative;
   background-image: url('assets/结果可视化.png');
@@ -82,9 +82,6 @@
   /* 使用 !important 确保覆盖其他样式 */
 }
 
-.test {
-  background-color: #657e9f;
-}
 
 /* 自定义文件列表样式 */
 .custom-file-list {

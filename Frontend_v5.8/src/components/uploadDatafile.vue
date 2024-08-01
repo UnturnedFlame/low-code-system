@@ -68,6 +68,8 @@ import { UploadOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import type { UploadProps } from "ant-design-vue";
 import { Rule } from "ant-design-vue/es/form";
+import { stringType } from "ant-design-vue/es/_util/type";
+import { ElMessage } from "element-plus";
 
 
 const confirmLoading = ref<boolean>(false);
@@ -154,7 +156,16 @@ const beforeUpload: UploadProps["beforeUpload"] = (file) => {
 };
 
 const handleUpload = () => {
-
+  let file = fileList.value[0]
+  let filename = file.name
+  const ext = filename.split('.').pop().toLowerCase();  
+  if (ext != 'mat' && ext != 'npy') {
+    ElMessage({
+      message: '文件格式错误，请上传mat或npy文件',
+      type: 'error',
+    })
+    return  
+  }
   uploadConfirmDialog.value = true
 
 };

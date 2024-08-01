@@ -74,10 +74,24 @@ class Reactor:
                                     ['音频分离', '声纹识别', '说话人注册', '添加噪声', '插值处理', '特征提取',
                                      '层次分析模糊综合评估', '小波变换', '特征选择', '故障诊断', '趋势预测',
                                      '无量纲化']}
-        self.data_stream = {'filepath': '', 'raw_data': None, 'extracted_features': None, 'filename': '', 'user_dir': None}
+        self.data_stream = {'filepath': None, 'raw_data': None, 'extracted_features': None,
+                            'filename': None, 'user_dir': None, 'features_name': None, 'diagnosis_result': None}
         self.gradio_app = None
         self.schedule = None
         self.lightning_model = None
+
+    # 构造数据流
+    def construct_data_stream(self, filepath=None, raw_data=None, extracted_features=None,
+                              filename=None, user_dir=None, features_name=None, diagnosis_result=None):
+        lst = [filepath, raw_data, extracted_features, filename, user_dir, features_name, diagnosis_result]
+        index = 0
+        for k in self.data_stream.keys():
+            if lst[index] is not None:
+                self.data_stream[k] = lst[index]
+            index = index + 1
+            if index > len(lst) - 1:
+                break
+        add_user_dir(self.data_stream)
 
     def init(self, schedule, algorithm_dict, params_dict):
         """
@@ -103,14 +117,18 @@ class Reactor:
         # self.lightning_model = load_model_with_pytorch_lightning()
 
     # 无量纲化
-    def scaler(self, data_with_selected_features):
-        data = data_with_selected_features.get('data')
+    def scaler(self, data_with_selected_features, multiple_sensor=False):
+        data: pd.DataFrame = data_with_selected_features.get('extracted_features')
 
         use_algorithm = self.module_configuration['无量纲化']['algorithm']
-        scaled_data = scaler(data, option=use_algorithm)
+        scaled_data: pd.DataFrame = scaler(data, option=use_algorithm, multiple_sensor=multiple_sensor)
 
         self.module_configuration['无量纲化']['result']['raw_data'] = data
         self.module_configuration['无量纲化']['result']['scaled_data'] = scaled_data
+
+        self.results_to_response['无量纲化']['raw_data'] = [list(row) for index, row in data.iterrows()]
+        self.results_to_response['无量纲化']['scaled_data'] = [list(row) for index, row in scaled_data.iterrows()]
+        self.results_to_response['无量纲化']['features_name'] = data_with_selected_features.get('feature_name')
 
         return data_with_selected_features
 
@@ -181,7 +199,7 @@ class Reactor:
 
         self.module_configuration['插值处理']['result']['result_data'] = result
         self.module_configuration['插值处理']['result']['result_figure'] = result_figure
-        self.results_to_response['插值处理']['figure_Base64'] = encode_image_to_base64(result_figure)
+        self.results_to_response['插值处理']['figure_Base64'] = result_figure
 
         return result
 
@@ -225,12 +243,14 @@ class Reactor:
             features_extracted, filename = load_data(features_save_path)
         self.module_configuration['特征提取']['result'] = features_extracted
         self.results_to_response['特征提取']['features_with_name'] = features_with_name
-        self.data_stream['filename'] = filename
-        self.data_stream['filepath'] = datafile
-        self.data_stream['extracted_features'] = features_extracted
-        self.data_stream['raw_data'] = data
-        self.data_stream['features'] = features
-        add_user_dir(self.data_stream)
+        # self.data_stream['filename'] = filename
+        # self.data_stream['filepath'] = datafile
+        # self.data_stream['extracted_features'] = features_extracted
+        # self.data_stream['raw_data'] = data
+        # self.data_stream['features_name'] = features
+        # add_user_dir(self.data_stream)
+        self.construct_data_stream(filepath=datafile, raw_data=data, extracted_features=features_extracted,
+                                   filename=filename, features_name=features)
 
         # return {'data': features_extracted, 'features': features, 'filename': filename, 'filepath': datafile}
         return self.data_stream
@@ -241,10 +261,10 @@ class Reactor:
         层次分析模糊综合评估法
         :return:
         """
-        example = data_with_selected_features.get('data')
+        example = data_with_selected_features.get('extracted_features')
         data_path = data_with_selected_features.get('filepath')
 
-        raw_data, _ = load_data(data_path)
+        raw_data = data_with_selected_features.get('raw_data')
 
         filename = data_with_selected_features.get('filename')
         model_path = 'app1/module_management/algorithms/models/health_evaluation/model_1.pkl'
@@ -268,23 +288,19 @@ class Reactor:
         self.module_configuration['层次分析模糊综合评估']['result']['层级有效指标'] = results_path.get('tree')
 
         self.results_to_response['层次分析模糊综合评估']['评估建议'] = suggestion
-        self.results_to_response['层次分析模糊综合评估']['二级指标权重柱状图_Base64'] = encode_image_to_base64(
-            results_path.get(
-                'weights_bar'))
-        self.results_to_response['层次分析模糊综合评估']['评估结果柱状图_Base64'] = encode_image_to_base64(
-            results_path.get('result_bar'))
-        self.results_to_response['层次分析模糊综合评估']['层级有效指标_Base64'] = encode_image_to_base64(
-            results_path.get('tree'))
+        self.results_to_response['层次分析模糊综合评估']['二级指标权重柱状图_Base64'] = results_path.get(
+                'weights_bar')
+        self.results_to_response['层次分析模糊综合评估']['评估结果柱状图_Base64'] = results_path.get('result_bar')
+        self.results_to_response['层次分析模糊综合评估']['层级有效指标_Base64'] = results_path.get('tree')
 
         return results_path
 
     # 特征选择
     def feature_selection(self, data_with_selected_features, multiple_sensor=False):
-        data = data_with_selected_features.get('extracted_features')
-        feature_names = data_with_selected_features.get('features')
-        filename = data_with_selected_features.get('filename')
-        filepath = data_with_selected_features.get('filepath')
+
         use_algorithm = self.module_configuration['特征选择']['algorithm']
+        num_features = self.module_configuration['特征选择']['params']['num_features']
+
         if '_multiple' in use_algorithm:
             multiple_sensor = True
         # if self.module_configuration['特征选择']['algorithm'] == 'feature_imp':
@@ -294,48 +310,52 @@ class Reactor:
         # else:
         #     figure_path, features = correlation_coefficient_importance(multiple_sensor)
         if 'feature_imp' in use_algorithm:
-            figure_path, features = feature_imp(multiple_sensor)
+            figure_path, features = feature_imp(multiple_sensor, int(num_features))
         elif 'mutual_information_importance' in use_algorithm:
-            figure_path, features = mutual_information_importance(multiple_sensor)
+            figure_path, features = mutual_information_importance(multiple_sensor, int(num_features))
         else:
-            figure_path, features = correlation_coefficient_importance(multiple_sensor)
+            figure_path, features = correlation_coefficient_importance(multiple_sensor, int(num_features))
         self.module_configuration['特征选择']['result']['features'] = features
         self.module_configuration['特征选择']['result']['figure'] = figure_path
 
-        self.results_to_response['特征选择']['figure_Base64'] = encode_image_to_base64(figure_path)
+        self.results_to_response['特征选择']['figure_Base64'] = figure_path
         self.results_to_response['特征选择']['selected_features'] = features
+        self.construct_data_stream(features_name=features)
 
-        return {'data': data, 'features': features, 'filename': filename, 'filepath': filepath}
+        return self.data_stream
 
     # 故障诊断
-    def fault_diagnosis(self, example_with_selected_features, multiple_sensor=False):
-        pass_data = example_with_selected_features
+    def fault_diagnosis(self, input_data, multiple_sensor=False):
+
         use_algorithm = self.module_configuration['故障诊断']['algorithm']
         if '_multiple' in use_algorithm:
             multiple_sensor = True
         if 'random_forest' in use_algorithm:
-            diagnosis_result, figure_path = diagnose_with_random_forest_model(example_with_selected_features,
+            diagnosis_result, figure_path = diagnose_with_random_forest_model(input_data,
                                                                               multiple_sensor)
             self.module_configuration['故障诊断']['result']['信号波形图'] = figure_path
         elif 'svc' in use_algorithm:
-            diagnosis_result, figure_path = diagnose_with_svc_model(example_with_selected_features, multiple_sensor)
+            diagnosis_result, figure_path = diagnose_with_svc_model(input_data, multiple_sensor)
             self.module_configuration['故障诊断']['result']['信号波形图'] = figure_path
         elif 'gru' in use_algorithm:
-            input_data, _ = load_data(example_with_selected_features)
+            raw_data, _ = load_data(input_data)
+            self.construct_data_stream(raw_data=raw_data, filepath=input_data)
 
-            diagnosis_result, figure_path = diagnose_with_gru_model({'data': input_data, 'filepath': example_with_selected_features})
-            pass_data = {'data': example_with_selected_features}
+            diagnosis_result, figure_path = diagnose_with_gru_model(self.data_stream, multiple_sensor)
+
         elif 'lstm' in use_algorithm:
-            input_data, _ = load_data(example_with_selected_features)
-            diagnosis_result, figure_path = diagnose_with_lstm_model(input_data)
-            pass_data = {'data': example_with_selected_features}
+            raw_data, _ = load_data(input_data)
+            self.construct_data_stream(raw_data=raw_data, filepath=input_data)
+
+            diagnosis_result, figure_path = diagnose_with_lstm_model(self.data_stream, multiple_sensor)
+
         else:
             diagnosis_result = None
             figure_path = ''
         if figure_path:
-            self.results_to_response['故障诊断']['figure_Base64'] = encode_image_to_base64(figure_path)
+            self.results_to_response['故障诊断']['figure_Base64'] = figure_path
         if diagnosis_result is not None:
-            pass_data['diagnosis_result'] = diagnosis_result
+            self.construct_data_stream(diagnosis_result=diagnosis_result)
             # self.results_to_response['故障诊断']['diagnosis_result'] = diagnosis_result
             if diagnosis_result == 0:
                 self.module_configuration['故障诊断']['result'][
@@ -348,13 +368,10 @@ class Reactor:
         else:
             self.module_configuration['故障诊断']['result']['诊断结果'] = '### 发生错误，建议重新检查模型构建过程'
 
-        return pass_data
+        return self.data_stream
 
     # 趋势预测
     def fault_regression(self, example_with_selected_features, multiple_sensor=False):
-        data = example_with_selected_features.get('data')
-        feature_names = example_with_selected_features.get('features')
-        filename = example_with_selected_features.get('filename')
 
         # 换算时间函数
         def format_seconds(seconds):
@@ -383,13 +400,13 @@ class Reactor:
             self.module_configuration['趋势预测']['result'][
                 'evaluation'] = f'目前该部件<span style=\"color: red\">还未出现故障</span>，预测<span style=\"color: red\">{time_to_fault_str}</span>后会出现故障'
             self.module_configuration['趋势预测']['result']['figure_path'] = figure_path
-        self.results_to_response['趋势预测']['figure_Base64'] = encode_image_to_base64(figure_path)
+        self.results_to_response['趋势预测']['figure_Base64'] = figure_path
         self.results_to_response['趋势预测']['time_to_fault'] = str(time_to_fault)
         self.results_to_response['趋势预测']['time_to_fault_str'] = time_to_fault_str
 
         return example_with_selected_features
 
-    def start(self, datafile):
+    def start(self, datafile, queue):
         """
         依据建立的模型进行业务处理
         :param datafile: data to be precessed(type:filepath)
@@ -429,6 +446,12 @@ class Reactor:
             else:
                 outcome = ''
             input_data = outcome
+        print(self.results_to_response)
+        print(queue)
+        try:
+            queue.put(self.results_to_response)
+        except Exception as e:
+            print(str(e))
 
     def display(self, display_list, no_thread_lock):
         for module in self.module_configuration.keys():
