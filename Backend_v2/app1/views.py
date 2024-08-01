@@ -11,6 +11,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta
 from django.core.mail import send_mail
+import multiprocessing
+
 import random
 import string
 import jwt
@@ -21,7 +23,7 @@ from Backend_v2 import settings
 from app1 import models
 from app1 import forms
 from app1.models import CaptchaModel
-from app1.module_management.gradioAppDemo import Reactor
+from app1.module_management.calculate_engine import Reactor, encode_image_to_base64
 
 CORS_ALLOW_METHODS = (
     "DELETE",
@@ -509,21 +511,49 @@ def view_datafiles(request):
 def run_with_datafile_on_cloud(request):
     if request.method == 'POST':
         token = extract_jwt_from_request(request)
-        file_path = request.POST.get('file_path')
+        file_name = request.POST.get('file_name')
+        print('token: ', token)
+        print('file_name: ', file_name)
         try:
             payload = verify_jwt(token, settings.SECRET_KEY)
+            print('payload: ', payload)
             params = json.loads(request.POST.get('params'))
 
             algorithm_dict = params['algorithms']
             params_dict = params['parameters']
             schedule = params['schedule']
 
-            demo_app = Reactor()
-            demo_app.init(schedule, algorithm_dict, params_dict)
-            demo_app.start(datafile=file_path)
-            results = demo_app.results_to_response
+            print('algorithm_dict: ', algorithm_dict)
+            print('params_dict: ', params_dict)
+            print('schedule: ', schedule)
 
-            return JsonResponse({'message': 'success', 'results': results, 'code': 200})
+            demo_app = Reactor()
+            try:
+                demo_app.init(schedule, algorithm_dict, params_dict)
+            except Exception as e:
+                print(str(e))
+            user = User.objects.get(username=payload.get('username'))
+            file = models.SavedDatasetsFromUser.objects.filter(owner=user, dataset_name=file_name).first()
+            file_path = file.file_path
+            try:
+                if os.path.exists(file_path):
+                    # 存放子线程返回结果的队列
+                    queue = multiprocessing.Queue()
+                    new_subprocess = multiprocessing.Process(target=demo_app.start, args=(file_path, queue))
+                    new_subprocess.start()
+                    new_subprocess.join()
+                    results: dict = queue.get()
+                    # print('results_before: ', results)
+                    for module, result in results.items():
+                        for key, value in result.items():
+                            if 'Base64' in key:
+                                result[key] = encode_image_to_base64(value)
+                    # print('results_after: ', results)
+                    return JsonResponse({'message': 'success', 'results': results, 'code': 200})
+            except Exception as e:
+                print(str(e))
+                return JsonResponse({'message': 'file not found', 'code': 404})
+
         except jwt.ExpiredSignatureError:
             return JsonResponse({'message': 'signature expired', 'code': 401})
 
