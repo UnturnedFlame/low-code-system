@@ -31,6 +31,38 @@ def wavelet_denoise(data, wavelet='db1', level=1):
     return denoised_data
 
 
+def wavelet_denoise_signal(raw_data, filename):
+    denoised_data = wavelet_denoise(raw_data)
+
+    if '.png' not in filename:
+        filename += '.png'
+    save_path = os.path.join(r'app1/module_management/algorithms/functions/'
+                            r'preprocessing_results/wavelet_trans/single_signal/', filename)
+    # if not os.path.exists(save_path):
+    #     os.makedirs(save_path)
+    # 设置字体以支持中文显示
+    plt.rcParams['font.sans-serif'] = ['SimHei']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号 '-' 显示为方块的问题
+    plt.rcParams['font.size'] = 12
+
+    plt.figure(figsize=(12, 6))
+
+    plt.subplot(2, 1, 1)
+    plt.plot(raw_data.flatten())
+    plt.title(f'原始数据')
+
+    plt.subplot(2, 1, 2)
+    plt.plot(denoised_data.flatten())
+    plt.title(f'去噪后数据')
+
+    plt.tight_layout()
+    plt.savefig(save_path)
+
+    results = {'figure_path': save_path, 'denoised_data': denoised_data}
+
+    return results
+
+
 # 针对四个阶段时序数据的小波变换
 def wavelet_denoise_four_stages(mat_data, filename):
     stages = ['stage_1', 'stage_2', 'stage_3', 'stage_4']
@@ -269,6 +301,7 @@ def lagrange_interpolation_for_signal(data: np.ndarray, filename):
                     continue
                 arr[i] = lagrange([left, right], [arr[left], arr[right]])(i)
         return arr
+
     interpolated_data = data.copy()
     # 对数据进行插值处理
     for i in range(interpolated_data.shape[0]):
@@ -491,6 +524,7 @@ def newton_interpolation_for_signal(data: np.ndarray, filename):
                 arr[i] = interpolated_value
 
         return arr
+
     interpolated_data = data.copy()
     # 对数据进行插值处理
     for i in range(interpolated_data.shape[0]):
@@ -819,7 +853,8 @@ def extract_signal_features(input_data: np.ndarray, features_to_extract, filenam
             'app1/module_management/algorithms/functions/preprocessing_results/feature_extraction/time_frequency_domain',
             out_filename)
         features_extracted.to_csv(output_file, index=False)
-        return output_file, {'features_extracted_group_by_sensor': features_extracted_group_by_sensor, 'features_name': all_features}
+        return output_file, {'features_extracted_group_by_sensor': features_extracted_group_by_sensor,
+                             'features_name': all_features}
     else:
         return features_extracted.iloc[0].tolist()
 
@@ -842,8 +877,10 @@ def extract_features_with_multiple_sensors(input_data: np.ndarray, features_to_e
     # 'waveform_factor', 'peak_factor', 'impulse_factor', 'margin_factor'] freq_feature_columns = ['centroid_freq',
     # 'msf', 'rms_freq', 'freq_variance', 'freq_std', 'spectral_kurt_mean', 'spectral_kurt_peak']
     time_feature_columns = ['均值', '方差', '标准差', '偏度', '峰度', '四阶累积量', '六阶累积量', '最大值', '最小值',
-                            '中位数', '峰峰值', '整流平均值', '均方根', '方根幅值', '波形因子', '峰值因子', '脉冲因子', '裕度因子']
-    freq_feature_columns = ['重心频率', '均方频率', '均方根频率', '频率方差', '频率标准差', '谱峭度的均值', '谱峭度的峰度']
+                            '中位数', '峰峰值', '整流平均值', '均方根', '方根幅值', '波形因子', '峰值因子', '脉冲因子',
+                            '裕度因子']
+    freq_feature_columns = ['重心频率', '均方频率', '均方根频率', '频率方差', '频率标准差', '谱峭度的均值',
+                            '谱峭度的峰度']
 
     all_features = []
     for _, features in features_to_extract.items():
@@ -878,7 +915,8 @@ def extract_features_with_multiple_sensors(input_data: np.ndarray, features_to_e
         'app1/module_management/algorithms/functions/preprocessing_results/feature_extraction/time_frequency_domain',
         out_filename)
     combined_features_df.to_csv(output_file, index=False)
-    return output_file, {'features_extracted_group_by_sensor': extracted_features_group_by_sensor, 'features_name': all_features}
+    return output_file, {'features_extracted_group_by_sensor': extracted_features_group_by_sensor,
+                         'features_name': all_features}
     # Save the DataFrame to a CSV file
     # output_path = 'mutli_features.csv'
     # combined_features_df['label'] = lable_value
@@ -924,24 +962,46 @@ def plot_signal(example, filename, multiple_sensor=False):
     return save_path
 
 
+choose_features = ['标准差', '均方根', '方差', '整流平均值', '方根幅值', '峰峰值', '六阶累积量', '均值', '四阶累积量',
+                   '最小值']
+
+choose_features_multiple = ['X维力(N)_六阶累积量', 'X维力(N)_峰峰值', 'X维力(N)_重心频率', 'X维力(N)_最大值', 'X维力(N)_四阶累积量',
+                            'X维力(N)_方差', 'X维力(N)_裕度因子', 'X维力(N)_标准差', 'X维力(N)_均方根', 'X维力(N)_方根幅值']
+
+
 # 无量纲化, 主要用于SVM等需要标准化的机器学习算法的预处理
-def scaler(input_data: pd.DataFrame, option=None, multiple_sensor=False):
+def scaler(input_data: pd.DataFrame, features_group_by_sensor: dict, option=None, multiple_sensor=False):
     """
+    :param features_group_by_sensor:
     :param input_data:
     :param option:
     :return: 标准化后的特征数据
     """
-    data_scaled = input_data.copy()
+    data_scaled = input_data.copy()  # 实际使用的特征
+    data_scaled_display = features_group_by_sensor.copy()  # 用于展示在前端页面中的特征
+    if multiple_sensor is None:
+        multiple_sensor = False
     if option == 'max_min':
         data_scaler = MinMaxScaler()
     elif option == 'z-score':
         # data_scaler = StandardScaler()
+
         if not multiple_sensor:
             data_scaler = joblib.load('app1/module_management/algorithms/models/fault_diagnosis/svc/scaler_2.pkl')
+            data_scaled[choose_features] = data_scaler.transform(data_scaled[choose_features])
+
         else:
             data_scaler = joblib.load('app1/module_management/algorithms/models/fault_diagnosis/svc/mutli_scaler.pkl')
-        data_scaled[data_scaled.columns] = data_scaler.transform(data_scaled[data_scaled.columns])
-        return data_scaled
+            data_scaled[choose_features_multiple] = data_scaler.transform(data_scaled[choose_features_multiple])
+            index_start = 0
+            try:
+                for k, v in data_scaled_display.items():
+                    features_num = len(v)
+                    data_scaled_display[k] = data_scaled.iloc[:, index_start:features_num].to_list()
+                    index_start += features_num
+            except Exception as e:
+                print(str(e))
+        return data_scaled, data_scaled_display
     elif option == 'max_abs_scaler':
         data_scaler = MaxAbsScaler()
     else:
@@ -950,5 +1010,4 @@ def scaler(input_data: pd.DataFrame, option=None, multiple_sensor=False):
     data_scaled[data_scaled.columns] = data_scaler.fit_transform(data_scaled[data_scaled.columns])
     print('data_scaled: ', data_scaled)
 
-    return data_scaled
-
+    return data_scaled, data_scaled_display

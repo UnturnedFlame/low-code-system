@@ -28,7 +28,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("user/run_with_local_datafile/", views.run_with_local_datafile),
-    path("run_with_datafile_on_cloud/", views.run_with_datafile_on_cloud),
+    path("user/run_with_datafile_on_cloud/", views.run_with_datafile_on_cloud),
     path("register_speaker/", views.register_speaker),
     path("shut/", views.shut),
     path("save_model/", views.save_model),

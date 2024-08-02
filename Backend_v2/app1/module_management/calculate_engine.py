@@ -15,7 +15,7 @@ from app1.module_management.algorithms.functions.load_data import load_data
 #     verify_speaker
 # from app1.module_management.algorithms.functions.load_model import load_model_with_pytorch_lightning
 from app1.module_management.algorithms.functions.preprocessing import bicubic_interpolation, polynomial_interpolation, \
-    newton_interpolation, linear_interpolation, lagrange_interpolation, extract_signal_features, \
+    newton_interpolation, linear_interpolation, lagrange_interpolation, extract_signal_features, wavelet_denoise_signal,\
     bicubic_interpolation_for_signal, polynomial_interpolation_for_signal, newton_interpolation_for_signal, \
     linear_interpolation_for_signal, lagrange_interpolation_for_signal, neighboring_values_interpolation_for_signal, \
     extract_features_with_multiple_sensors, wavelet_denoise_four_stages, scaler
@@ -75,15 +75,18 @@ class Reactor:
                                      '层次分析模糊综合评估', '小波变换', '特征选择', '故障诊断', '趋势预测',
                                      '无量纲化']}
         self.data_stream = {'filepath': None, 'raw_data': None, 'extracted_features': None,
-                            'filename': None, 'user_dir': None, 'features_name': None, 'diagnosis_result': None}
+                            'filename': None, 'user_dir': None, 'features_name': None, 'diagnosis_result': None,
+                            'features_group_by_sensor': None, 'multiple_sensor': None}
         self.gradio_app = None
         self.schedule = None
         self.lightning_model = None
 
     # 构造数据流
     def construct_data_stream(self, filepath=None, raw_data=None, extracted_features=None,
-                              filename=None, user_dir=None, features_name=None, diagnosis_result=None):
-        lst = [filepath, raw_data, extracted_features, filename, user_dir, features_name, diagnosis_result]
+                              filename=None, user_dir=None, features_name=None, diagnosis_result=None,
+                              features_group_by_sensor=None, multiple_sensor=None):
+        lst = [filepath, raw_data, extracted_features, filename, user_dir, features_name, diagnosis_result,
+               features_group_by_sensor, multiple_sensor]
         index = 0
         for k in self.data_stream.keys():
             if lst[index] is not None:
@@ -117,17 +120,21 @@ class Reactor:
         # self.lightning_model = load_model_with_pytorch_lightning()
 
     # 无量纲化
-    def scaler(self, data_with_selected_features, multiple_sensor=False):
+    def scaler(self, data_with_selected_features):
         data: pd.DataFrame = data_with_selected_features.get('extracted_features')
+        features_group_by_sensor = data_with_selected_features.get('features_group_by_sensor')
+        multiple_sensor = data_with_selected_features.get('multiple_sensor')
 
         use_algorithm = self.module_configuration['无量纲化']['algorithm']
-        scaled_data: pd.DataFrame = scaler(data, option=use_algorithm, multiple_sensor=multiple_sensor)
+        scaled_data, scaled_data_display = scaler(data, features_group_by_sensor, option=use_algorithm, multiple_sensor=multiple_sensor)
 
         self.module_configuration['无量纲化']['result']['raw_data'] = data
         self.module_configuration['无量纲化']['result']['scaled_data'] = scaled_data
 
-        self.results_to_response['无量纲化']['raw_data'] = [list(row) for index, row in data.iterrows()]
-        self.results_to_response['无量纲化']['scaled_data'] = [list(row) for index, row in scaled_data.iterrows()]
+        # self.results_to_response['无量纲化']['raw_data'] = [list(row) for index, row in data.iterrows()]
+        # self.results_to_response['无量纲化']['scaled_data'] = [list(row) for index, row in scaled_data.iterrows()]
+        self.results_to_response['无量纲化']['raw_data'] = features_group_by_sensor  # 未经过标准化的数据
+        self.results_to_response['无量纲化']['scaled_data'] = scaled_data_display    # 经过标准化后的数据
         self.results_to_response['无量纲化']['features_name'] = data_with_selected_features.get('feature_name')
 
         return data_with_selected_features
@@ -160,19 +167,24 @@ class Reactor:
         :param datafile:
         :return: (raw_data, denoised_data, filename)
         """
-        global denoise_datas
-        data_mat, filename = load_data(datafile, multiple_data=True)
-        results = wavelet_denoise_four_stages(data_mat, filename)
-        if self.module_configuration['小波变换']['algorithm'] == 'wavelet_trans_denoise':
-            all_save_paths, denoise_datas = results.get('all_save_paths'), results.get('denoised_datas')
-            self.module_configuration['小波变换']['result']['figure_paths'] = {}
-            self.module_configuration['小波变换']['result']['denoised_datas'] = {}
-            for key, value in all_save_paths.items():
-                self.module_configuration['小波变换']['result']['figure_paths'][key] = value
-            for key, value in denoise_datas.items():
-                self.module_configuration['小波变换']['result']['denoised_datas'][key] = value
 
-        return data_mat, denoise_datas, filename
+        raw_data, filename = load_data(datafile, multiple_data=False)
+        # data_mat, filename = load_data(datafile, multiple_data=True)
+        results = wavelet_denoise_signal(raw_data, filename)
+        denoised_data = results.get('denoised_data')
+        figure_path = results.get('figure_path')
+        # results = wavelet_denoise_four_stages(data_mat, filename)
+        if self.module_configuration['小波变换']['algorithm'] == 'wavelet_trans_denoise':
+            # all_save_paths, denoise_datas = results.get('all_save_paths'), results.get('denoised_datas')
+            # self.module_configuration['小波变换']['result']['figure_paths'] = {}
+            # self.module_configuration['小波变换']['result']['denoised_datas'] = {}
+            # for key, value in all_save_paths.items():
+            #     self.module_configuration['小波变换']['result']['figure_paths'][key] = value
+            # for key, value in denoise_datas.items():
+            #     self.module_configuration['小波变换']['result']['denoised_datas'][key] = value
+            self.results_to_response['小波变换']['figure_Base64'] = figure_path
+        self.construct_data_stream(raw_data=denoised_data, filename=filename, filepath=datafile)
+        return self.data_stream
 
     def interpolation_v2(self, datafile):
         """
@@ -220,7 +232,12 @@ class Reactor:
                     features['time_domain'].append(key)
                 elif key in all_frequency_features:
                     features['frequency_domain'].append(key)
-        data, filename = load_data(datafile)
+        # 如果输入的是字典形式的数据
+        if isinstance(datafile, dict):
+            data = datafile.get('raw_data')
+            filename = datafile.get('filename')
+        else:
+            data, filename = load_data(datafile)
         # 单传感器特征提取
         if not multiple_sensor:
             features_save_path, features_with_name = extract_signal_features(data, features, filename, save=True)
@@ -250,7 +267,7 @@ class Reactor:
         # self.data_stream['features_name'] = features
         # add_user_dir(self.data_stream)
         self.construct_data_stream(filepath=datafile, raw_data=data, extracted_features=features_extracted,
-                                   filename=filename, features_name=features)
+                                   filename=filename, features_name=features, features_group_by_sensor=features_with_name)
 
         # return {'data': features_extracted, 'features': features, 'filename': filename, 'filepath': datafile}
         return self.data_stream
@@ -320,7 +337,7 @@ class Reactor:
 
         self.results_to_response['特征选择']['figure_Base64'] = figure_path
         self.results_to_response['特征选择']['selected_features'] = features
-        self.construct_data_stream(features_name=features)
+        self.construct_data_stream(features_name=features, multiple_sensor=multiple_sensor)
 
         return self.data_stream
 

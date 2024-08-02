@@ -158,7 +158,7 @@
               </div>
             </template> -->
             <div
-              style="position: absolute; right: 17px; bottom: 10px; width: 1400px; height: auto;display: flex; justify-content: space-between; align-items: center;">
+              style="position: absolute; right: 17px; bottom: 10px; width: 1430px; height: auto;display: flex; justify-content: space-between; align-items: center;">
               <el-button type="info" round style="width: 125px; font-size: 17px; background-color: #606266; "
                 @click="fetch_models" icon="More">
                 历史模型
@@ -227,7 +227,7 @@
                   开始运行
                 </el-button> -->
                 <el-button type="success" round style="width: 125px; font-size: 17px; " @click="run"
-                  icon="SwitchButton" :disabled="canStartProcess" @mouseover="startModeling">
+                  icon="SwitchButton" :disabled="canStartProcess || process_is_shutdown" @mouseover="startModeling">
                   开始运行
                 </el-button>
                 <el-button :disabled="canShutdown" type="danger" round style="width: 125px; font-size: 17px;"
@@ -468,7 +468,28 @@
                   style="width: 900px; height: 450px;" />
               </div>
               <!-- 无量纲化可视化 -->
-              <div v-if="display_normalization" style="margin-top: 20px; font-size: 18px;"></div>
+              <div v-if="display_normalization" style="margin-top: 20px; font-size: 18px;">
+                <div style="font-size: large;">原数据</div>
+                <el-table :data="normalization_formdata_raw" style="width: 100%; margin-top: 20px;"
+                >
+                  <el-table-column v-for="column in normalization_columns" :key="column.prop" :prop="column.prop" :label="column.label"
+                    :width="column.width">
+                  </el-table-column>
+                </el-table>
+                <br>
+                <div style="font-size: large;">标准化后数据</div>
+                <el-table :data="normalization_formdata_scaled" style="width: 100%; margin-top: 20px;"
+                >
+                  <el-table-column v-for="column in normalization_columns" :key="column.prop" :prop="column.prop" :label="column.label"
+                    :width="column.width">
+                  </el-table-column>
+                </el-table>
+              </div>
+              <!-- 小波降噪可视化 -->
+              <div v-if="display_denoise">
+                <img :src="denoise_figure" alt="denoise_figure" class="result_image"
+                  style="width: 900px; height: 450px;" />
+              </div>
             </el-scrollbar>
 
           </div>
@@ -1810,6 +1831,12 @@ let response_results = {}
 
 const username = ref('')
 
+// 创建一个CancelToken源  
+let cancel;  
+  
+const source = axios.CancelToken.source();  
+cancel = source.cancel; // 暴露cancel函数  
+
 
 //上传文件，点击开始
 const run = () => {
@@ -1886,13 +1913,14 @@ const run = () => {
   // console.log("",data)
   api.post('user/run_with_datafile_on_cloud/', data,
     {
-      headers: { "Content-Type": 'multipart/form-data' }
+      headers: { "Content-Type": 'multipart/form-data' },
+      cancelToken: source.token, // 将cancelToken传递给axios  
     }
   ).then((response) => {
     console.log('response: ', response)
     console.log('response.status: ', response.status)
     if (response.status === 200) {
-      if (!process_is_shutdown) {
+      if (!process_is_shutdown.value) {
         ElNotification.success({
           title: 'SUCCESS',
           message: '处理完成',
@@ -1914,7 +1942,7 @@ const run = () => {
         showStatusMessage.value = true
         showPlainIntroduction.value = false
       } else {
-        process_is_shutdown = false
+        process_is_shutdown.value = false
       }
     }
     // else if (response.status === 500) {
@@ -1926,6 +1954,10 @@ const run = () => {
     // }
   })
     .catch(error => {
+      // if (axios.isCancel(error)) {
+      //   console.log('Request canceled', error.message);
+      //   return
+      // }
       if (error.response) {
         // 请求已发出，服务器响应了状态码，但不在2xx范围内  
         console.log(error.response.status); // HTTP状态码  
@@ -1947,11 +1979,10 @@ const run = () => {
       processing.value = false
 
     })
-
 }
 
 
-let process_is_shutdown = false
+const process_is_shutdown = ref(false)
 
 // 终止进程
 const shutdown = () => {
@@ -1969,9 +2000,10 @@ const shutdown = () => {
         title: 'INFO',
         message: '进程已终止'
       })
-      process_is_shutdown = true
+      process_is_shutdown.value = true
       status_message_to_show.value = status_message.shutdown
       showStatusMessage.value = true
+      // cancel('Operation canceled by the user.');  
     }
   }).catch(function (error) {
     // 处理错误情况  
@@ -2055,6 +2087,28 @@ const handleDragend = (ev, algorithm, node) => {
     },
     use_algorithm: algorithm,
     parameters: node.parameters
+  }
+  // 特征提取默认参数
+  // if (nodeInfo.label_display.indexOf('时域特征') > -1){
+  //   features.value = ['均值', '方差', '标准差', '峰度', '偏度', '四阶累积量', '六阶累积量', '最大值', '最小值', '中位数', '峰峰值', '整流平均值', '均方根', '方根幅值',
+  //     '波形因子', '峰值因子', '脉冲因子', '裕度因子']
+
+  // }else if (nodeInfo.label_display.indexOf('频域特征') > -1){
+  //   features.value = ['重心频率', '均方频率', '均方根频率', '频率方差', '频率标准差', '谱峭度的均值', '谱峭度的峰度']
+  // }else if (nodeInfo.label_display.indexOf('时域和频域') > -1){
+  //   features.value = ['均值', '方差', '标准差', '峰度', '偏度', '四阶累积量', '六阶累积量', '最大值', '最小值', '中位数', '峰峰值', '整流平均值', '均方根', '方根幅值',
+  //     '波形因子', '峰值因子', '脉冲因子', '裕度因子', '重心频率', '均方频率', '均方根频率', '频率方差', '频率标准差', '谱峭度的均值', '谱峭度的峰度']
+  // }
+  if (nodeInfo.label_display.indexOf('时域和频域') > -1) {
+    features.value = ['均值', '方差', '标准差', '峰度', '偏度', '四阶累积量', '六阶累积量', '最大值', '最小值', '中位数', '峰峰值', '整流平均值', '均方根', '方根幅值',
+      '波形因子', '峰值因子', '脉冲因子', '裕度因子', '重心频率', '均方频率', '均方根频率', '频率方差', '频率标准差', '谱峭度的均值', '谱峭度的峰度']
+  }else {
+    if (nodeInfo.label_display.indexOf('时域特征') > -1){
+      features.value = ['均值', '方差', '标准差', '峰度', '偏度', '四阶累积量', '六阶累积量', '最大值', '最小值', '中位数', '峰峰值', '整流平均值', '均方根', '方根幅值',
+        '波形因子', '峰值因子', '脉冲因子', '裕度因子']
+    }else if (nodeInfo.label_display.indexOf('频域特征') > -1){
+      features.value = ['重心频率', '均方频率', '均方根频率', '频率方差', '频率标准差', '谱峭度的均值', '谱峭度的峰度']
+    }
   }
   console.log(nodeInfo)
   //算法模块不允许重复
@@ -2500,15 +2554,65 @@ const interpolation_display = (results_object) => {
 
 // 无量纲化可视化
 const display_normalization = ref(false)
+const normalization_formdata_raw = ref([])
+const normalization_formdata_scaled = ref([])
+const normalization_columns = ref([])
+
+const transform_data_to_formdata = (features_with_name: any, columns: any, formdata: any) => {
+
+  let features_name = features_with_name.features_name.slice()
+  let features_group_by_sensor = Object.assign(features_with_name.features_extracted_group_by_sensor)
+  let datas = []        // 表格中每一行的数据
+  features_name.unshift('传感器')  // 表格的列名
+  for (const sensor in features_group_by_sensor) {
+    let features_of_sensor = features_group_by_sensor[sensor].slice()
+    features_of_sensor.unshift(sensor)
+    // console.log('features_of_sensor: ', features_of_sensor)
+    datas.push(features_of_sensor)
+    // features_of_sensor.splice(0, 1)
+  }
+  // console.log('features_name: ', features_name)
+  // console.log('datas: ', datas)
+  // let i = { prop: '', label: '', width: '' }
+  columns.value.length = 0
+  features_name.forEach(element => {
+    // console.log('element: ', element)
+    columns.value.push({ prop: element, label: element, width: 180 })
+  });
+
+  // console.log('columns: ', columns)
+  // 转换数据为对象数组  
+  formdata.value = datas.map((row, index) => {
+    const obj = {};
+    columns.value.forEach((column, colIndex) => {
+      obj[column.prop] = row[colIndex];
+    });
+    return obj;
+  });
+}
 
 const normalization_display = (results_object: any) => {
   display_normalization.value = true
 
-  let raw_data = results_object.raw_data
-  let scaled_data = results_object.scaled_data
+  let raw_data = Object.assign({}, results_object.raw_data)
+  let scaled_data = Object.assign({}, results_object.scaled_data)
+
+  transform_data_to_formdata(raw_data, normalization_columns, normalization_formdata_raw)
+  transform_data_to_formdata(scaled_data, normalization_columns, normalization_formdata_scaled)
+  console.log('normalization_formdata_raw: ', normalization_formdata_raw)
+  console.log('normalization_formdata_scaled: ', normalization_formdata_scaled)
+  console.log('normalization_columns: ', normalization_columns)
 
 }
 
+// 小波降噪可视化
+const display_denoise = ref(false)
+const denoise_figure = ref('')
+
+const denoise_display = (results_object) => {
+  display_denoise.value = true
+  denoise_figure.value = 'data:image/png;base64,' + results_object.figure_Base64
+}
 
 // 清除可视化区域
 const results_view_clear = () => {
@@ -2525,6 +2629,8 @@ const results_view_clear = () => {
   display_fault_diagnosis.value = false
   display_fault_regression.value = false
   display_interpolation.value = false
+  display_normalization.value = false
+  display_denoise.value = false
 }
 
 
@@ -2544,7 +2650,7 @@ const resultShow = (item) => {
 
     if (missionComplete.value) {
       if (item.label != '层次分析模糊综合评估' && item.label != '特征提取' && item.label != '特征选择' && item.label != '故障诊断'
-        && item.label != '趋势预测' && item.label != '特征提取' && item.label != '插值处理' && item.label != '无量纲化'
+        && item.label != '趋势预测' && item.label != '特征提取' && item.label != '插值处理' && item.label != '无量纲化' && item.label != '小波变换'
       ) {
         showPlainIntroduction.value = false
         showStatusMessage.value = false
@@ -2594,6 +2700,9 @@ const resultShow = (item) => {
         } else if (item.label == '无量纲化') {
           let results_to_show = response_results.无量纲化
           normalization_display(results_to_show)
+        } else if (item.label == '小波变换') {
+          let results_to_show = response_results.小波变换
+          denoise_display(results_to_show)
         }
         else {
           ElMessage({
