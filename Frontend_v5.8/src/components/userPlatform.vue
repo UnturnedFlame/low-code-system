@@ -6,7 +6,7 @@
   <div style="height: 100vh; overflow:hidden" @mouseover="background_IMG">
     <el-container class="fullscreen_container">
       <el-header style="height: 60px;text-align: center; line-height: 60px; position: relative;">
-        <img src="./assets/logo.png" alt="" style="width: 50px; position: absolute; left: 5px; top: 5px;">
+        <img src="../assets/logo.png" alt="" style="width: 50px; position: absolute; left: 5px; top: 5px;">
         <h2 style="font-size: 26px;">车轮状态分析与健康评估</h2>
         <div class="user-info-container" id="userInfo" style="position: absolute; right: 10px; top: 5px; color: white;">
           <span style="margin-right: 10px;">欢迎！ {{ username }}</span>
@@ -660,6 +660,7 @@ import { DraggableContainer } from "@v3e/vue3-draggable-resizable";
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import uploadDatafile from './uploadDatafile.vue';
+import api from '../utils/api.js'
 
 
 
@@ -1243,7 +1244,6 @@ class LinkedList {
 
 const logout = () => {
   router.push('/')
-  console.log('用户退出登录')
 }
 
 // 标签与节点id的转换
@@ -1986,12 +1986,7 @@ const process_is_shutdown = ref(false)
 
 // 终止进程
 const shutdown = () => {
-  axios.request(
-    {
-      method: 'GET',
-      url: 'http://127.0.0.1:8000/shut'
-    }
-  ).then((response) => {
+  api.get('/shut'  ).then((response: any) => {
     if (response.data.status == 'shutdown' && processing.value == true) {
       loading.value = false
       processing.value = false
@@ -2005,7 +2000,7 @@ const shutdown = () => {
       showStatusMessage.value = true
       // cancel('Operation canceled by the user.');  
     }
-  }).catch(function (error) {
+  }).catch(function (error: any) {
     // 处理错误情况  
     ElNotification.error({
       title: 'ERROR',
@@ -2362,7 +2357,7 @@ const save_model_confirm = () => {
   //     })
   //   }
   // })
-  api.post('http://127.0.0.1:8000/user_save_model/', data,
+  api.post('/user_save_model/', data,
     {
       headers: { "Content-Type": 'multipart/form-data' }
     }
@@ -2748,11 +2743,8 @@ const resultShow = (item) => {
 const fetch_models = () => {
   data_drawer.value = false
   models_drawer.value = true
-  let url = 'http://127.0.0.1:8000/user_fetch_models/'
-  api.request({
-    method: 'GET',
-    url: url
-  }).then((response) => {
+  // let url = 'http://127.0.0.1:8000/user_fetch_models/'
+  api.get('/user_fetch_models/').then((response) => {
     let modelsInfo = response.data
     fetchedModelsInfo.value.length = 0
     for (let item of modelsInfo) {
@@ -2895,10 +2887,7 @@ const delete_model_confirm = () => {
 
   // 发送删除请求到后端，row 是要删除的数据行
   let url = 'http://127.0.0.1:8000/user_delete_model/?row_id=' + row.id
-  api.request({
-    method: 'GET',
-    url: url
-  }).then((response) => {
+  api.get('/user_delete_model/?row_id=' + row.id).then((response) => {
     if (response.data.message == 'deleteSuccessful') {
       if (index !== -1) {
         // 删除前端表中数据
@@ -3085,28 +3074,6 @@ function updateStatus(status) {
 //     })
 //   })
 // }
-
-const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
-});
-
-
-// 拦截请求并将登录时从服务器获得的token添加到Authorization头部  
-api.interceptors.request.use(function (config) {
-  // 从localStorage获取JWT  
-  let token = window.localStorage.getItem('jwt');
-  console.log('the token is: ', token)
-
-  // 将JWT添加到请求的Authorization头部  
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-
-}, function (error) {
-  // 请求错误处理  
-  return Promise.reject(error);
-})
 
 
 const fetchedDataFiles = ref<Object[]>([])

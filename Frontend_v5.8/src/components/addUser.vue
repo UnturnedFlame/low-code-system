@@ -33,9 +33,9 @@
 
 <script setup>
 import {reactive, ref} from "vue";
-import axios from "axios";
 import { useRouter } from 'vue-router';
 import { ElMessage } from "element-plus";
+import api from '../utils/api.js';
 
 const router = useRouter();
 const formRef =ref(null)
@@ -90,7 +90,7 @@ const handleConfirm = async () => {
     }
     else {
       let json_form = JSON.stringify(form);
-      axios.post('http://127.0.0.1:8000/add_user/', json_form)
+      api.post('/add_user/', json_form)
       .then(response => {
         if (response.data.message === 'add user success') {
           ElMessage({

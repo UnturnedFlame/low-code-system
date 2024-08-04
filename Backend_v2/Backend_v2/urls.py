@@ -40,6 +40,9 @@ urlpatterns = [
     path("user_delete_model/", views.user_delete_model),
     path("user/fetch_datafiles/", views.user_fetch_datafiles),
     path("delete_model/", views.delete_model),
+    path("resetPassword/send_captcha/", views.send_email_captcha),
+    path("resetPassword/check_captcha/", views.check_captcha),
+    path("resetPassword/reset_password/", views.user_reset_password),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

@@ -712,10 +712,7 @@ def add_user(request):
 def delete_user(request):
     if request.method == 'GET':
         jobNumber = request.GET.get('jobNumber')
-        # 使用get_object_or_404来尝试获取用户对象
-        # 如果找不到对应的用户，将返回404错误页面
         user = User.objects.get(jobNumber=jobNumber)
-
         if user:
             user.delete()
             return JsonResponse({'message': 'user deleted success', 'code': 200})
@@ -725,10 +722,18 @@ def delete_user(request):
 
 # 发送验证码到邮箱
 def send_email_captcha(request):
-    if request.method == 'GET':
-        email = request.GET.get('email')
-        if not email:
-            return JsonResponse({'code': 400, 'message': 'email is required'})
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+
+        print('username', username)
+        print('email', email)
+
+        user = User.objects.filter(username=username).first()
+        print('user.email', user.email)
+        if not user or user.email != email:
+            return JsonResponse({'code': 400, 'message': '用户和邮箱不匹配'})
+
         captcha = ''.join(random.sample(string.digits, k=4))
         # 保存验证码
         models.CaptchaModel.objects.update_or_create(email=email, defaults={'captcha': captcha})
@@ -736,6 +741,36 @@ def send_email_captcha(request):
                   message=f"您的验证码为{captcha}，请勿泄露给他人，并注意使用时限", recipient_list=[email],
                   from_email=None)
         return JsonResponse({"code": 200, "message": "captcha has been send to the email"})
+
+
+# 验证码校验
+def check_captcha(request):
+    if request.method == 'POST':
+        captcha = request.POST.get('captcha')
+        email = request.POST.get('email')
+
+        captcha = models.CaptchaModel.objects.get(email=email, captcha=captcha)
+        if not captcha:
+            return JsonResponse({'code': 400, 'message': '验证码与邮箱不匹配'})
+        else:
+            captcha.delete()
+            return JsonResponse({'code': 200, 'message': '验证码正确'})
+
+
+# 用户修改密码
+def user_reset_password(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        email = request.POST.get('email')
+        print('password: ', password)
+        print('email: ', email)
+        user = User.objects.filter(email=email).first()
+        if not user:
+            return JsonResponse({"code": 400, 'message': '该用户不存在'})
+        else:
+            user.set_password(password)
+            user.save()
+            return JsonResponse({"code": 200, "message": "用户密码修改成功"})
 
 
 def authenticate_register(request):

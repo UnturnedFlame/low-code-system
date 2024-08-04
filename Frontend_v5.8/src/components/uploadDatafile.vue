@@ -102,7 +102,7 @@ const handleOk = () => {
   uploading.value = true;
 
   props.api
-    .post("http://localhost:8000/upload_datafile/", formData)
+    .post("/upload_datafile/", formData)
     .then((response: any) => {
         if(response.data.message == 'save data success'){
             fileList.value = [];

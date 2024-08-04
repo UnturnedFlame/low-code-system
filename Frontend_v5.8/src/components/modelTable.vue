@@ -69,11 +69,8 @@ onMounted(() => {
   fetch_models();
 });
 const fetch_models = () => {
-  let url = 'http://127.0.0.1:8000/administration/fetch_users_models/'
-  api.request({
-    method: 'GET',
-    url: url
-  }).then((response) => {
+  // let url = 'http://127.0.0.1:8000/administration/fetch_users_models/'
+  api.get('/administration/fetch_users_models/').then((response) => {
     let modelsInfo = response.data
     console.log('modelsInfo: ', modelsInfo)
     fetchedModelsInfo.value.length = 0
@@ -115,11 +112,8 @@ const show_model_info = (row) => {
 const delete_model_confirm = () => {
 
   // 发送删除请求到后端，row 是要删除的数据行
-  let url = 'http://127.0.0.1:8000/administration/delete_user_model/?row_id=' + row.id
-  axios.request({
-    method: 'GET',
-    url: url
-  }).then((response) => {
+  // let url = 'http://127.0.0.1:8000/administration/delete_user_model/?row_id=' + row.id
+  api.get('/administration/delete_user_model/?row_id=' + row.id).then((response) => {
     if (response.data.message === 'delete user model success') {
       if (index !== -1) {
         // 删除前端表中数据

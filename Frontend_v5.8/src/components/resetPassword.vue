@@ -1,6 +1,6 @@
 <template>
   <div class="resetPassword">
-    <div class="container">
+    <div class="container" v-if="active==0 || active==1 || active==2">
       <el-steps :active="active" :space="200" finish-status="success"  align-center>
         <el-step title="验证用户名和邮箱" icon="EditPen"></el-step>
         <el-step title="输入验证码" icon="Promotion"></el-step>
@@ -48,19 +48,27 @@
       </div>
 
     </div>
+    <div class="container" v-if="active==3">
+      <div style="height: 100px; width: 500px; font-size: 20px; text-align: center;">密码修改成功！</div>
+      <el-button @click="backLogin" type="success" style="text-align: center; width: 30%; margin-left: 170px; font-size: large; color: white">返回登录界面</el-button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import axios from 'axios'; // 确保axios已在package.json中声明依赖
 import { ElMessage,ElNotification } from 'element-plus';
 import {onMounted, reactive, ref} from "vue"; // 假设使用Element UI提供的消息提示
+import {useRouter} from "vue-router";
+import api from '../utils/api.js'
 
 const formRef = ref(null);
 // 定义常量
 const STEP_0 = 0;
 const STEP_1 = 1;
 const STEP_2 = 2;
+const STEP_3 = 3;
+
+const router = useRouter();
 
 // 初始化状态
 const active = ref(STEP_0);
@@ -113,18 +121,25 @@ const validateForm = () => {
   return true;
 };
 
+let username
+let email
 // 下一步操作
 const nextStep = (formRef) => {
   if (active.value === STEP_0) {
     if (validateForm()) {
       formRef.validate().then(() => {
         disabled.value = true;
-        axios.post('http://127.0.0.1:8000/resetPassword/', {
-          username: Form.username,
-          email: Form.email,
-        }).then(successResponse => {
+        let formData = new FormData();
+        
+        formData.append('username', Form.username)
+        formData.append('email', Form.email)
+        
+        api.post('/resetPassword/send_captcha/', 
+          formData
+        ).then(successResponse => {
           if (successResponse.data.code === 200) {
             active.value++;
+            
             ElNotification({
               title: '成功',
               message: '验证码发送成功！',
@@ -145,11 +160,12 @@ const nextStep = (formRef) => {
       ElMessage.warning('验证码未输入');
       return;
     }
-    axios.post('/resetPassword', {
-      code: codeForm.code,
-      username: Form.username,
-      email: Form.email,
-    }).then(successResponse => {
+    let formData = new FormData();
+    formData.append('captcha', codeForm.code)
+    formData.append('email', Form.email)
+    api.post('/resetPassword/check_captcha/', 
+      formData
+    ).then(successResponse => {
       if (successResponse.data.code === 200) {
         active.value++;
         ElNotification({
@@ -172,17 +188,19 @@ const nextStep = (formRef) => {
       ElMessage.warning('两次密码不一致');
       return;
     }
-
-    axios.post('/resetPassword', {
-      password: passwordForm.password,
-      username: Form.username,
-    }).then(successResponse => {
+    let formData = new FormData();
+    formData.append('email', Form.email)
+    formData.append('password', passwordForm.password)
+    api.post('/resetPassword/reset_password/', 
+      formData
+    ).then(successResponse => {
       if (successResponse.data.code === 200) {
         ElNotification({
           title: '成功',
           message: '该账号密码修改正确！',
           type: 'success',
         });
+        active.value++;
         // let path = window.location.search.includes('redirect') ? decodeURIComponent(window.location.search.split('redirect=')[1]) : '/login';
         // window.location.href = path;
       } else if (successResponse.data.code === 400) {
@@ -192,6 +210,10 @@ const nextStep = (formRef) => {
       ElMessage.error('请求失败，请重试');
     });
   }
+};
+
+const backLogin = () => {
+  router.push('/')
 };
 </script>
 

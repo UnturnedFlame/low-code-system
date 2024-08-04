@@ -59,6 +59,7 @@ import { useRouter } from 'vue-router';
 import axios from "axios";
 import type { Rule } from 'ant-design-vue/es/form';
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
+import api from '../utils/api.js'
 
 // const checkCodeUrl = "api/checkCode?" + new Date().getTime();
 //表单
@@ -159,7 +160,7 @@ const login = () => {
     .then(() => {
       console.log('values', formState, );
       // 使用 axios 发送 POST 请求
-      axios.post("http://127.0.0.1:8000/login/", form_obj)
+      api.post("/login/", form_obj)
         .then(response => { // 处理响应
           if (response.statusText == 'OK') { // 假设服务器在成功时返回了数据
             // 登录成功，显示成功消息
