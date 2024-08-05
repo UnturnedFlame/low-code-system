@@ -17,8 +17,8 @@
         <el-aside width="250px">
           <div style="font-size: 20px; font-weight: 700; background-color: #80a5ba; width: 250px; color: #f9fbfa;">
             算法选择区</div>
-          <div style="background-color: #eff3f6; width: 250px;height: 600px;">
-            <el-scrollbar height="600px" min-size="35" style="margin-left: 10px;">
+          <div style="background-color: #eff3f6; width: 250px;height: 500px;">
+            <el-scrollbar height="500px" min-size="35" style="margin-left: 10px;">
               <el-column v-for="item in menuList2">
                 <el-row><el-button style="width: 150px; margin-top: 10px; background-color: #4599be; color: white; "
                     icon="ArrowDown" @click="menu_details_second[item.label] = !menu_details_second[item.label]">
@@ -56,9 +56,21 @@
           <div style="font-size: 20px; font-weight: 700; background-color: #80a5ba; width: 250px; color: #f9fbfa;">
             加载数据
           </div>
+          <div style="width: 250px; height: 180px; position: relative">
+            <uploadDatafile @switchDrawer="handleSwitchDrawer" :api="api"/>
+            <div style=" width: 250px; height: 20px; position: absolute; left: 5px; top: 155px">已加载数据：{{ using_datafile }}</div>
+          </div>
           
-          <uploadDatafile @switchDrawer="handleSwitchDrawer" :api="api"/>
-          <div>已加载数据：{{ using_datafile }}</div>
+          <div style="font-size: 20px; font-weight: 700; background-color: #80a5ba; width: 250px; color: #f9fbfa;">
+            加载模型
+          </div>
+          <div style="position: relative; width: 250px; height:auto">
+            <el-button type="info" style="width: 165px; font-size: 17px; background-color: #606266; position:absolute; top: 25px; left: 40px"
+              @click="fetch_models" icon="More">
+              用户历史模型
+            </el-button>
+            <div style="position:absolute; top: 65px; left: 70px">已加载模型：{{ model_loaded }}</div>
+          </div>
         </el-aside>
 
         <el-main @dragover.prevent ref="efContainerRef" id="efContainer "
@@ -124,45 +136,13 @@
                 <div class="node-drag" :id="item.id"></div>
               </Vue3DraggableResizable>
             </DraggableContainer>
-            <!-- <el-upload action="" :auto-upload="false" v-model:file-list="file_list" :before-upload="checkFileType"
-              limit="1" style="position: absolute; left: 320px; bottom: 20px;" :show-file-list="false">
-              <el-button type="info" round style=" width: 125px; font-size: 17px; " icon="FolderAdd">
-                上传数据
-              </el-button>
-            </el-upload> -->
-
-            <!-- <template v-if="file_list.length > 0">
-              <div class="custom-file-list" >
-                <p v-for="file in file_list" :key="file.uid" style="display: flex; justify-content: space-between; align-items: center; ">
-                  {{ file.name }}
-                  
-                  <el-button
-                      style="float: right; width: 5px"
-                      icon="close"
-                      @click="handleDelete(file)">
-                  </el-button>
-                </p >
-              </div>
-            </template> -->
-            <!-- <template v-if="file_list.length > 0">
-              <div class="custom-file-list"
-                style="display: flex; justify-content: space-between; align-items: center; ">
-                <p v-for="file in file_list" :key="file.uid"
-                  style="width: 180px; text-overflow: ellipsis; /* 当文本超出时显示省略号 */overflow: hidden; /* 隐藏超出部分的文本 */">
-                  {{ file.name }}
-                </p> -->
-            <!-- 删除按钮 -->
-            <!-- <el-button v-for="file in file_list" style="position: relative; float: right; width: 5px;" icon="close"
-                  @click="handleDelete(file)">
-                </el-button>
-              </div>
-            </template> -->
+           
             <div
-              style="position: absolute; right: 17px; bottom: 10px; width: 1430px; height: auto;display: flex; justify-content: space-between; align-items: center;">
-              <el-button type="info" round style="width: 125px; font-size: 17px; background-color: #606266; "
+              style="position: absolute; right: 250px; bottom: 10px; width: 600px; height: auto;display: flex; justify-content: space-between; align-items: center;">
+              <!-- <el-button type="info" round style="width: 125px; font-size: 17px; background-color: #606266; "
                 @click="fetch_models" icon="More">
                 历史模型
-              </el-button>
+              </el-button> -->
               <el-space size="large">
                 
                 <!-- <el-upload action="" :auto-upload="false" v-model:file-list="file_list" :before-upload="checkFileType"
@@ -632,8 +612,8 @@
         </el-drawer>
 
       </el-container>
-      <el-footer style="height: 35px; position: relative;"><span
-          style="position: absolute; top: -15px;">welcome!</span></el-footer>
+      <!-- <el-footer style="height: 35px; position: relative;"><span
+          style="position: absolute; top: -15px;">welcome!</span></el-footer> -->
 
     </el-container>
     <el-dialog v-model="dialogmodle" title="保存模型" draggable width="30%">
@@ -2373,6 +2353,7 @@ const save_model_confirm = () => {
       dialogmodle.value = false
       canStartProcess.value = false     // 保存模型成功可以运行
       modelSetup.value = true                 // 模型保存完成
+      model_loaded.value = model_info_form.value.name  // 保存模型后，显示当前模型名称
       updateStatus('当前模型已保存')
     } else if(response.data.status == 400) {
       ElMessage({
@@ -2759,6 +2740,7 @@ const fetchedModelsInfo = ref([])
 
 // 复用历史模型，不需要进行模型检查等操作
 let model_has_been_saved = false
+const model_loaded = ref('无')  // 已加载的历史模型
 
 // 点击历史模型表格中使用按钮触发复现历史模型
 const use_model = (row) => {
@@ -2770,6 +2752,7 @@ const use_model = (row) => {
   updateStatus('当前模型已保存')
   model_has_been_saved = true
   canStartProcess.value = false
+  model_loaded.value = row.model_name
   let objects = JSON.parse(row.model_info)
   let node_list = objects.nodeList         // 模型节点信息   
   let connection = objects.connection      // 模型连线信息
@@ -3079,7 +3062,7 @@ function updateStatus(status) {
 const fetchedDataFiles = ref<Object[]>([])
 
 // 用户目前选择的数据文件
-const using_datafile = ref('')
+const using_datafile = ref('无')
 
 const delete_dataset_confirm_visible = ref(false)
 let row_dataset: any = null

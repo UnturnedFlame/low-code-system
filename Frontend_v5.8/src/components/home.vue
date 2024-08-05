@@ -56,7 +56,6 @@
 import { ref, reactive, } from 'vue'
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
-import axios from "axios";
 import type { Rule } from 'ant-design-vue/es/form';
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 import api from '../utils/api.js'
@@ -106,7 +105,7 @@ const router = useRouter();
 const login = () => {
 
   var form_obj = JSON.stringify(formState);
-  console.log(form_obj)
+  // console.log(form_obj)
   // formRef.value.validate((valid) => {
   //   if (valid) {
   //     // 使用 axios 发送 POST 请求
