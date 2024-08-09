@@ -7,11 +7,34 @@
     <el-container class="fullscreen_container">
       <el-header style="height: 60px;text-align: center; line-height: 60px; position: relative;">
         <img src="../assets/logo.png" alt="" style="width: 50px; position: absolute; left: 5px; top: 5px;">
-        <h2 style="font-size: 26px;">车轮状态分析与健康评估</h2>
+        <h2 style="font-size: 26px;">智能运维通用算法和工具软件</h2>
         <div class="user-info-container" id="userInfo" style="position: absolute; right: 10px; top: 5px; color: white;">
           <span style="margin-right: 10px;">欢迎！ {{ username }}</span>
           <span @click="logout" class="clickable">退出登录</span>
+          <span class="clickable" style="margin-left: 10px" @click="helpDialogVisible=true">帮助</span>
         </div>
+        <el-dialog v-model="helpDialogVisible" title="使用指南" width="810" draggable :close-on-click-modal="false" :center="false">
+          <div style="text-align: left;">
+            <el-scrollbar height="500px">
+              <h1>1、选择算法</h1>
+              <h3>从算法选择区中将所选择算法模块拖拽至可视化建模区并调整位置</h3>
+              <img src="../assets/step_1.gif" alt="" style="width: 700px; height: auto">
+              <h1>2、调整参数</h1>
+              <h3>鼠标右击可视化建模区中的算法模块，在弹出的下拉框中更改算法的参数</h3>
+              <img src="../assets/step_2.gif" alt="" style="width: 700px; height: auto">
+              <h1>3、建立流程</h1>
+              <h3>鼠标移至作为所建立流程的起点的算法模块上的红色附着点，点击并拖拽至所建立流程的目标算法模块</h3>
+              <img src="../assets/step_3.gif" alt="" style="width: 700px; height: auto">
+              <h1>4、检查模型及修改模型</h1>
+              <h3>在确保所有模块都已经建立流程后，点击完成建模，然后点击检查模型对所建立的模型进行检查，</h3>
+              <h3>如果模型中存在错误，点击修改模型并根据提示对模型进行修改，然后依次点击完成建模和模型检查，</h3>
+              <h3>通过模型检查后即可以保存模型，并进行后续操作。</h3>
+              <img src="../assets/step_4.gif" alt="" style="width: 800px; height: auto">
+              
+            </el-scrollbar>
+          </div>
+          
+        </el-dialog>
       </el-header>
       <el-container>
         <el-aside width="250px">
@@ -144,68 +167,36 @@
                 历史模型
               </el-button> -->
               <el-space size="large">
-                
-                <!-- <el-upload action="" :auto-upload="false" v-model:file-list="file_list" :before-upload="checkFileType"
-                          limit="1" >
-                    <el-button type="info" round style="position: absolute; width: 125px; font-size: 17px; "  icon="FolderAdd">
-                      上传数据
-                    </el-button>
-                </el-upload> -->
 
                 <el-button type="info" round style="width: 125px; font-size: 17px; background-color: #E6A23C;"
                   @click="handleclear" icon="Refresh">
                   清空模型
                 </el-button>
 
-                <!-- <el-button v-if="!to_rectify_model" type="info" :disabled="canCompleteModeling"
-                  @mouseover="CompleteModeling" round style="width: 125px; font-size: 17px; background-color:  #722ED1;"
-                  @click="finished_model" icon="Check">
-                  完成建模
-                </el-button> -->
                 <el-button v-if="!to_rectify_model" type="primary" :disabled="canCompleteModeling"
                   @mouseover="CompleteModeling" round style="width: 125px; font-size: 17px;" @click="finished_model"
                   icon="Check">
                   完成建模
                 </el-button>
-                <!-- <el-button v-if="to_rectify_model" type="info" :disabled="canCompleteModeling"
-                  @mouseover="CompleteModeling" round style="width: 125px; font-size: 17px; background-color:  #722ED1;"
-                  @click="rectify_model" icon="Edit">
-                  修改模型
-                </el-button> -->
+              
                 <el-button v-if="to_rectify_model" type="primary" :disabled="canCompleteModeling"
                   @mouseover="CompleteModeling" round style="width: 125px; font-size: 17px;" @click="rectify_model"
                   icon="Edit">
                   修改模型
                 </el-button>
 
-                <!-- <el-button-group>
-                  <el-button type="info" :disabled="canCheckModel" @mouseover="checkModeling" round style="width: 125px; font-size: 17px; background-color: #4ca1c1;" @click="check_model" icon="Search">
-                    检查模型
-                  </el-button>
-                  <el-button type="info" round style="width: 70px; font-size: 17px; background-color: #4ca1c1;" icon="Opportunity">提示</el-button>
-                </el-button-group> -->
-                <!-- <el-button type="info" :disabled="canCheckModel" @mouseover="checkModeling" round
-                  style="width: 125px; font-size: 17px; background-color: #4ca1c1;" @click="check_model" icon="Search">
-                  检查模型
-                </el-button> -->
+                
                 <el-button type="primary" :disabled="canCheckModel" @mouseover="checkModeling" round
                   style="width: 125px; font-size: 17px; " @click="check_model" icon="Search">
                   检查模型
                 </el-button>
 
-                <!-- <el-button type="info" :disabled="canSaveModel" @mouseover="saveModeling" round
-                  style="width: 125px; font-size: 17px; background-color: #20A0FF;" @click="saveModelSetting(true, [])"
-                  icon="Finished">
-                  保存模型
-                </el-button> -->
+           
                 <el-button type="primary" :disabled="canSaveModel" @mouseover="saveModeling" round
                   style="width: 125px; font-size: 17px;" @click="saveModelSetting(true, [])" icon="Finished">
                   保存模型
                 </el-button>
-                <!-- <el-button type="success" round style="width: 125px; font-size: 17px; background-color: #67C23A;"
-                  @click="handleupload" icon="SwitchButton" :disabled="canStartProcess" @mouseover="startModeling">
-                  开始运行
-                </el-button> -->
+              
                 <el-button type="success" round style="width: 125px; font-size: 17px; " @click="run"
                   icon="SwitchButton" :disabled="canStartProcess || process_is_shutdown" @mouseover="startModeling">
                   开始运行
@@ -643,6 +634,7 @@ import uploadDatafile from './uploadDatafile.vue';
 import api from '../utils/api.js'
 
 
+const helpDialogVisible = ref(false)
 
 const router = useRouter()
 

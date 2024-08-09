@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="login-body">
-      <div class="system-name">欢迎使用<span>车轮状态分析与健康评估系统</span></div>
+      <div class="system-name">欢迎使用<span>智能运维通用算法和工具软件</span></div>
       <div class="login-panel">
         <div class="login-title">用户登录</div>
 
