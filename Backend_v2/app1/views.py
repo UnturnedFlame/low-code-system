@@ -1,27 +1,22 @@
 import json
-import os
-import time
-
-import numpy as np
-from django.contrib import messages
-from django.contrib.auth.models import Group
-from django.contrib.auth import authenticate, get_user_model
-from django.db.models import Q
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from datetime import datetime, timedelta
-from django.core.mail import send_mail
 import multiprocessing
-
+import os
 import random
 import string
+import time
+from datetime import datetime, timedelta
+
 import jwt
+import numpy as np
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.models import Group
+from django.core.mail import send_mail
+from django.http import JsonResponse
 
 from Backend_v2 import settings
 # from app1.module_management.algorithms.functions.speech_processing import extract_speaker_feature
 # from app1.module_management.algorithms.functions.load_model import load_model_with_pytorch_lightning
 from app1 import models
-from app1 import forms
 from app1.models import CaptchaModel
 from app1.module_management.calculate_engine import Reactor, encode_image_to_base64
 

@@ -7,7 +7,7 @@
     <el-container class="fullscreen_container">
       <el-header style="height: 60px;text-align: center; line-height: 60px; position: relative;">
         <img src="../assets/logo.png" alt="" style="width: 50px; position: absolute; left: 5px; top: 5px;">
-        <h2 style="font-size: 26px;">智能运维通用算法和工具软件</h2>
+        <h2 style="font-size: 26px;">车轮状态分析与健康评估软件</h2>   
         <div class="user-info-container" id="userInfo" style="position: absolute; right: 10px; top: 5px; color: white;">
           <span style="margin-right: 10px;">欢迎！ {{ username }}</span>
           <span @click="logout" class="clickable">退出登录</span>
@@ -29,7 +29,7 @@
               <h3>在确保所有模块都已经建立流程后，点击完成建模，然后点击检查模型对所建立的模型进行检查，</h3>
               <h3>如果模型中存在错误，点击修改模型并根据提示对模型进行修改，然后依次点击完成建模和模型检查，</h3>
               <h3>通过模型检查后即可以保存模型，并进行后续操作。</h3>
-              <img src="../assets/step_4.gif" alt="" style="width: 800px; height: auto">
+              <img src="../assets/step_4.gif" alt="" style="width: 750px; height: auto">
               
             </el-scrollbar>
           </div>

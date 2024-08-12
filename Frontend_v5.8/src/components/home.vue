@@ -1,109 +1,128 @@
 <template>
-  <div>
-    <div class="login-body">
-      <div class="system-name">欢迎使用<span>智能运维通用算法和工具软件</span></div>
-      <div class="login-panel">
-        <div class="login-title">用户登录</div>
+  <el-container>
+    <el-main style="height: 94vh;">
+      <div>
+        <div class="login-body">
+          <div class="system-name">欢迎使用<span>车轮状态分析与健康评估软件</span></div>
+          <div class="login-panel">
+            <div class="login-title">用户登录</div>
 
-        <a-form
-         :model="formState" 
-         :rules="rules" 
-          ref="formRef"
-          >
-          <a-form-item label='账号' name="username">
-            <a-input placeholder="请输入账号" v-model:value="formState.username" size="large" type="text">
-              <template #prefix>
-                <user-outlined />
-              </template>
-            </a-input>
-          </a-form-item>
-          <a-form-item label="密码" name="password">
-            <a-input placeholder="请输入密码" v-model:value="formState.password" size="large" type="password"
-              @keyup.enter.native="login()">
-              <template #prefix>
-                <lock-outlined />
-              </template>
-            </a-input>
-          </a-form-item>
-          <a-form-item label="角色" name="role" style="text-align: center">
-            <a-select
-              v-model:value="formState.role" size="large"  placeholder="请选择角色">
-              <a-select-option value="user">用户</a-select-option>
-              <a-select-option value="admin">管理员</a-select-option>
-              
-            </a-select>
-            
-          </a-form-item>
-          <a-form-item label="">
-            <a-button type="primary"  html-type="submit" style="width: 100%;" @click="login()" size="large">登录</a-button>
-          </a-form-item>
-        </a-form>
-        <div style="position:absolute;  right:5px;bottom: 0px;">
-          <el-button @click="goToResetPassword"
-                     class="button">
-          忘记密码?
-        </el-button>
+            <a-form :model="formState" :rules="rules" ref="formRef">
+              <a-form-item label="账号" name="username">
+                <a-input
+                  placeholder="请输入账号"
+                  v-model:value="formState.username"
+                  size="large"
+                  type="text"
+                >
+                  <template #prefix>
+                    <user-outlined />
+                  </template>
+                </a-input>
+              </a-form-item>
+              <a-form-item label="密码" name="password">
+                <a-input
+                  placeholder="请输入密码"
+                  v-model:value="formState.password"
+                  size="large"
+                  type="password"
+                  @keyup.enter.native="login()"
+                >
+                  <template #prefix>
+                    <lock-outlined />
+                  </template>
+                </a-input>
+              </a-form-item>
+              <a-form-item label="角色" name="role" style="text-align: center">
+                <a-select
+                  v-model:value="formState.role"
+                  size="large"
+                  placeholder="请选择角色"
+                >
+                  <a-select-option value="user">用户</a-select-option>
+                  <a-select-option value="admin">管理员</a-select-option>
+                </a-select>
+              </a-form-item>
+              <a-form-item label="">
+                <a-button
+                  type="primary"
+                  html-type="submit"
+                  style="width: 100%"
+                  @click="login()"
+                  size="large"
+                  >登录</a-button
+                >
+              </a-form-item>
+            </a-form>
+            <div style="position: absolute; right: 5px; bottom: 0px">
+              <el-button @click="goToResetPassword" class="button"> 忘记密码? </el-button>
+            </div>
+          </div>
         </div>
-
-
       </div>
-    </div>
-  </div>
-
+    </el-main>
+    <el-footer style="height: auto; background-color: white;">
+      
+        <div
+          style="color: black; position:absolute; bottom: 15px; right: 42%"
+        >
+          © 2024 国家高速列车青岛技术创新中心 
+          
+        </div>
+        
+        <div style="color: black; position:absolute; bottom: auto; right: 42%">
+          联系我们：xxx@gmail.com | 电话：xxx
+        </div>
+    
+      
+    </el-footer>
+  </el-container>
 </template>
 
-<script lang='ts' setup>
-import { ref, reactive, } from 'vue'
-import { ElMessage } from 'element-plus';
-import { useRouter } from 'vue-router';
-import type { Rule } from 'ant-design-vue/es/form';
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
-import api from '../utils/api.js'
-
-// const checkCodeUrl = "api/checkCode?" + new Date().getTime();
-//表单
-// const formDataRef = ref();
-// let formData = reactive({
-//   username: "",
-//   password: "",
-//   role: ""
-// });
+<script lang="ts" setup>
+import { ref, reactive } from "vue";
+import { ElMessage } from "element-plus";
+import { useRouter } from "vue-router";
+import type { Rule } from "ant-design-vue/es/form";
+import { UserOutlined, LockOutlined } from "@ant-design/icons-vue";
+import api from "../utils/api.js";
 
 const formRef = ref();
 const formState = reactive({
-  username: '',
-  password: '',
-  role: '',
+  username: "",
+  password: "",
+  role: "",
 });
 
-// const rules: Record<string, Rule[]> = {
-//   password: [{ required: true, validator: validatePass, trigger: 'change' }],
-// };
-
-const goToResetPassword =() =>{
-  router.push("/resetPassword")
-}
+const goToResetPassword = () => {
+  router.push("/resetPassword");
+};
 
 const rules: Record<string, Rule[]> = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 15, message: '用户名长度需在3~15个字符之间', trigger: 'blur' },
+    { required: true, message: "请输入用户名", trigger: "blur" },
+    { min: 3, max: 15, message: "用户名长度需在3~15个字符之间", trigger: "blur" },
   ],
   password: [
-    { required: true, message: '密码不能为空', trigger: 'blur' },
-    { min: 8, message: '密码长度必须至少为8位', trigger: 'blur' },
-    { pattern: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/, message: '密码必须包含数字、大小写字母', trigger: 'blur' }
+    { required: true, message: "密码不能为空", trigger: "blur" },
+    { min: 8, message: "密码长度必须至少为8位", trigger: "blur" },
+    {
+      pattern: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/,
+      message: "密码必须包含数字、大小写字母",
+      trigger: "blur",
+    },
   ],
-  role: [{
-    required: true,
-    message: "请选择用户级别",
-    trigger: 'change'
-  }]
-}
+  role: [
+    {
+      required: true,
+      message: "请选择用户级别",
+      trigger: "change",
+    },
+  ],
+};
 const router = useRouter();
 
 const login = () => {
-
   var form_obj = JSON.stringify(formState);
   // console.log(form_obj)
   // formRef.value.validate((valid) => {
@@ -130,7 +149,6 @@ const login = () => {
 
   //             window.localStorage.setItem("jwt", token_got);
 
-
   //             // 保存用户名到 localStorage
   //             window.localStorage.setItem("username", formData.username);
   //             console.log('localstorage username: ', window.localStorage.getItem('username'))
@@ -154,61 +172,63 @@ const login = () => {
   //       });
   //   }
   // })
-  formRef.value
-    .validate()
-    .then(() => {
-      console.log('values', formState, );
-      // 使用 axios 发送 POST 请求
-      api.post("/login/", form_obj)
-        .then(response => { // 处理响应
-          if (response.statusText == 'OK') { // 假设服务器在成功时返回了数据
-            // 登录成功，显示成功消息
-            if (response.data.message != 'login success') {
-              // 如果服务器返回的数据不表示成功，则显示错误消息
-              ElMessage.error('账号或密码错误，登录失败！');
-              return
+  formRef.value.validate().then(() => {
+    console.log("values", formState);
+    // 使用 axios 发送 POST 请求
+    api
+      .post("/login/", form_obj)
+      .then((response) => {
+        // 处理响应
+        if (response.statusText == "OK") {
+          // 假设服务器在成功时返回了数据
+          // 登录成功，显示成功消息
+          if (response.data.message != "login success") {
+            // 如果服务器返回的数据不表示成功，则显示错误消息
+            ElMessage.error("账号或密码错误，登录失败！");
+            return;
+          } else {
+            ElMessage({
+              message: "登录成功",
+              type: "success",
+            });
+            let token_got = response.data.token;
+
+            // 保存 token 和登录时间到 localStorage
+            // let tokenObj = { jwt: token_got, startTime: new Date().getTime() };
+            // console.log('tokenObj: ', tokenObj)
+
+            window.localStorage.setItem("jwt", token_got);
+
+            // 保存用户名到 localStorage
+            window.localStorage.setItem("username", formState.username);
+            console.log(
+              "localstorage username: ",
+              window.localStorage.getItem("username")
+            );
+            // 根据返回数据跳转到主页或者后台
+            if (formState.role == "user") {
+              router.push("/UserPlatform");
             } else {
-              ElMessage({
-                message: '登录成功',
-                type: 'success',
-              });
-              let token_got = response.data.token
-
-              // 保存 token 和登录时间到 localStorage
-              // let tokenObj = { jwt: token_got, startTime: new Date().getTime() };
-              // console.log('tokenObj: ', tokenObj)
-
-              window.localStorage.setItem("jwt", token_got);
-
-
-              // 保存用户名到 localStorage
-              window.localStorage.setItem("username", formState.username);
-              console.log('localstorage username: ', window.localStorage.getItem('username'))
-              // 根据返回数据跳转到主页或者后台
-              if (formState.role == "user") {
-                router.push("/UserPlatform");
-              }
-              else {
-                router.push("/admin");
-              }
-
+              router.push("/admin");
             }
           }
-        })
-        .catch(error => { // 处理错误
-          // 打印错误信息到控制台
-          console.error('请求错误：', error);
-          // router.push("/UserPlatform")
-          // 显示错误消息
-          ElMessage.error('服务器出错，请稍微重试');
-        })
-      })}
-
+        }
+      })
+      .catch((error) => {
+        // 处理错误
+        // 打印错误信息到控制台
+        console.error("请求错误：", error);
+        // router.push("/UserPlatform")
+        // 显示错误消息
+        ElMessage.error("服务器出错，请稍微重试");
+      });
+  });
+};
 </script>
 
 <style lang="scss" scoped>
 .login-body {
-  background: url("../assets/登录背景.jpg") no-repeat center center;
+  background: url("../assets/R.jpg") no-repeat center center;
   height: 100%;
   width: 100%;
   background-size: cover;
@@ -319,27 +339,25 @@ const login = () => {
   top: 100px;
   left: 26%;
   text-align: center;
-  color: #FFFFFF;
-  font-family: 'Arial', sans-serif;
+  color: #ffffff;
+  font-family: "Arial", sans-serif;
   font-size: 3rem;
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .system-name span {
-  color: #FFD700;
+  color: #ffd700;
 }
-
 
 /* // 设置下拉框的背景颜色及边框属性； */
 .custom-select {
   .el-select-dropdown {
     /* // 若不将下拉框的背景颜色设置为：transparent，那么做不出来半透明的效果；
   // 因为其最终的显示为：下拉框有一个背景颜色且下拉框的字体有一个背景颜色，重叠后的效果展示； */
-    border: 1px solid #326AFF;
-    background: #04308D !important;
+    border: 1px solid #326aff;
+    background: #04308d !important;
   }
-
 }
 
 /* // 设置下拉框的字体属性及背景颜色； */
@@ -349,7 +367,7 @@ const login = () => {
     font-size: 7px;
     color: #fff;
     font-weight: 200;
-    background-color: #04308D;
+    background-color: #04308d;
   }
 }
 
@@ -379,7 +397,7 @@ const login = () => {
 .custom-select {
   :deep(.el-select-dropdown__item:hover) {
     color: rgb(213, 215, 230);
-    background-color: #326AFF;
+    background-color: #326aff;
   }
 }
 </style>

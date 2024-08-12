@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import datetime
+import os
 
 from django.conf import settings
 
@@ -27,11 +28,35 @@ SECRET_KEY = "django-insecure-pz9(4bujnfh5je#&o^7mnx))0(gqq&=qy=(j^6xipqgw24momo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "localhost",
-    '127.0.0.1'
-]
+ALLOWED_HOSTS = ['*']
 
+CORS_ORIGIN_ALLOW_ALL = True  # 允许所有 domain 访问
+# CORS_ORIGIN_ALLOW_ALL = False  # 允许某些域访问
+# CORS_ORIGIN_WHITELIST = [
+#     'http://127.0.0.1:8000',
+# ]
+
+# CORS_ALLOW_METHODS = (
+#     'DELETE',
+#     'GET',
+#     'OPTIONS',
+#     'PATCH',
+#     'POST',
+#     'PUT',
+#     'VIEW',
+# )
+#
+# CORS_ALLOW_HEADERS = (
+#     'accept',
+#     'accept-encoding',
+#     'authorization',
+#     'content-type',
+#     'dnt',
+#     'origin',
+#     'user-agent',
+#     'x-csrftoken',
+#     'x-requested-with',
+# )
 # Application definition
 
 INSTALLED_APPS = [
@@ -63,21 +88,21 @@ MIDDLEWARE = [
 #
 # ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:52330",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    'http://localhost:8080',
-    'http://localhost:5173',
-    'http://localhost:5174'
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:52330",
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+#     'http://localhost:8080',
+#     'http://localhost:5174',
+#     'http://8.152.2.64:5173'
+# ]
 
 ROOT_URLCONF = "Backend_v2.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'Frontend/dist')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -101,7 +126,7 @@ DATABASES = {
         "NAME": "system_database",
         "USER": "root",
         "PASSWORD": "lxy123",
-        "HOST": "localhost",
+        "HOST": "127.0.0.1",
         "PORT": 3306,
     }
 }
@@ -140,6 +165,8 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+STATIC_ROOT = os.path.join(BASE_DIR, "assets")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -161,11 +188,11 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=5),  # 访问令牌有效期
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),    # 刷新令牌有效期
-    'ROTATE_REFRESH_TOKENS': False,                # 是否自动刷新刷新令牌
-    'BLACKLIST_AFTER_ROTATION': False,              # 刷新令牌时是否将旧令牌加入黑名单
-    'ALGORITHM': 'HS256',                           # 签名算法
-    'SIGNING_KEY': settings.SECRET_KEY,              # 签名密钥，这里使用 Django 的 SECRET_KEY
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),  # 刷新令牌有效期
+    'ROTATE_REFRESH_TOKENS': False,  # 是否自动刷新刷新令牌
+    'BLACKLIST_AFTER_ROTATION': False,  # 刷新令牌时是否将旧令牌加入黑名单
+    'ALGORITHM': 'HS256',  # 签名算法
+    'SIGNING_KEY': settings.SECRET_KEY,  # 签名密钥，这里使用 Django 的 SECRET_KEY
     # 其他可选配置...
 }
 
