@@ -224,12 +224,12 @@
                         v-model="item.parameters[item.use_algorithm][key]" /></el-col>
                   </el-row> -->
                   <!-- 可视化建模区中的各节点所具有的参数与代码中menuList2中的参数是相对应的 -->
-                  <el-row v-if="item.use_algorithm != null && item.id != '1.2'"
+                  <el-row v-if="item.use_algorithm != null && item.id != '1.2' && item.id != '1.3'"
                     v-for="(value, key) in item.parameters[item.use_algorithm]"
                     :key="item.parameters[item.use_algorithm].keys" style="margin-bottom: 20px">
                     <el-col :span="8" style="align-content: center;"><span style="margin-left: 10px; font-size: 15px;">{{ labelsForParams[key] }}：</span></el-col>
                     <el-col :span="16">
-                      <el-select v-model="item.parameters[item.use_algorithm][key]" collapse-tags collapse-tags-tooltip>
+                      <el-select v-model="item.parameters[item.use_algorithm][key]" collapse-tags collapse-tags-tooltip :teleported="false">
                         <el-option 
                           v-for="item in recommendParams[key]"
                           :key="item.value"
@@ -253,6 +253,40 @@
                       </div>
                     </el-col>
                   </el-row>
+                  <!-- 特征选择根据规则进行选择 -->
+                  
+                  <div v-if="item.id == '1.3'">
+                    <el-radio-group v-model="featureSelectionRule">
+                      <el-radio value="rule1" size="large">规则一</el-radio>
+                      <el-radio value="rule2" size="large">规则二</el-radio>
+                    </el-radio-group>
+                    <div v-if="featureSelectionRule == 'rule1'">
+                      <div style="margin-top: 5px; margin-bottom: 15px;">
+                        设定阈值后，将选择重要性大于该阈值的特征
+                      </div>
+
+                      <el-form>
+                        <el-form-item label="阈值" >
+                          <el-select v-model='item.parameters[item.use_algorithm][threshold]' size='medium' placeholder="请输入阈值" style="width: 250px;">
+                            <el-option 
+                            v-for="item in recommendParams['threshold']"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                            style="width: 200px; height: auto; background-color: white;" 
+                            />
+                          </el-select>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                    <div v-if="featureSelectionRule == 'rule2'">
+                      这是规则二
+                    </div>
+                  </div>
+                    
+                    
+
+                  
 
                   <template #reference>
                     <div class="node-info-label el-dropdown-link font-style: italic;" :id=item.id>{{ item.label_display
@@ -393,42 +427,13 @@
                       </el-col>
 
                     </el-row>
-                    <!-- 特征提取选择要显示的特征 -->
-                    <el-row v-if="item.id == '1.3'">
-                      <el-col :span="8">选择特征</el-col>
-                      <el-col :span="16">
-                        <div class="m-4">
-
-                          <el-select v-model="features" multiple collapse-tags collapse-tags-tooltip
-                            placeholder="选择需要提取的特征">
-                            <el-option v-for="(value, key) in item.parameters[item.use_algorithm]" :label="key"
-                              :value="key" style="width: 200px; background-color: white;" />
-                          </el-select>
-                        </div>
-                      </el-col>
-
-                    </el-row>
+                   
                     <el-row>
                       <el-text v-if="item.use_algorithm" style="margin-top: 1px; margin-bottom: 3px;">
                         算法介绍：{{ algorithmIntroduction[item.use_algorithm] }}
                       </el-text>
                     </el-row>
-                    <!-- 填参数 -->
-                    <el-row v-if="item.use_algorithm != null && item.id != '1.3'"
-                      v-for="(value, key) in item.parameters[item.use_algorithm]"
-                      :key="item.parameters[item.use_algorithm].keys">
-                      <!-- <el-col :span="8"><span>{{ labels_for_params[key] }}</span></el-col>
-                      <el-col :span="16"><el-input style="width:190px" :disabled="false"
-                          v-model="item.parameters[item.use_algorithm][key]" /></el-col> -->
-                          <el-input style="width:190px" :disabled="false"
-                            v-model="item.parameters[item.use_algorithm][key]">
-                            <template #prefix>
-                              <div>
-                                {{ labelsForParams[key] }}
-                              </div>
-                            </template>
-                          </el-input>
-                    </el-row>
+                    
                   </div>
                 </el-tab-pane>
 
@@ -798,12 +803,12 @@ const menuList2 = ref([{
     },
     {
       label: '特征选择', id: '1.3', use_algorithm: null, parameters: {
-        'feature_imp': {num_features: 10},
-        'mutual_information_importance': {num_features: 10},
-        'correlation_coefficient_importance': {num_features: 10},
-        'feature_imp_multiple': {num_features: 10},
-        'mutual_information_importance_multiple': {num_features: 10},
-        'correlation_coefficient_importance_multiple': {num_features: 10}
+        'feature_imp': {rule: 1, threshold: 0.005},
+        'mutual_information_importance': {rule: 1, threshold: 0.005},
+        'correlation_coefficient_importance': {rule: 1, threshold: 0.005},
+        'feature_imp_multiple': {rule: 1, threshold: 0.005},
+        'mutual_information_importance_multiple': {rule: 1, threshold: 0.005},
+        'correlation_coefficient_importance_multiple': {rule: 1, threshold: 0.005}
       }, tip_show: false, tip: '对提取到的特征进行特征选择'
     },
     {
@@ -855,6 +860,8 @@ const menuList2 = ref([{
 
 ]);
 
+const featureSelectionRule = ref('rule1')
+
 // 该方法用于判断是否显示背景图片
 const background_IMG = () => {
   if (nodeList.value.length == 0) {
@@ -871,7 +878,8 @@ const background_IMG = () => {
 // 算法推荐参数
 const recommendParams = {
   'wavelet': [{value: 'db1', label: 'db1'}, {value: 'db2', label: 'db2'}, {value: 'sym1', label: 'sym1'}, {value: 'sym2', label: 'sym2'}, {value: 'coif1', label: 'coif1'}],
-  'wavelet_level': [{value: 1, label: '1'}, {value: 2, label: '2'}, {value: 3, label: '3'}]
+  'wavelet_level': [{value: 1, label: '1'}, {value: 2, label: '2'}, {value: 3, label: '3'}],
+  'threshold': [{value: 0.005, label: '0.005'}, {value: 0.01, label: '0.01'}, {value: 0.02, label: '0.02'}, {value: 0.03, label: '0.03'}, {value: 0.04, label: '0.04'}, {value: 0.05, label: 0.05}]
 }
 
 // 各个算法包含的参数对应的中文名
@@ -2805,10 +2813,10 @@ const resultShow = (item) => {
       }
     }
   } else {
-    ElMessage({
-      message: '当前无运行结果',
-      type: 'error'
-    })
+    // ElMessage({
+    //   message: '当前无运行结果',
+    //   type: 'error'
+    // })
   }
 }
 
