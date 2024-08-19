@@ -5,34 +5,34 @@
       <a-radio :value="2">服务器文件</a-radio>
     </a-radio-group>
     <a-row>
-      <a-col :span="12">
+      <a-col :span="24" v-if="loadingDataModel == 1">
         <a-upload
           :file-list="fileList"
           :max-count="1"
           @remove="handleRemove"
           :before-upload="beforeUpload"
         >
-          <a-button style="margin-top: 16px" :disabled="loadingDataModel == 2">
+          <a-button style="margin-top: 16px; width: 160px; font-size: 16px; background-color: #2082F9; color: white">
             <upload-outlined></upload-outlined>
             选择文件
           </a-button>
         </a-upload>
         <a-button
           type="primary"
-          :disabled="fileList.length === 0 || loadingDataModel == 2"
+          :disabled="fileList.length === 0"
           :loading="uploading"
-          style="margin-top: 20px"
+          style="margin-top: 20px; width: 160px; font-size: 16px"
           @click="handleUpload"
         >
           {{ uploading ? "正在上传" : "上传至服务器" }}
         </a-button>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="24" v-if="loadingDataModel == 2">
         <a-button
           type="default"
-          style="margin-top: 16px; margin-left: 2px"
+          style="margin-top: 35px; margin-left: 2pxs; width: 160px; font-size: 16px;  background-color: #2082F9; color: white"
           @click="switchDrawer"
-          :disabled="loadingDataModel == 1"
+          
           >查看历史文件</a-button
         >
       </a-col>
@@ -42,10 +42,13 @@
           title="提交所保存文件信息"
           :confirm-loading="confirmLoading"
           @ok="handleOk"
+          okText="确定"
+          cancelText="取消"
+          :maskClosable="false"
         >
           <a-space direction="vertical">
             <a-form :model="formState" :rules="rules" ref="formRef">
-              <a-form-item label="文件名" name="filename">
+              <a-form-item label="文件名称" name="filename">
                 <a-input v-model:value="formState.filename" placeholder="请输入文件名" />
               </a-form-item>
               <a-form-item label="文件描述" name="description">
@@ -68,7 +71,6 @@ import { UploadOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import type { UploadProps } from "ant-design-vue";
 import { Rule } from "ant-design-vue/es/form";
-import { stringType } from "ant-design-vue/es/_util/type";
 import { ElMessage } from "element-plus";
 
 
@@ -88,6 +90,9 @@ const rules: Record<string, Rule[]> = {
     { required: true, message: "请输入文件描述", trigger: "blur" },
   ],
 }
+
+
+// 确认上传文件
 const handleOk = () => {
 
   formRef.value.validate().then(() => {
@@ -126,10 +131,6 @@ const handleOk = () => {
   })
 }
 
-  // setTimeout(() => {
-  //   uploadConfirmDialog.value = false;
-  //   confirmLoading.value = false;
-  // }, 2000);
 
 
 const fileList = ref<UploadProps["fileList"]>([]);
@@ -142,6 +143,8 @@ const props = defineProps({
   },
 });
 
+
+// 
 const handleRemove: UploadProps["onRemove"] = (file) => {
   const index = fileList.value.indexOf(file);
   const newFileList = fileList.value.slice();

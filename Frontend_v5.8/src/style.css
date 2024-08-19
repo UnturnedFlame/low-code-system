@@ -4,9 +4,7 @@
 }
 
 .el-header {
-  /* background-color: #392f2f;
-  color: #333; */
-  background-color: #4ca1c1;
+  background-color: #0c48a1;
   background-size: cover;
   color: #f9fcff;
   text-align: center;
@@ -14,6 +12,7 @@
   line-height: 60px;
 }
 
+/* #4ca1c1 */
 .el-footer {
   background-color: #1c6e9d;
   color: white;
@@ -35,11 +34,11 @@
 
 
 
-.test {
+.resultsContainer {
   height: 68%;
   background-color: white;
   position: relative;
-  background-image: url('assets/结果可视化.png');
+  background-image: url('assets/results.png');
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;

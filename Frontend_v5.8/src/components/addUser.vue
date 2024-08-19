@@ -16,11 +16,17 @@
         <el-input v-model="form.email" autocomplete="off" placeholder="请输入邮箱">
         </el-input>
       </el-form-item>
+      <el-form-item prop="role" label="角色权限" :label-width="formLabelWidth">
+        <el-radio-group v-model="form.role" style="padding-left: 10px">
+          <el-radio label="user" size="large">用户</el-radio>
+          <el-radio label="admin" size="large">管理员</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      
     </el-form>
 
     <template #footer>
       <div class="button-container" >
-        <!-- 按钮容器 -->
         <div class="buttons-right-bottom">
           <el-button @click="handlecancel(formRef)">取消</el-button>
           <el-button type="primary" @click="handleConfirm()">确定</el-button>
@@ -38,7 +44,7 @@ import { ElMessage } from "element-plus";
 import api from '../utils/api.js';
 
 const router = useRouter();
-const formRef =ref(null)
+const formRef = ref(null)
 const formLabelWidth = '140px'
 const dialogFormVisible = ref(true);
 const form = reactive({
@@ -103,7 +109,10 @@ const handleConfirm = async () => {
           // 可能需要重新获取表格数据或其他逻辑
           router.push('/admin/userManage');
         }else {
-          console.error('添加用户失败: ', response.data.message);
+          ElMessage({
+            message: '用户创建失败,' + response.data.message,
+            type: 'error',
+          })
         }
     })
     .catch(error => {
@@ -112,25 +121,6 @@ const handleConfirm = async () => {
       ElMessage.error('服务器出错，请稍微重试');
     })
   }
-    // 表单数据验证通过，发送数据到服务器
-    // const response = await axios.post('http://127.0.0.1:8000/add_user/', form);
-
-    // // 处理服务器响应
-    // if (response.data.message === 'add user success') {
-      
-    //   ElMessage({
-    //     message: '用户创建成功',
-    //     type: 'success',
-    //   })
-    //   // 重置表单和关闭对话框
-    //   formRef.value.resetFields();
-    //   dialogFormVisible.value = false;
-    //   // 可能需要重新获取表格数据或其他逻辑
-    //   router.push('/admin/userManage');
-    // } else {
-    //   console.error('服务器响应错误', response.status);
-    //   // 显示错误消息
-    // }
   } catch (error) {
     console.error('创建用户失败', error);
     // 显示错误提示

@@ -219,7 +219,7 @@ const backLogin = () => {
 
 <style scoped>
 .resetPassword{
-  background-image: url("../assets/登录背景.jpg");
+  background-image: url("../assets/login-background.jpg");
   background-position: center;
   height: 100%;
   width: 100%;

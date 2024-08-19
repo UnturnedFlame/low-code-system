@@ -1,4 +1,5 @@
-export const labels_for_algorithms = {
+// 算法名称
+export const labelsForAlgorithms = {
     WhiteGaussianNoise: "高斯白噪声",
     polynomial_interpolation: "多项式插值算法",
     bicubic_interpolation: "双三次插值算法",
@@ -35,9 +36,15 @@ export const labels_for_algorithms = {
     neighboring_values_interpolation: "邻近值插补算法",
     linear_regression: "单传感器线性回归趋势预测",
     linear_regression_multiple: "多传感器线性回归趋势预测",
+    deeplearning_interpolation: '深度学习插补算法',
+    ulcnn: '单传感器一维卷积深度学习模型的故障诊断',
+    ulcnn_multiple: '多传感器一维卷积深度学习模型的故障诊断',
+    spectrumModel: '单传感器基于时频图的深度学习模型的故障诊断',
+    spectrumModel_multiple: '多传感器基于时频图的深度学习模型的故障诊断'
 };
 
-export const algorithm_introduction = {
+// 算法介绍
+export const algorithmIntroduction = {
     WhiteGaussianNoise:
         "高斯白噪声(White Gaussian Noise)在通信、信号处理及科学研究等多个领域中扮演着重要角色。它作为一种理想的噪声模型，具有独特的统计特性和功率谱分布，为系统性能评估、算法测试及信号分析提供了有力工具",
     polynomial_interpolation:
@@ -68,8 +75,8 @@ export const algorithm_introduction = {
              然后用模糊综合评判确定评判效果。模糊法是在层次法之上，两者相互融合，对评价有着很好的可靠性",
 };
 
-
-export const plain_introduction = {
+// 算法简介
+export const plainIntroduction = {
     polynomial_interpolation:
         "# 多项式插值方法\n" +
         "## 多项式插值是一种数学技术，通过构造一个多项式来精确地通过一组给定的数据点，从而对数据进行平滑逼近。\n" +
@@ -338,4 +345,15 @@ export const plain_introduction = {
     层次分析模糊综合评估:
         "### 层次分析模糊综合评估法是一种将模糊综合评价法和层次分析法相结合的评价方法\n***\n ### 算法优点：\n **1. 可以综合考虑多个因素的影响，给出全面评价结果。**\n \
     **2. 评价结果是一个矢量，而不是一个点值，包含的信息比较丰富，既可以比较准确的刻画被评价对象，又可以进一步加工，得到参考信息。**\n **3. 模糊评价通过精确的数字手段处理模糊的评价对象，能对蕴藏信息呈现模糊性的资料作出比较科学、合理、贴近实际的量化评价。**",
+    
 };
+
+// 算法参数名称
+export const labelsForParams = {
+    SNR: '信噪比',
+    layers: '网络层数',
+    num_workers: '工作线程数',
+    num_features: '选取特征数量',
+    wavelet: '小波类型',
+    wavelet_level: '小波层数'
+}

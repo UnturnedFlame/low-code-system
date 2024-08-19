@@ -61,7 +61,7 @@ import {onMounted, ref} from "vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import api from "../utils/api.js";
-import {labels_for_algorithms} from "./constant.ts";
+import {labelsForAlgorithms} from "./constant.ts";
 
 const fetchedModelsInfo = ref([])
 
@@ -104,7 +104,7 @@ const show_model_info = (row) => {
   node_list.forEach(element => {
     let item = { '模块名': '', '算法': '' }
     item.模块名 = element.label
-    item.算法 = labels_for_algorithms[element.use_algorithm]
+    item.算法 = labelsForAlgorithms[element.use_algorithm]
     model_params.value.push(item)
   });
 }

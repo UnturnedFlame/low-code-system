@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-main style="height: 94vh;">
+    <el-main style="height: 93vh;">
       <div>
         <div class="login-body">
           <div class="system-name">欢迎使用<span>车轮状态分析与健康评估软件</span></div>
@@ -64,13 +64,13 @@
     <el-footer style="height: auto; background-color: white;">
       
         <div
-          style="color: black; position:absolute; bottom: 15px; right: 42%"
+          style="color: black; position:absolute; bottom: 15px; right: 42%; margin-bottom: 5px"
         >
           © 2024 国家高速列车青岛技术创新中心 
           
         </div>
-        
-        <div style="color: black; position:absolute; bottom: auto; right: 42%">
+        <br>
+        <div style="color: black; position:absolute; bottom: 0px; right: 42%;">
           联系我们：xxx@gmail.com | 电话：xxx
         </div>
     
@@ -124,54 +124,6 @@ const router = useRouter();
 
 const login = () => {
   var form_obj = JSON.stringify(formState);
-  // console.log(form_obj)
-  // formRef.value.validate((valid) => {
-  //   if (valid) {
-  //     // 使用 axios 发送 POST 请求
-  //     axios.post("http://127.0.0.1:8000/login/", form_obj)
-  //       .then(response => { // 处理响应
-  //         if (response.statusText == 'OK') { // 假设服务器在成功时返回了数据
-  //           // 登录成功，显示成功消息
-  //           if (response.data.message != 'login success') {
-  //             // 如果服务器返回的数据不表示成功，则显示错误消息
-  //             ElMessage.error('账号或密码错误，登录失败！');
-  //             return
-  //           } else {
-  //             ElMessage({
-  //               message: '登录成功',
-  //               type: 'success',
-  //             });
-  //             let token_got = response.data.token
-
-  //             // 保存 token 和登录时间到 localStorage
-  //             // let tokenObj = { jwt: token_got, startTime: new Date().getTime() };
-  //             // console.log('tokenObj: ', tokenObj)
-
-  //             window.localStorage.setItem("jwt", token_got);
-
-  //             // 保存用户名到 localStorage
-  //             window.localStorage.setItem("username", formData.username);
-  //             console.log('localstorage username: ', window.localStorage.getItem('username'))
-  //             // 根据返回数据跳转到主页或者后台
-  //             if (formData.role == "User") {
-  //               router.push("/UserPlatform");
-  //             }
-  //             else {
-  //               router.push("/admin");
-  //             }
-
-  //           }
-  //         }
-  //       })
-  //       .catch(error => { // 处理错误
-  //         // 打印错误信息到控制台
-  //         console.error('请求错误：', error);
-  //         // router.push("/UserPlatform")
-  //         // 显示错误消息
-  //         ElMessage.error('服务器出错，请稍微重试');
-  //       });
-  //   }
-  // })
   formRef.value.validate().then(() => {
     console.log("values", formState);
     // 使用 axios 发送 POST 请求
@@ -182,29 +134,23 @@ const login = () => {
         if (response.statusText == "OK") {
           // 假设服务器在成功时返回了数据
           // 登录成功，显示成功消息
-          if (response.data.message != "login success") {
+          if (response.data.code != 200) {
             // 如果服务器返回的数据不表示成功，则显示错误消息
-            ElMessage.error("账号或密码错误，登录失败！");
+            ElMessage.error(response.data.message);
             return;
           } else {
             ElMessage({
               message: "登录成功",
               type: "success",
             });
-            let token_got = response.data.token;
+            let tokenGot = response.data.token;
 
             // 保存 token 和登录时间到 localStorage
-            // let tokenObj = { jwt: token_got, startTime: new Date().getTime() };
-            // console.log('tokenObj: ', tokenObj)
-
-            window.localStorage.setItem("jwt", token_got);
+            window.localStorage.setItem("jwt", tokenGot);
 
             // 保存用户名到 localStorage
             window.localStorage.setItem("username", formState.username);
-            console.log(
-              "localstorage username: ",
-              window.localStorage.getItem("username")
-            );
+
             // 根据返回数据跳转到主页或者后台
             if (formState.role == "user") {
               router.push("/UserPlatform");
@@ -218,7 +164,6 @@ const login = () => {
         // 处理错误
         // 打印错误信息到控制台
         console.error("请求错误：", error);
-        // router.push("/UserPlatform")
         // 显示错误消息
         ElMessage.error("服务器出错，请稍微重试");
       });
@@ -228,7 +173,7 @@ const login = () => {
 
 <style lang="scss" scoped>
 .login-body {
-  background: url("../assets/R.jpg") no-repeat center center;
+  background: url("../assets/login-background.jpg") no-repeat center center;
   height: 100%;
   width: 100%;
   background-size: cover;
