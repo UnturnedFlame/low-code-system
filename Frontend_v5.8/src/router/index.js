@@ -43,7 +43,7 @@ const routes = [
     {
         path: '/test',
         name: 'test',
-        component: () =>import("../components/uploadDatafile.vue")
+        component: () =>import("../views/test.vue")
     },
     {
         path: '/resetPassword',

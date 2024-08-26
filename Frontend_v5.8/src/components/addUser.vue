@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="dialogFormVisible" title="新增用户" width="500" @close="() => {form.username = ''; form.password = ''}"
-             :show-close="false" :close-on-click-modal="false" center >
+  :show-close="false" :close-on-click-modal="false" center >
     <el-form :model="form" :rules="rules" ref="formRef" style="margin-right: 70px">
       <el-form-item prop="jobNumber" label="工号" :label-width="formLabelWidth">
         <el-input v-model="form.jobNumber" autocomplete="off" />
@@ -55,6 +55,8 @@ const form = reactive({
   email: ''
 })
 
+
+// 用户信息表单验证规则
 const rules = {
   username: [
     { required: true, message: '用户姓名不能为空', trigger: 'blur' },
@@ -86,6 +88,8 @@ const handlecancel = (formEl) => {
   router.push('/admin/userManage');
 }
 
+
+// 添加用户的信息验证
 const handleConfirm = async () => {
   try {
     // 触发表单验证
@@ -96,7 +100,7 @@ const handleConfirm = async () => {
     }
     else {
       let json_form = JSON.stringify(form);
-      api.post('/add_user/', json_form)
+      api.post('administration/add_user/', json_form)
       .then(response => {
         if (response.data.message === 'add user success') {
           ElMessage({

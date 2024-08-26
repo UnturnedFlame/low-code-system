@@ -12,18 +12,19 @@
           @remove="handleRemove"
           :before-upload="beforeUpload"
         >
-          <a-button style="margin-top: 16px; width: 160px; font-size: 16px; background-color: #2082F9; color: white">
-            <upload-outlined></upload-outlined>
-            选择文件
+          <a-button style="margin-top: 16px; width: 160px; font-size: 16px; background-color: #2082F9; color: white"
+          :icon="h(FolderOpenOutlined)">
+            选择本地文件
           </a-button>
         </a-upload>
         <a-button
           type="primary"
           :disabled="fileList.length === 0"
           :loading="uploading"
-          style="margin-top: 20px; width: 160px; font-size: 16px"
+          style="margin-top: 5px; width: 160px; font-size: 16px"
           @click="handleUpload"
         >
+          <UploadOutlined />
           {{ uploading ? "正在上传" : "上传至服务器" }}
         </a-button>
       </a-col>
@@ -32,7 +33,7 @@
           type="default"
           style="margin-top: 35px; margin-left: 2pxs; width: 160px; font-size: 16px;  background-color: #2082F9; color: white"
           @click="switchDrawer"
-          
+          :icon="h(FolderOutlined)"
           >查看历史文件</a-button
         >
       </a-col>
@@ -72,6 +73,8 @@ import { message } from "ant-design-vue";
 import type { UploadProps } from "ant-design-vue";
 import { Rule } from "ant-design-vue/es/form";
 import { ElMessage } from "element-plus";
+import { h } from 'vue';
+import { FolderOutlined, FolderOpenOutlined } from '@ant-design/icons-vue';
 
 
 const confirmLoading = ref<boolean>(false);
@@ -85,6 +88,8 @@ const formRef = ref();
 const rules: Record<string, Rule[]> = {
   filename: [
     { required: true, message: "请输入文件名", trigger: "blur" },
+    // { pattern: /[<>:"\/\\|?*]/, message: '文件名中包含非法字符', trigger: 'blur' }
+    { pattern:/^[\u4e00-\u9fa5_a-zA-Z0-9]+$/, message: '请输入中英文/数字/下划线', trigger: 'blur' },
   ],
   description: [
     { required: true, message: "请输入文件描述", trigger: "blur" },
@@ -96,18 +101,15 @@ const rules: Record<string, Rule[]> = {
 const handleOk = () => {
 
   formRef.value.validate().then(() => {
-    confirmLoading.value = true;
+  confirmLoading.value = true;
   const formData = new FormData();
-  //   fileList.value.forEach((file: UploadProps["fileList"][number]) => {
-  //     formData.append("file", file as any);
-  //   });
   formData.append("file", fileList.value[0]);
   formData.append("filename", formState.value.filename);
   formData.append("description", formState.value.description);
   uploading.value = true;
 
   props.api
-    .post("/upload_datafile/", formData)
+    .post("/user/upload_datafile/", formData)
     .then((response: any) => {
         if(response.data.message == 'save data success'){
             fileList.value = [];
@@ -133,7 +135,7 @@ const handleOk = () => {
 
 
 
-const fileList = ref<UploadProps["fileList"]>([]);
+const fileList = ref<UploadProps["fileList"]>([]);  // 文件列表
 const uploading = ref<boolean>(false);
 const loadingDataModel = ref<number>(1)
 const props = defineProps({
@@ -144,7 +146,7 @@ const props = defineProps({
 });
 
 
-// 
+// 移除文件列表中的文件
 const handleRemove: UploadProps["onRemove"] = (file) => {
   const index = fileList.value.indexOf(file);
   const newFileList = fileList.value.slice();
@@ -152,12 +154,15 @@ const handleRemove: UploadProps["onRemove"] = (file) => {
   fileList.value = newFileList;
 };
 
+
 const beforeUpload: UploadProps["beforeUpload"] = (file) => {
   fileList.value.length = 0;
   fileList.value = [...(fileList.value || []), file];
   return false;
 };
 
+
+// 文件类型检查，只允许mat或是npy格式的文件
 const handleUpload = () => {
   let file = fileList.value[0]
   let filename = file.name
@@ -173,6 +178,8 @@ const handleUpload = () => {
 
 };
 
+
+// 子组件向父组件发送数据
 const emit = defineEmits(["switchDrawer"]);
 const switchDrawer = () => {
     let url = 'user/fetch_datafiles/'

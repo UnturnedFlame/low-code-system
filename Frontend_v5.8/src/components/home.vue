@@ -61,20 +61,18 @@
         </div>
       </div>
     </el-main>
-    <el-footer style="height: auto; background-color: white;">
-      
-        <div
-          style="color: black; position:absolute; bottom: 15px; right: 42%; margin-bottom: 5px"
-        >
-          © 2024 国家高速列车青岛技术创新中心 
-          
-        </div>
-        <br>
-        <div style="color: black; position:absolute; bottom: 0px; right: 42%;">
-          联系我们：xxx@gmail.com | 电话：xxx
-        </div>
+    <el-footer style="height: 7vh; background-color: white; display: flex; justify-content: center; align-items: center;">
+      <div style="color: black; width: 300px; height: 100%; line-height: 20px;"
+      >
+        © 2024 国家高速列车青岛技术创新中心 
+        联系我们：xxx@gmail.com | 电话：xxx
+        西南交通大学研制
+        
+      </div>
     
-      
+      <!-- <div style="color: black;">
+        西南交通大学研制
+      </div> -->
     </el-footer>
   </el-container>
 </template>

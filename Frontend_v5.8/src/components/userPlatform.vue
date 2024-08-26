@@ -15,11 +15,13 @@
             </a>
             <template #overlay>
               <a-menu>
-                <a-menu-item>
-                  <span @click="operationHelpDialogVisible=true">操作指南</span>
+                <a-menu-item @click="operationHelpDialogVisible=true">
+                  <!-- <span @click="operationHelpDialogVisible=true">操作指南</span> -->
+                  操作指南
                 </a-menu-item>
-                <a-menu-item>
-                  <span @click="userHelpDialogVisible=true">使用教程</span>
+                <a-menu-item @click="userHelpDialogVisible=true">
+                  <!-- <span @click="userHelpDialogVisible=true">使用教程</span> -->
+                  使用教程
                 </a-menu-item>
               </a-menu>
             </template>
@@ -169,14 +171,10 @@
                         style="background-color: #7BA0D5 ; margin-top: 7px; width: 145px; height: 30px; margin-bottom: 10px; padding: 0px; border-radius: 5px; align-content: center; margin-left: 40px;">
                         <el-text style="width: 105px; font-size: 12px; color: white;" truncated>{{ labelsForAlgorithms[algorithm]
                           }}</el-text>
-
                       </div>
                     </el-tooltip>
-
-
                   </el-column>
                 </el-column>
-
               </el-column>
             </el-scrollbar>
 
@@ -185,8 +183,8 @@
             加载数据
           </div>
           <div style="width: 250px; height: 180px; position: relative; background-color: white;">
-            <uploadDatafile @switchDrawer="handleSwitchDrawer" :api="api"/>
-            <div style=" width: 250px; height: 20px; position: absolute; left: 5px; top: 155px">已加载数据：{{ usingDatafile }}</div>
+            <uploadDatafile @switchDrawer="handleSwitchDrawer" :api="api" />
+            <div style=" width: 250px; height: 20px; position: absolute; left: 5px; top: 140px">已加载数据：{{ usingDatafile }}</div>
           </div>
           
           <div class="aside-title">
@@ -195,9 +193,14 @@
           <div style="position: relative; width: 250px; height: 250px; background-color: #FCFDFF;">
             <a-button style="width: 165px; font-size: 16px; position:absolute; top: 25px; left: 40px; text-align: center; background-color: #2082F9; color: white;"
               @click="fetchModels">
+              <!-- <template #prefix>
+                <div>
+                  你好
+                </div>
+              </template> -->
               用户历史模型
             </a-button>
-            <div style="position:absolute; top: 65px; left: 5px; width: 250px; height: 20px">已加载模型：{{ modelLoaded }}</div>
+            <div style="position:absolute; top: 65px; left: 5px; width: 240px; height: 20px">已加载模型：{{ modelLoaded }}</div>
           </div>
         </el-aside>
 
@@ -215,16 +218,9 @@
                 :key="item.nodeId" class="node-info" :id="item.id" :style="item.nodeContainerStyle"
                 :ref="el => nodeRef[index] = el" @click="resultShow(item)">
                 <el-popover placement="bottom" title="参数配置" :width="400" trigger="contextmenu">
-                  <!-- 选择调整参数 -->
-                  <!-- <el-row v-if="item.use_algorithm != null && item.id != '1.2'"
-                    v-for="(value, key) in item.parameters[item.use_algorithm]"
-                    :key="item.parameters[item.use_algorithm].keys">
-                    <el-col :span="8" style="align-content: center;"><span style="margin-left: 10px; font-size: 15px;">{{ labelsForParams[key] }}：</span></el-col>
-                    <el-col :span="16"><el-input style="width:190px" :disabled="false" type="number"
-                        v-model="item.parameters[item.use_algorithm][key]" /></el-col>
-                  </el-row> -->
+                  <!-- 调整参数 -->
                   <!-- 可视化建模区中的各节点所具有的参数与代码中menuList2中的参数是相对应的 -->
-                  <el-row v-if="item.use_algorithm != null && item.id != '1.2' && item.id != '1.3'"
+                  <el-row v-if="item.use_algorithm != null && item.id != '1.2' && item.id != '1.3' && item.id != '1.5'"
                     v-for="(value, key) in item.parameters[item.use_algorithm]"
                     :key="item.parameters[item.use_algorithm].keys" style="margin-bottom: 20px">
                     <el-col :span="8" style="align-content: center;"><span style="margin-left: 10px; font-size: 15px;">{{ labelsForParams[key] }}：</span></el-col>
@@ -253,23 +249,24 @@
                       </div>
                     </el-col>
                   </el-row>
-                  <!-- 特征选择根据规则进行选择 -->
-                  
+
+                  <!-- 选择特征选择的规则以及设定规则的阈值 -->
                   <div v-if="item.id == '1.3'">
-                    <el-radio-group v-model="featureSelectionRule">
-                      <el-radio value="rule1" size="large">规则一</el-radio>
-                      <el-radio value="rule2" size="large">规则二</el-radio>
+                    <el-radio-group v-model="item.parameters[item.use_algorithm]['rule']">
+                      <el-radio :value="1" size="large">规则一</el-radio>
+                      <el-radio :value="2" size="large">规则二</el-radio>
                     </el-radio-group>
-                    <div v-if="featureSelectionRule == 'rule1'">
+                    <!-- 特征选择规则一 -->
+                    <div v-if="item.parameters[item.use_algorithm]['rule'] == 1">
                       <div style="margin-top: 5px; margin-bottom: 15px;">
-                        设定阈值后，将选择重要性大于该阈值的特征
+                        设定阈值后，将选择重要性系数大于该阈值的特征
                       </div>
 
                       <el-form>
                         <el-form-item label="阈值" >
-                          <el-select v-model='item.parameters[item.use_algorithm][threshold]' size='medium' placeholder="请输入阈值" style="width: 250px;">
+                          <el-select v-model="item.parameters[item.use_algorithm]['threshold1']" size='medium' placeholder="请输入阈值" style="width: 250px;" :teleported="false">
                             <el-option 
-                            v-for="item in recommendParams['threshold']"
+                            v-for="item in recommendParams['threshold1'][item.use_algorithm]"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value"
@@ -279,14 +276,35 @@
                         </el-form-item>
                       </el-form>
                     </div>
-                    <div v-if="featureSelectionRule == 'rule2'">
-                      这是规则二
+                    <!-- 特征选择规则二 -->
+                    <div v-if="item.parameters[item.use_algorithm]['rule'] == 2">
+                      <div style="margin-top: 5px; margin-bottom: 15px;">
+                        设定阈值后，将根据特征的重要性，由高到低地选择特征，直到所选特征的重要性的总和占所有特征的重要性比例不小于该阈值，其中所有特征的重要性占比为1
+                      </div>
+
+                      <el-form>
+                        <el-form-item label="阈值" >
+                          <el-select v-model="item.parameters[item.use_algorithm]['threshold2']" size='medium' placeholder="请输入阈值" style="width: 250px;" :teleported="false">
+                            <el-option 
+                            v-for="item in recommendParams['threshold2'][item.use_algorithm]"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                            style="width: 200px; height: auto; background-color: white;" 
+                            />
+                          </el-select>
+                        </el-form-item>
+                      </el-form>
                     </div>
                   </div>
-                    
-                    
-
-                  
+                  <!-- 无量纲化参数设置 -->
+                  <div v-if="item.id == '1.5'">
+                    <div>是否使用模型训练时的标准化方法</div>
+                    <el-radio-group v-model="item.parameters[item.use_algorithm]['useLog']">
+                      <el-radio :value="true" size="large">是</el-radio>
+                      <el-radio :value="false" size="large">否</el-radio>
+                    </el-radio-group>
+                  </div>
 
                   <template #reference>
                     <div class="node-info-label el-dropdown-link font-style: italic;" :id=item.id>{{ item.label_display
@@ -308,13 +326,10 @@
                 <div class="node-drag" :id="item.id"></div>
               </Vue3DraggableResizable>
             </DraggableContainer>
-           
+            <!-- <div style="width: 1000px; height: 100px; background-color: #88b6fb;"></div> -->
             <div
               style="position: absolute; right: 250px; bottom: 10px; width: 600px; height: auto;display: flex; justify-content: space-between; align-items: center;">
-              <!-- <el-button type="info" round style="width: 125px; font-size: 17px; background-color: #606266; "
-                @click="fetch_models" icon="More">
-                历史模型
-              </el-button> -->
+         
               <el-space size="large">
 
                 <el-button type="info" round style="width: 125px; font-size: 17px; background-color: #E6A23C;"
@@ -360,86 +375,6 @@
           </div>
 
           <div class="resultsContainer" style="background-color: white;">
-            <el-dialog v-model="dialogVisible" title="模型算法及参数设置" style="width: 1000px; height: 750px;">
-
-              <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
-                <el-tab-pane v-for="item in nodeList" :label="item.label" :name="item.nodeId">
-                  <div v-if="item.label == '层次分析模糊综合评估'" style="position: relative; height: 630px; width: auto; ">
-                    <div
-                      style="position: absolute; left: 10px; top: 10px; height: 480px; width: 200px; background-color: aliceblue;">
-                      <el-text size="large">指标层次构建</el-text>
-                      <el-tree style="max-width: 600px" :data="dataSource" show-checkbox node-key="id"
-                        default-expand-all :expand-on-click-node="false">
-                        <template #default="{ node, data }">
-                          <span class="custom-tree-node">
-                            <span>{{ node.label }}</span>
-                            <span>
-                              <a @click="append(data)"> Append </a>
-                              <a style="margin-left: 8px" @click="remove(node, data)"> Delete </a>
-                            </span>
-                          </span>
-                        </template>
-                      </el-tree>
-                    </div>
-                    <div
-                      style="position: absolute; left: 230px; top: 10px; height: 480px; width: 720px; background-color: aliceblue;">
-                      <el-text size="large">指标权重配置</el-text>
-
-                      <div
-                        style="position: absolute; top: 25px; left: 10px;width: 500px; height: 400px; background-color: white;">
-                      </div>
-                      <div
-                        style="position: absolute; top: 25px; left: 500px; width: 190px; height: 400px; background-color: lightgray; margin-left: 20px;">
-                        <el-space direction="vertical">
-                          <el-text style="font-weight: bold; font-size: larger;">分值对照表</el-text>
-                          <el-row><el-text style="font-size: medium;">1(1)同样重要</el-text></el-row>
-                          <el-row><el-text style="font-size: medium;">2(1/2)稍稍微(不)重要</el-text></el-row>
-                          <el-row><el-text style="font-size: medium;">3(1/3)稍微(不)重要</el-text></el-row>
-                          <el-row><el-text style="font-size: medium;">4(1/4)稍比较(不)重要</el-text></el-row>
-                          <el-row><el-text style="font-size: medium;">5(1/5)比较(不)重要</el-text></el-row>
-                          <el-row><el-text style="font-size: medium;">6(1/6)稍非常(不)重要</el-text></el-row>
-                          <el-row><el-text style="font-size: medium;">7(1/7)非常(不)重要</el-text></el-row>
-                          <el-row><el-text style="font-size: medium;">8(1/8)稍绝对(不)重要</el-text></el-row>
-                          <el-row><el-text style="font-size: medium;">9(1/9)绝对(不)重要</el-text></el-row>
-
-                        </el-space>
-
-
-                      </div>
-                    </div>
-                    <div
-                      style="position: absolute; left: 10px; top: 500px; width: 940px; height: 125px; background-color: aliceblue;">
-                    </div>
-                  </div>
-                  <!-- 选择具体算法以及设置参数 -->
-                  <div v-if="item.label != '层次分析模糊综合评估'" style="margin-top: 5px; margin-left: 30px; width: 550px;">
-
-                    <el-row>
-                      <el-col :span="8"><el-text style="margin-top: 20px;">选择算法</el-text></el-col>
-                      <el-col :span="16">
-                        <el-select v-model="item.use_algorithm" placeholder="算法选择" popper-append-to-body="false"
-                          id="select_algorithm" @change="setParams">
-                          <el-option v-for="(value, key) in item.parameters" :label="labelsForAlgorithms[key]"
-                            :value="key" style="width: 225px; background-color: white; height: auto;">
-
-                          </el-option>
-                        </el-select>
-                      </el-col>
-
-                    </el-row>
-                   
-                    <el-row>
-                      <el-text v-if="item.use_algorithm" style="margin-top: 1px; margin-bottom: 3px;">
-                        算法介绍：{{ algorithmIntroduction[item.use_algorithm] }}
-                      </el-text>
-                    </el-row>
-                    
-                  </div>
-                </el-tab-pane>
-
-              </el-tabs>
-
-            </el-dialog>
 
             <!-- 点击在可视化建模区展示算法的具体介绍 -->
             <el-scollbar height="400px">
@@ -452,26 +387,26 @@
             
             <!-- 显示程序运行的进度条 -->
             <el-progress v-if="processing" :percentage="percentage" :indeterminate="true" />
-            <iframe id='my_gradio_app' style="width: 1200px; height: 570px;" :src="refreshPardon" frameborder="0"
+            <!-- <iframe id='my_gradio_app' style="width: 1200px; height: 570px;" :src="refreshPardon" frameborder="0"
               v-if="isShow">
-            </iframe>
+            </iframe> -->
 
             <!-- 显示结果 -->
-            <el-scrollbar height="570px" v-if="canShowResults">
+            <el-scrollbar height="550px" v-if="canShowResults" style="background-color: white;">
               <!-- 健康评估可视化 -->
-              <el-tabs class="demo-tabs" type="card" v-model="activeName1" v-if="displayHealthEvaluation">
+              <el-tabs class="demo-tabs" type="border-card" v-model="activeName1" v-if="displayHealthEvaluation">
                 <el-tab-pane label="层级有效指标" name="first">
                   <img :src="healthEvaluationFigure1" alt="figure1" id="health_evaluation_figure_1"
-                    class="result_image" style="width: 900px; height: 450px;" />
+                    class="result_image" style="width: auto; height: 450px;" />
                 </el-tab-pane>
                 <el-tab-pane label="指标权重" name="second">
                   <img :src="healthEvaluationFigure2" alt="figure2" id="health_evaluation_figure_2"
-                    class="result_image" style="width: 900px; height: 450px;" />
+                    class="result_image" style="width: auto; height: 450px;" />
                 </el-tab-pane>
                 <el-tab-pane label="评估结果" name="third">
                   <el-col>
                     <img :src="healthEvaluationFigure3" alt="figure3" id="health_evaluation_figure_3"
-                      class="result_image" style="width: 900px; height: 450px;" />
+                      class="result_image" style="width: auto; height: 360px;" />
                     <br>
                     <div style="width: 1000px; margin-left: 250px;">
                       <el-text :v-model="healthEvaluation" style="font-weight: bold; font-size: 18px;">{{
@@ -482,7 +417,7 @@
                 </el-tab-pane>
               </el-tabs>
               <!-- 特征提取可视化 -->
-              <el-table :data="transformedData" style="width: 100%; margin-top: 20px;"
+              <el-table :data="transformedData" style="width: 96%; margin-top: 20px;"
                 v-if="displayFeatureExtraction">
                 <el-table-column v-for="column in columns" :key="column.prop" :prop="column.prop" :label="column.label"
                   :width="column.width">
@@ -494,8 +429,8 @@
                   style="width: 900px; height: 450px;" />
                 <br>
                 <div style="width: 1000px; margin-left: 250px;">
-                  <el-text :v-model="featuresSelected" style="font-weight: bold; font-size: 20px;">选取特征结果为： {{
-                    featuresSelected }}</el-text>
+                  <span style="font-weight: bold; font-size: 15px;">根据规则：{{ selectFeatureRule }}，选取特征结果为： {{
+                    featuresSelected }}</span>
                 </div>
               </div>
               <!-- 故障诊断可视化 -->
@@ -516,7 +451,7 @@
                   经故障诊断算法，目前该部件<span :v-model="faultRegression" style="font-weight: bold; color: red;">{{
                     faultRegression
                   }}</span>
-                  <span v-if="!have_fault" :v-model="timeToFault" style="font-weight: bold;">根据故障预测算法预测，该部件{{
+                  <span v-if="!haveFault" :v-model="timeToFault" style="font-weight: bold;">根据故障预测算法预测，该部件{{
                     timeToFault
                   }}后会出现故障</span>
                 </div>
@@ -530,7 +465,7 @@
                 <img :src="interpolationFigure" alt="interpolation_figure" class="result_image"
                   style="width: 900px; height: 450px;" />
               </div> -->
-              <el-tabs v-model="activeName3" class="demo-tabs" v-if="displayInterpolation">
+              <el-tabs v-model="activeName3" v-if="displayInterpolation" type="border-card">
                 <el-tab-pane v-for="item in interpolationResultsOfSensors" :key="item.name" :label="item.label" :name="item.name">
                   <img :src="interpolationFigures[item.name - 1]" alt="figure" id="figure"
                   class="result_image" style="width: 900px; height: 450px;" />
@@ -538,27 +473,36 @@
               </el-tabs>
               <!-- 无量纲化可视化 -->
               <div v-if="displayNormalization" style="margin-top: 20px; font-size: 18px;">
-                <div style="font-size: large;">原数据</div>
-                <el-table :data="normalizationFormdataRaw" style="width: 100%; margin-top: 20px;"
-                >
-                  <el-table-column v-for="column in normalizationColumns" :key="column.prop" :prop="column.prop" :label="column.label"
-                    :width="column.width">
-                  </el-table-column>
-                </el-table>
-                <br>
-                <div style="font-size: large;">标准化后数据</div>
-                <el-table :data="normalizationFormdataScaled" style="width: 100%; margin-top: 20px;"
-                >
-                  <el-table-column v-for="column in normalizationColumns" :key="column.prop" :prop="column.prop" :label="column.label"
-                    :width="column.width">
-                  </el-table-column>
-                </el-table>
+                <div  v-if="normalizationResultType == 'table'">
+                  <div style="font-size: large;">原数据</div>
+                  <el-table :data="normalizationFormdataRaw" style="width: 96%; margin-top: 20px;"
+                  >
+                    <el-table-column v-for="column in normalizationColumns" :key="column.prop" :prop="column.prop" :label="column.label"
+                      :width="column.width">
+                    </el-table-column>
+                  </el-table>
+                  <br>
+                  <div style="font-size: large;">标准化后数据</div>
+                  <el-table :data="normalizationFormdataScaled" style="width: 96%; margin-top: 20px;"
+                  >
+                    <el-table-column v-for="column in normalizationColumns" :key="column.prop" :prop="column.prop" :label="column.label"
+                      :width="column.width">
+                    </el-table-column>
+                  </el-table>
+                </div>
+                <el-tabs v-model="activeName4" v-if="normalizationResultType == 'figure'" type="border-card">
+                  <el-tab-pane v-for="item in normalizationResultsSensors" :key="item.name" :label="item.label" :name="item.name">
+                    <img :src="normalizationResultFigures[item.name - 1]" alt="figureOfSensor" id="figure"
+                    class="result_image" style="width: 900px; height: 450px;" />
+                  </el-tab-pane>
+                </el-tabs>
+                
               </div>
               <!-- 小波降噪可视化 -->
               
               <!-- <img :src="denoiseFigure" alt="denoise_figure" class="result_image"
                 style="width: 900px; height: 450px;" /> -->
-              <el-tabs v-model="activeName2" class="demo-tabs" v-if="displayDenoise">
+              <el-tabs v-model="activeName2" class="demo-tabs" v-if="displayDenoise" type="border-card">
                 <el-tab-pane v-for="item in waveletResultsOfSensors" :key="item.name" :label="item.label" :name="item.name">
                   <img :src="denoiseFigures[item.name - 1]" alt="figure" id="figure"
                   class="result_image" style="width: 900px; height: 450px;" />
@@ -585,7 +529,7 @@
                 <el-popover placement="bottom-start" title="模型信息" :width="400" trigger="hover">
                 </el-popover>
                 <el-table-column :width="100" property="id" label="序号" />
-                <el-table-column :width="150" property="model_name" label="模型名称" />
+                <el-table-column :width="150" property="model_name" label="模型名称" show-overflow-tooltip/>
                 <el-table-column :width="280" label="操作">
                   <template #default="scope">
                     <el-button size="small" type="primary" style="width: 50px;" @click="useModel(scope.row)">
@@ -642,8 +586,8 @@
               <h2 style="margin-bottom: 25px; color: #253b45">用户数据文件</h2>
 
               <el-table :data="fetchedDataFiles" height="500" stripe style="width: 100%">
-                <el-table-column :width="150" property="dataset_name" label="文件名称" />
-                <el-table-column :width="200" property="description" label="文件描述" />
+                <el-table-column :width="150" property="dataset_name" label="文件名称" show-overflow-tooltip/>
+                <el-table-column :width="200" property="description" label="文件描述" show-overflow-tooltip/>
                 <el-table-column :width="200" label="操作">
                   <template #default="scope">
                     <el-button
@@ -712,9 +656,9 @@
 
 <script lang="ts" setup>
 
-import { onMounted, nextTick, ref } from 'vue'
+import { onMounted, nextTick, ref, watch } from 'vue'
 import { jsPlumb } from 'jsplumb'
-import { ElNotification, ElMessage } from "element-plus";
+import { ElNotification, ElMessage, ElMessageBox } from "element-plus";
 import axios from 'axios';
 import { DraggableContainer } from "@v3e/vue3-draggable-resizable";
 import { computed } from 'vue';
@@ -722,7 +666,7 @@ import { useRouter } from 'vue-router';
 import uploadDatafile from './uploadDatafile.vue';
 import api from '../utils/api.js'
 import { labelsForAlgorithms, plainIntroduction, algorithmIntroduction, labelsForParams } from '../components/constant.ts'
-import { stringType } from 'ant-design-vue/es/_util/type';
+
 
 
 const operationHelpDialogVisible = ref(false)  // 用户操作指南对话框
@@ -752,7 +696,7 @@ const dataDrawer = ref(false)     // 控制数据文件的抽屉
 const canStartProcess = ref(true)
 
 const canCompleteModeling = computed(() => {
-  if (nodeList.value.length > 0 && !model_has_been_saved) {
+  if (nodeList.value.length > 0 && !modelHasBeenSaved) {
     return false
   } else {
     return true
@@ -769,7 +713,6 @@ const menuList2 = ref([{
     {
       label: '插值处理', id: '1.1', use_algorithm: null, parameters: {
         'neighboring_values_interpolation': {},
-        'polynomial_interpolation': {},
         'bicubic_interpolation': {},
         'lagrange_interpolation': {},
         'newton_interpolation': {},
@@ -795,16 +738,16 @@ const menuList2 = ref([{
     },
     {
       label: '无量纲化', id: '1.5', use_algorithm: null, parameters: {
-        'max_min': {},
-        'z-score': {},
-        'robust_scaler': {},
-        'max_abs_scaler': {}
+        'max_min': {useLog: false},
+        'z-score': {useLog: false},
+        'robust_scaler': {useLog: false},
+        'max_abs_scaler': {useLog: false}
       }, tip_show: false, tip: '对输入数据进行无量纲化处理'
     },
     {
       label: '特征选择', id: '1.3', use_algorithm: null, parameters: {
-        'feature_imp': {rule: 1, threshold: 0.005},
-        'mutual_information_importance': {rule: 1, threshold: 0.005},
+        'feature_imp': {rule: 1, threshold1: null, threshold2: null},
+        'mutual_information_importance': {rule: 1, threshold1: null, threshold2: null},
         'correlation_coefficient_importance': {rule: 1, threshold: 0.005},
         'feature_imp_multiple': {rule: 1, threshold: 0.005},
         'mutual_information_importance_multiple': {rule: 1, threshold: 0.005},
@@ -860,7 +803,9 @@ const menuList2 = ref([{
 
 ]);
 
-const featureSelectionRule = ref('rule1')
+
+// 特征选择使用的规则
+const featureSelectionRule = ref('')
 
 // 该方法用于判断是否显示背景图片
 const background_IMG = () => {
@@ -875,321 +820,30 @@ const background_IMG = () => {
   }
 }
 
-// 算法推荐参数
+// 算法参数的推荐值
 const recommendParams = {
   'wavelet': [{value: 'db1', label: 'db1'}, {value: 'db2', label: 'db2'}, {value: 'sym1', label: 'sym1'}, {value: 'sym2', label: 'sym2'}, {value: 'coif1', label: 'coif1'}],
   'wavelet_level': [{value: 1, label: '1'}, {value: 2, label: '2'}, {value: 3, label: '3'}],
-  'threshold': [{value: 0.005, label: '0.005'}, {value: 0.01, label: '0.01'}, {value: 0.02, label: '0.02'}, {value: 0.03, label: '0.03'}, {value: 0.04, label: '0.04'}, {value: 0.05, label: 0.05}]
+  'threshold1': {'feature_imp': [{value: 0.005, label: '0.005'}, {value: 0.01, label: '0.01'}, {value: 0.02, label: '0.02'}, {value: 0.03, label: '0.03'}, {value: 0.04, label: '0.04'}, {value: 0.05, label: 0.05}, {value: 0.1, label: 0.1}],
+  'mutual_information_importance': [{value: 0.1, label: '0.1'}, {value: 0.2, label: '0.2'}, {value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, ], 
+  'mutual_information_importance_multiple': [{value: 0.3, label: '0.3'}, {value: 0.35, label: '0.35'}, {value: 0.4, label: '0.4'}, {value: 0.45, label: '0.45'}, {value: 0.5, label: '0.5'}], 
+  'feature_imp_multiple': [{value: 0.01, label: '0.01'}, {value: 0.03, label: '0.03'}, {value: 0.05, label: '0.05'}, {value: 0.06, label: '0.06'}],
+  'correlation_coefficient_importance_multiple': [{value: 0.58, label: '0.58'}, {value: 0.6, label: '0.6'}, {value: 0.62, label: '0.62'}, {value: 0.64, label: '0.64'}],
+  'correlation_coefficient_importance': [{value: 0.1, label: '0.1'}, {value: 0.2, label: '0.2'}, {value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, ]},
+  
+  'threshold2': {'feature_imp': [{value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, {value: 0.7, label: '0.7'}, {value: 0.8, label: '0.8'}, {value: 1, label: 1}],
+'mutual_information_importance': [{value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, {value: 0.7, label: '0.7'}, {value: 0.8, label: '0.8'}, {value: 1, label: 1}],
+'feature_imp_multiple': [{value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, {value: 0.7, label: '0.7'}, {value: 0.8, label: '0.8'}, {value: 1, label: 1}],
+'mutual_information_importance_multiple': [{value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, {value: 0.7, label: '0.7'}, {value: 0.8, label: '0.8'}, {value: 1, label: 1}],
+'correlation_coefficient_importance_multiple': [{value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, {value: 0.7, label: '0.7'}, {value: 0.8, label: '0.8'}, {value: 1, label: 1}],
+'correlation_coefficient_importance': [{value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, {value: 0.7, label: '0.7'}, {value: 0.8, label: '0.8'}, {value: 1, label: 1}]},
+  // 'thresholdImpSingle1': [{value: 0.005, label: '0.005'}, {value: 0.01, label: '0.01'}, {value: 0.02, label: '0.02'}, {value: 0.03, label: '0.03'}, {value: 0.04, label: '0.04'}, {value: 0.05, label: 0.05}, {value: 0.1, label: 0.1}],
+  // 'thresholdImgSingle2': [{value: 0.3, label: '0.3'}, {value: 0.4, label: '0.4'}, {value: 0.5, label: '0.5'}, {value: 0.6, label: '0.6'}, {value: 0.7, label: '0.7'}, {value: 0.8, label: '0.8'}, {value: 1, label: 1}]
+  'scaleUseLogs': [{value: true, label: '使用训练模型时对数据的标准化方法'}, {value: false, label: '不使用训练模型时对数据的标准化方法'}]
 }
 
-// 各个算法包含的参数对应的中文名
-// const labels_for_params = {
-//   SNR: '信噪比',
-//   layers: '网络层数',
-//   num_workers: '工作线程数',
-//   num_features: '选取特征数量',
-// }
 
-// const labels_for_algorithms = {
-//   'WhiteGaussianNoise': '高斯白噪声',
-//   'polynomial_interpolation': '多项式插值算法',
-//   'bicubic_interpolation': '双三次插值算法',
-//   'lagrange_interpolation': '拉格朗日插值算法',
-//   'newton_interpolation': '牛顿插值算法',
-//   'linear_interpolation': '线性插值算法',
-//   'time_domain_features': '单传感器时域特征提取',
-//   'frequency_domain_features': '单传感器频域特征提取',
-//   'time_frequency_domain_features': '单传感器时域和频域特征提取',
-//   'time_domain_features_multiple': '多传感器时域特征提取',
-//   'frequency_domain_features_multiple': '多传感器频域特征提取',
-//   'time_frequency_domain_features_multiple': '多传感器时域和频域特征提取',
-//   'FAHP': '单传感器层次分析模糊综合评估法',
-//   'FAHP_multiple': '多传感器分析模糊综合评估法',
-//   'feature_imp': '单传感器树模型的特征选择',
-//   'feature_imp_multiple': '多传感器树模型的特征选择',
-//   'mutual_information_importance': '单传感器互信息重要性特征选择',
-//   'mutual_information_importance_multiple': '多传感器互信息重要性特征选择',
-//   'correlation_coefficient_importance': '单传感器相关系数重要性特征选择',
-//   'correlation_coefficient_importance_multiple': '多传感器相关系数重要性特征选择',
-//   'random_forest': '单传感器随机森林故障诊断',
-//   'svc': '单传感器SVM的故障诊断',
-//   'gru': '单传感器GRU的故障诊断',
-//   'lstm': '单传感器LSTM的故障诊断',
-//   'random_forest_multiple': '多传感器随机森林故障诊断',
-//   'svc_multiple': '多传感器SVM的故障诊断',
-//   'gru_multiple': '多传感器GRU的故障诊断',
-//   'lstm_multiple': '多传感器LSTM的故障诊断',
-//   'wavelet_trans_denoise': '小波变换降噪',
-//   'max_min': 'max_min归一化',
-//   'z-score': 'z-score标准化',
-//   'robust_scaler': '鲁棒标准化',
-//   'max_abs_scaler': '最大绝对值标准化',
-//   'neighboring_values_interpolation': '邻近值插补算法',
-//   'linear_regression': '单传感器线性回归趋势预测',
-//   'linear_regression_multiple': '多传感器线性回归趋势预测'
-// }
-
-
-// const algorithm_introduction = {
-//   'WhiteGaussianNoise': '高斯白噪声(White Gaussian Noise)在通信、信号处理及科学研究等多个领域中扮演着重要角色。它作为一种理想的噪声模型，具有独特的统计特性和功率谱分布，为系统性能评估、算法测试及信号分析提供了有力工具',
-//   'polynomial_interpolation': '多项式补插法是一种分段三次Hermite插值方法,它在每个数据段上使用三次多项式来逼近数据点,并且在连接处保持一阶导数的连续性。与双三次插值不同,' +
-//     '多项式插值在每个段上使用不同的三次多项式,并且尝试保持二阶导数的变号,从而生成一个形状类似于原始数据的曲线。',
-//   'bicubic_interpolation': '双三次插值是一种平滑插值方法,它通过三次多项式段来逼近数据点,并且在每个数据段的连接处保持一阶导数和二阶导数的连续性。' +
-//     '这种方法可以生成一个平滑的曲线,通过数据点,并且在数据点处具有连续的一阶和二阶导数。',
-//   'lagrange_interpolation': '对于所给数据中每一行每一列空白的位置,取空白位置上下3个相邻的值作为输入依据,' +
-//     '根据拉格朗日算法构建一个多项式函数,使得该多项式函数在取得的这些点上的值都为零,' +
-//     '将空白位置的行值作为输入,计算出y值,替换原来的空白值,从而达到插值的效果。',
-//   'newton_interpolation': '在牛顿插值法中,首先利用一组已知的数据点计算差商,再将差商带入插值公式f(x)。将所提供数据中的数据各属性值作为y,而将索引号定义为x,' +
-//     '对于所给数据中每一行每一列空白的位置,取空白位置上下4个相邻的值作为输入依据,' +
-//     '并计算差商再反向带入包含差商的插值公式,替换原来的空白值。',
-//   'linear_interpolation': '在线性插值算法中,首先遍历数据中的每一行每一列，找到空值位置并获取相邻点的值,' +
-//     '然后去除相邻的空值,并处理边界情况,计算插值结果,替换原来的空白值。',
-//   'time_domain_features': '时域特征提取是一种从信号中直接提取其在时间轴上特性的技术。它主要用于从原始信号中提取出诸如幅度、频率、周期、波形等关键信息，以便于后续的信号处理和分析。',
-//   'frequency_domain_features': '频域特征提取是将时域信号转换到频域后，提取其频域上的特征。它主要用于从复杂的时域信号中提取出与频率相关的有用信息。',
-//   'time_frequency_domain_features': '提取信号的时域和频域特征，可以结合时域与频域特征各自的优点',
-//   'FAHP': '层次分析模糊综合评估法是一种将模糊综合评价法和层次分析法相结合的评价方法，在体系评价、效能评估，系统优化等方面有着广泛的应用，是一种定性与定量相结合的评价模型，一般是先用层析分析法确定因素集，\
-//            然后用模糊综合评判确定评判效果。模糊法是在层次法之上，两者相互融合，对评价有着很好的可靠性'
-// }
-
-
-// const plain_introduction = {
-//   'polynomial_interpolation': '# 多项式插值方法\n' +
-//     '## 多项式插值是一种数学技术，通过构造一个多项式来精确地通过一组给定的数据点，从而对数据进行平滑逼近。\n' +
-//     '# 使用场景\n' +
-//     '### 1. **平滑逼近**：适用于需要对数据点进行精确插值的情况，以发现数据之间的潜在趋势。\n' +
-//     '### 2. **曲线拟合**：在数据点之间建立一个连续的多项式曲线，用于表示数据的整体形态。\n' +
-//     '### 3. **信号重建**：在信号采集中，用于填补缺失的数据点，恢复信号的完整性。\n' +
-//     '### 4. **滤波和去噪**：在信号处理中，多项式插值可以帮助平滑信号，减少噪声的影响。',
-//   'neighboring_values_interpolation': '# 邻近值插补在数据预处理中的应用\n' +
-//     '## 邻近值插补是一种基于数据点之间相似性或距离的数据插补方法，用于处理缺失数据。它通过选择缺失值附近已有的值来填补空缺。\n' +
-//     '# 插补的使用场景\n' +
-//     '### 1. 时间序列数据：在时间序列分析中，当数据集中出现缺失值时，可以使用邻近时间点的值进行插补。\n' +
-//     '### 2. 快速预处理：在需要快速进行数据预处理，而没有时间或资源进行更复杂的插补方法时，邻近值插补是一种实用的选择。\n' +
-//     '### 3. 异常值处理：当缺失值可能是由于数据收集过程中的异常或错误造成时，邻近值插补可以作为一种简单的错误校正方法。\n' +
-//     '### 4. 数据预处理：在数据预处理阶段，邻近值插补可以用于填补由于数据录入错误或丢失造成的缺失值。\n' +
-//     '### 5. 缺失数据不多的情况：当数据集中的缺失值不多，且分布均匀时，邻近值插补提供了一种快速且有效的解决方案。',
-//   'bicubic_interpolation': '# 双三次插值方法\n' +
-//     '## 双三次插值是一种高效的插值技术，它通过构造一个在数据点及其一阶和二阶导数上都连续的三次多项式来逼近数据。\n' +
-//     '# 使用场景\n' +
-//     '### 1. **高精度逼近**：适用于需要在数据点之间进行平滑且高精度插值的情况。\n' +
-//     '### 2. **曲面建模**：在二维数据集中，用于创建连续的曲面模型，以便于分析和可视化。\n' +
-//     '### 3. **高质量信号重建**：在信号采集中，用于填补缺失的数据点，同时保持信号的平滑性和连续性。\n' +
-//     '### 4. **图像处理**：在图像缩放和旋转中，双三次插值可以减少锯齿效应，保持图像质量。\n',
-//   'lagrange_interpolation': '# 拉格朗日插值法\n' +
-//     '## 拉格朗日插值法是一种多项式插值方法，通过构造一个多项式来精确匹配一组给定的数据点。\n' +
-//     '# 使用场景\n' +
-//     '### 1. **精确逼近**：适用于需要在数据点之间进行精确插值的情况，尤其是在数据点数量较少时。\n' +
-//     '### 2. **曲线拟合**：在数据点之间建立一个多项式曲线，用于模拟数据的整体趋势。\n' +
-//     '### 3. **信号重建**：在信号采集中，用于填补丢失的数据点，恢复信号的完整性。\n' +
-//     '### 4. **数据平滑**：在信号处理中，拉格朗日插值可以帮助平滑信号，减少噪声的影响。\n',
-//   'newton_interpolation': '# 牛顿插值法\n' +
-//     '## 牛顿插值法是一种高效的多项式插值技术，它利用差商构建一个多项式，能够通过一组给定的数据点。\n' +
-//     '# 使用场景\n' +
-//     '### 1. **递归构建**：适用于需要逐步增加数据点进行插值的情况，便于更新和维护多项式模型。\n' +
-//     '### 2. **曲线拟合**：在数据点之间构建一个多项式曲线，用于模拟数据的趋势和模式。\n' +
-//     '### 3. **动态信号重建**：在信号处理中，牛顿插值可以动态地填补丢失的数据点，适应信号变化。\n' +
-//     '### 4. **实时数据处理**：适用于需要实时处理和更新数据的场合，如在线信号分析。\n',
-//   'linear_interpolation': '# 线性插值方法\n' +
-//     '## 线性插值是一种基本的插值方法，通过在两个已知数据点之间构建一条直线来估计未知数据点的值。\n' +
-//     '# 使用场景\n' +
-//     '### 1. **简单估算**：在需要快速且直接的数据点估计时使用，适用于数据变化趋势为线性的情况。\n' +
-//     '### 2. **趋势分析**：用于识别和展示数据的线性关系，便于理解数据的基本情况。\n' +
-//     '### 3. **数据填补**：在信号采集中，用于填补因测量误差或数据丢失造成的空白。\n' +
-//     '### 4. **去噪处理**：在信号处理中，线性插值可以用于简化信号，减少高频噪声。\n',
-//   'time_domain_features': '# 时域特征提取\n' +
-//     '## 时域特征反映了信号在时间维度上的特性，不涉及任何频率转换，如傅里叶变换。而时域特征提取是从信号的原始时间序列数据中抽取关键信息的过程，这些信息能够表征信号的基本属性和内在特性。\n' +
-//     '# 主要方法\n' +
-//     '### 1. **峰值检测**：识别信号的最大或最小值点。\n' +
-//     '### 2. **统计分析**：计算信号的均值、方差、偏度、峭度等统计量。\n' +
-//     '### 3. **能量计算**：评估信号的总能量，通常通过对信号平方后积分。\n' +
-//     '### 4. **时间参数测量**：测量信号的周期、持续时间、延迟等。\n' +
-//     '### 5. **波形特征分析**：提取波形的特定形状特征，如脉冲宽度、上升时间等。\n' +
-//     '### 6. **相关性分析**：计算信号与参考信号之间的相关度。\n' +
-//     '### 7. **自相关函数**：分析信号在不同时间延迟下的相关性。\n',
-//   'frequency_domain_features': '# 频域特征提取\n' +
-//     '## 频域特征提取是一种分析技术，它通过将信号从时域转换到频域来提取信号的频率成分，进而分析和处理信号。\n' +
-//     '# 主要方法\n' +
-//     '### 1. **傅里叶变换(FT)**：将时域信号转换为频域表示。\n' +
-//     '### 2. **短时傅里叶变换(STFT)**：分析时变信号的局部频率特性。\n' +
-//     '### 3. **小波变换(WT)**：提供时间和频率的局部化信息，适用于非平稳信号分析。\n' +
-//     '### 4. **谱估计技术**：如周期图法、协方差法等，用于更精细的频谱分析。\n',
-//   'time_frequency_domain_features': '# 时频域特征提取\n' +
-//     '## 时频域特征提取结合了时域和频域的方法来研究信号的局部特性，时频域分析不仅关注信号在单一时间点的特征，也关注信号在不同时间段的频率变化，适用于分析非平稳信号。\n' +
-//     '# 主要方法\n' +
-//     '### 1. **短时傅里叶变换(STFT)**：通过在不同时间窗口上应用傅里叶变换来分析信号的局部频率特性。\n' +
-//     '### 2. **小波变换(WT)**：利用小波函数来分析信号在不同时间和频率尺度上的特性。\n' +
-//     '### 3. **Wigner-Ville分布**：一种二维时频表示，能够展示信号的频率和时变特性。\n' +
-//     '### 4. **Hilbert-Huang变换(HHT)**：结合经验模态分解(EMD)和Hilbert变换，用于分析非线性和非平稳信号。\n',
-//   'FAHP': '# 层次分析模糊综合评估法\n' +
-//     '## 层次分析模糊综合评估法是一种将模糊综合评价法和层次分析法相结合的评价方法，在体系评价、效能评估，系统优化等方面有着广泛的应用，是一种定性与定量相结合的评价模型，一般是先用层析分析法确定因素集，然后用模糊综合评判确定评判效果。模糊法是在层次法之上，两者相互融合，对评价有着很好的可靠性。\n' +
-//     '# 评价过程\n' +
-//     '### 1. **建立层次结构模型**：首先使用层次分析法确定问题的目标层、准则层和方案层。\n' +
-//     '### 2. **成对比较和一致性检验**：通过成对比较确定各因素的相对重要性，并进行一致性检验。\n' +
-//     '### 3. **确定权重向量**：计算准则层和方案层的权重向量。\n' +
-//     '### 4. **构建模糊评价模型**：利用模糊综合评价法构建评价模型，确定评价指标的隶属度函数。\n' +
-//     '### 5. **模糊综合评判**：综合考虑各因素的权重和隶属度，进行模糊综合评判，得出最终的评价结果。\n' +
-//     '\n',
-//   'FAHP_multiple': '# 层次分析模糊综合评估法\n' +
-//     '## 层次分析模糊综合评估法是一种将模糊综合评价法和层次分析法相结合的评价方法，在体系评价、效能评估，系统优化等方面有着广泛的应用，是一种定性与定量相结合的评价模型，一般是先用层析分析法确定因素集，然后用模糊综合评判确定评判效果。模糊法是在层次法之上，两者相互融合，对评价有着很好的可靠性。\n' +
-//     '# 评价过程\n' +
-//     '### 1. **建立层次结构模型**：首先使用层次分析法确定问题的目标层、准则层和方案层。\n' +
-//     '### 2. **成对比较和一致性检验**：通过成对比较确定各因素的相对重要性，并进行一致性检验。\n' +
-//     '### 3. **确定权重向量**：计算准则层和方案层的权重向量。\n' +
-//     '### 4. **构建模糊评价模型**：利用模糊综合评价法构建评价模型，确定评价指标的隶属度函数。\n' +
-//     '### 5. **模糊综合评判**：综合考虑各因素的权重和隶属度，进行模糊综合评判，得出最终的评价结果。\n' +
-//     '\n',
-//   'feature_imp': '# 使用树模型进行特征选择\n' +
-//     '\n' +
-//     '## 特征选择是机器学习中的一项关键任务，用于识别最有信息量的特征，以提高模型的性能和可解释性。树模型，包括决策树、随机森林和梯度提升树等，提供了多种特征选择的方法。特征选择旨在从原始特征集中挑选出对模型预测最有用的特征子集。在树模型中，这一过程通常基于以下原理：\n' +
-//     '\n' +
-//     '### 1. **分裂准则**：树模型在分裂节点时选择特征，基于如信息增益、基尼不纯度等准则。\n' +
-//     '### 2. **特征重要性**：衡量特征在模型中的贡献度，对模型性能的影响.\n' +
-//     '### 3. **数据驱动**：特征选择过程完全基于数据和模型的反馈，而不是基于领域知识或其他外部标准。',
-//   'mutual_information_importance': '# 互信息重要性特征选择\n' +
-//     '## 互信息是度量两个随机变量之间相互依赖性的统计量，它在特征选择中用于识别最有信息量的特征。互信息重要性特征选择遵循以下原理：\n' +
-//     '### 1. 最大化信息量：选择那些包含关于目标变量最多信息的特征。\n' +
-//     '### 2. 减少冗余： 避免选择相互之间提供重复信息的特征。\n' +
-//     '### 3. 计算效率: 采用有效的算法来计算互信息，以保证特征选择过程的可行性。\n' +
-//     '### 4. 稳健性; 确保特征选择方法对于数据的小变化是稳健的。\n' +
-//     '### 5. 适应性： 特征选择方法应能适应不同类型的数据分布。\n' +
-//     '### 6. 降维： 通过特征选择减少特征空间的维度，以简化模型并提高计算效率。\n' +
-//     '### 7. 模型无关：互信息特征选择是模型无关的，即它不依赖于特定的预测模型。\n' +
-//     '### 8. 增量学习：在新数据到来时，能够更新特征选择结果，适应数据的变化。\n',
-//   'correlation_coefficient_importance': '# 相关系数重要性特征选择\n' +
-//     '## 相关系数特征选择是一种评估特征与目标变量之间线性关系强度的方法。其中相关系数是量化两个变量之间线性关系的统计度量，通常使用皮尔逊相关系数。其遵循以下原理：\n' +
-//     '### 1. 线性关系：假设特征与目标变量之间存在线性关系，通过相关系数评估这种关系的强度。\n' +
-//     '### 2. 特征有效性：选择那些与目标变量具有显著线性相关性的特征，以提高模型的预测能力。\n' +
-//     '### 3. 多重共线性控制： 在选择特征时，避免纳入高度线性相关的特征，减少模型的多重共线性问题。\n' +
-//     '### 4. 简洁性原则：倾向于选择较少的特征，以简化模型结构，提高模型的可解释性和泛化能力。\n' +
-//     '### 5. 计算效率： 相关系数的计算相对简单快速，适用于大规模数据集的特征选择。\n' +
-//     '### 6. 稳健性：考虑特征选择方法对于数据中的异常值和噪声的敏感性，确保选择结果的稳定性。\n' +
-//     '### 7. 模型无关性：虽然基于线性关系选择特征，但所选特征适用于不同类型的预测模型。\n' +
-//     '### 8. 适应性：特征选择方法应能够适应不同的数据特征和分布情况，保持选择结果的准确性。',
-//   'random_forest': '# 随机森林故障诊断\n' +
-//     '## 随机森林是一种集成学习方法，广泛应用于故障诊断，能够处理复杂的数据模式和识别多种故障类型。其中随机森林是由多个决策树构成的集成模型，每棵树在数据集的不同子集上训练，并对结果进行投票或平均以得出最终预测。\n' +
-//     '# 特点\n' +
-//     '### 1.高准确性：集成多个决策树的预测结果，提高整体的诊断准确性。\n' +
-//     '### 2.鲁棒性：对数据中的噪声和异常值具有较好的抵抗力。\n' +
-//     '### 3.多故障类型识别：能够同时处理和识别多种不同类型的故障。\n' +
-//     '### 4.捕捉非线性关系;有效识别数据中的非线性故障模式和复杂关系。\n' +
-//     '### 5.模型泛化能力:由于集成了多个树，随机森林具有良好的泛化能力，减少过拟合风险。\n',
-//   'svc': '# 支持向量机（SVM）故障诊断\n' +
-//     '## 支持向量机是一种在故障诊断中广泛使用的监督学习模型，以其在分类和模式识别任务中的强大性能而著称。支持向量机是一种基于间隔最大化原则来构建分类器的方法，特别适用于高维数据和非线性问题。\n' +
-//     '# 特点\n' +
-//     '### 1.高维数据处理能力:SVM通过核技巧有效地处理高维数据，无需显式地映射到高维空间。\n' +
-//     '### 2.间隔最大化:SVM通过最大化数据点之间的间隔来提高分类的鲁棒性。\n' +
-//     '### 3.核函数:使用不同的核函数（如线性核、多项式核、径向基函数核等）来处理线性不可分的数据。\n' +
-//     '### 4.软间隔引入:允许一些数据点违反间隔，以提高模型的泛化能力。\n' +
-//     '### 5.正则化:通过正则化项控制模型复杂度，防止过拟合。\n' +
-//     '### 6.多类分类:通过策略如一对多（OvR）方法，SVM能够处理多类故障诊断问题。\n',
-//   'gru': '# 门控循环单元（GRU）故障诊断\n' +
-//     '## 门控循环单元是一种特殊的循环神经网络，适用于序列预测和时间序列分析的递归神经网络结构，它引入了更新门和重置门机制，以改善梯度流动并捕捉长期依赖关系，特别适用于故障诊断任务。\n' +
-//     '# 特点\n' +
-//     '### 1. 长期依赖学习能力：GRU特别设计了更新门来解决传统RNN中的梯度消失问题，使其能够学习长期依赖信息。\n' +
-//     '### 2. 动态时间序列处理能力:GRU能够处理时间序列数据中的动态变化，适用于捕捉故障发生前后的模式变化。\n' +
-//     '### 3. 门控机制的灵活性:通过更新门和重置门的控制，GRU可以灵活地决定信息的保留和遗忘，以适应不同的故障特征。\n' +
-//     '### 4. 易于集成和训练:GRU模型易于在现有的深度学习框架中实现和训练，便于与其他模型或数据处理流程集成。\n',
-//   'lstm': '# 长短期记忆网络（LSTM）故障诊断\n' +
-//     '## 长短期记忆网络是一种特殊类型的循环神经网络（RNN），设计用来解决传统RNN在处理长序列数据时的梯度消失问题。LSTM因其出色的记忆和遗忘机制，在序列预测和时间序列分析中表现卓越，非常适合故障诊断任务。\n' +
-//     '# 特点\n' +
-//     '### 1. 有效的长期依赖处理:LSTM通过其复杂的门控机制（输入门、遗忘门、输出门）来控制信息的流动，有效捕捉和记忆长期依赖关系。\n' +
-//     '### 2. 强大的序列预测能力:LSTM能够分析时间序列数据中的复杂模式，预测故障发生的概率和时间点。\n' +
-//     '### 3. 适应性强的门控机制:通过遗忘门和输入门的协同工作，LSTM可以决定哪些信息应该被遗忘，哪些信息应该被更新和保留。\n' +
-//     '### 4. 良好的泛化能力:经过适当的训练，LSTM可以学习到数据中的深层特征，对未见过的故障模式具有良好的泛化和识别能力。\n',
-//   'wavelet_trans_denoise': '# 小波变换去噪\n' +
-//     '## 小波变换去噪是一种利用小波分析对信号进行降噪处理的方法，它通过将信号分解为不同时间尺度上的成分，然后有选择地去除噪声成分。\n' +
-//     '# 基本原理\n' +
-//     '### 1. 多尺度分解：小波变换将信号分解为不同时间尺度（或频率）上的成分，这些成分称为小波系数。\n' +
-//     '### 2. 信号与噪声的分：信号往往在小波变换的低频部分具有较大的系数，而噪声则在高频部分较为显著。\n' +
-//     '### 3. 阈值处理：对小波系数进行阈值处理，设置一个阈值，将小于该阈值的系数视为噪声并置零或进行缩减，而保留较大的系数。\n' +
-//     '### 4. 重构信号:通过保留和放大重要的小波系数，忽略或减弱噪声成分，然后通过小波逆变换重构出降噪后的信号。\n',
-//   'max_min': '# 最大最小值归一化（Max-Min Normalization）\n' +
-//     '## 最大最小值归一化通过一个简单的线性变换过程，将数据特征的值缩放到[0, 1]的范围内。这个过程包括识别数据集中每个特征的最大值和最小值，然后利用这两个值来调整所有数据点，确保最小的数据点映射到0，最大的数据点映射到1，而其他点则根据它们与最小值和最大值的关系被映射到(0, 1)区间内。如果需要不同的数值范围，可以通过额外的缩放和平移操作来实现。这种方法易于实现且计算效率高，但要注意它对数据中的极端值或异常值较为敏感。\n' +
-//     '# 特点\n' +
-//     '### 简单性：最大最小值归一化方法简单，易于实现。\n' +
-//     '### 快速性：计算过程快速，适合大规模数据集。\n' +
-//     '### 数据分布敏感：归一化结果依赖于数据中的最小值和最大值，对异常值敏感。',
-//   'z-score': '# z-score标准化\n' +
-//     '## z-score标准化是一种数据预处理技术，用于将数据转换为具有平均值为0和标准差为1的标准分数。这种转换基于原始数据的均值和标准差，使得转换后的数据分布更加规范化，便于比较和分析。\n' +
-//     '# 特点\n' +
-//     '### 1. 中心化和尺度统一：数据通过减去均值并除以标准差进行转换，结果是一个中心化在0，单位标准差的分布。\n' +
-//     '### 2. 正态分布适配：该方法假设数据近似正态分布，通过转换使得数据更接近标准正态分布。\n' +
-//     '### 3. 异常值敏感性较低：与基于极端值的方法不同，z-score标准化使用均值和标准差，因此对异常值的影响较小。\n' +
-//     '### 4. 易于解释性：转换后的z-score值表示数据点距离均值的标准差数，提供了数据点分布情况的直观度量。\n',
-//   'robust_scaler': '# 鲁棒标准化\n' +
-//     '## 鲁棒标准化是一种数据预处理技术，它使用数据的中位数和四分位数范围（IQR）来缩放数据，从而对异常值具有较高的抵抗力。这种方法不依赖于数据的均值和标准差，而是使用中位数和IQR来确定数据的尺度。\n' +
-//     '# 特点\n' +
-//     '### 1. 对异常值的鲁棒性：鲁棒标准化通过使用中位数和IQR，减少了异常值对数据缩放的影响。\n' +
-//     '### 2. 中位数和四分位数：数据的中心位置由中位数确定，而数据的尺度由IQR（即第三四分位数与第一四分位数之差）确定。\n' +
-//     '### 3. 缩放方法：鲁棒标准化通常涉及将数据点减去中位数，然后除以IQR的一定比例（通常是1/0.7413，这个值使得IQR近似等于标准差的1倍）。\n',
-//   'max_abs_scaler': '# 最大绝对值标准化\n' +
-//     '## 最大绝对值标准化是一种数据预处理技术，通过将数据的每个特征的值除以其最大绝对值来实现标准化。这种方法不关心数据的正负符号，只关注值的大小。\n' +
-//     '# 特点\n' +
-//     '### 1. 简单易行：最大绝对值标准化的计算过程简单，易于实现和理解。\n' +
-//     '### 2. 忽略数据符号：该方法只考虑数据的绝对值，因此对数据的正负符号不敏感。\n' +
-//     '### 3. 抵抗异常值：由于只依赖于最大绝对值，该方法对异常值具有一定的抵抗力。\n' +
-//     '### 4. 缩放到[-1, 1]区间：标准化后的数据将位于[-1, 1]区间内，便于比较不同特征的值。',
-//   'linear_regression': '# 线性回在趋势预测\n' +
-//     '## 线性回归是一种用于确定因变量（预测目标）与一个或多个自变量（预测因子）之间线性关系的方法。在趋势预测中，线性回归模型通过拟合历史数据来预测未来的趋势或模式。\n' +
-//     '# 特点\n' +
-//     '### 1. 模型表达性：线性回归模型通过直线（单变量线性回归）或平面/超平面（多元线性回归）来表达数据之间的关系。\n' +
-//     '### 2. 预测连续变量：主要用于预测连续变量，如房价、气温、销售额等。\n' +
-//     '### 3. 结合定性变量：通过哑变量（Dummy Variables）可以包含定性变量，以研究它们对趋势的影响。\n' +
-//     '### 4. 基于最小二乘法：通常使用最小二乘法来估计模型参数，这种方法可以找到最佳拟合直线或超平面。\n' +
-//     '### 5. 假设正态分布：在简单线性回归中，假设误差项呈正态分布，且具有常数方差。\n' +
-//     '### 6. 稳健性分析：虽然对异常值敏感，但通过残差分析和杠杆值可以识别并处理异常值和高影响力点。\n' +
-//     '### 7. 可扩展性：从简单的单变量线性回归可以扩展到包含多个预测变量的多元线性回归。\n',
-//   // '### 8. 包含交互作用和多项式项：可以通过添加交互作用项和多项式项来提高模型的预测能力。\n',
-//   '随机森林趋势预测': '# 随机森在趋势预测\n' +
-//     '## 随机森林是一种集成学习方法，它通过构建多个决策树并将它们的预测结果进行汇总，以提高模型的准确性和鲁棒性。在趋势预测中，随机森林能够捕捉数据中的复杂模式和非线性关系。\n' +
-//     '# 特点\n' +
-//     '### 1. 高准确性：随机森林通过集成多个决策树的预测结果，降低了模型的方差，提高了预测的准确性。\n' +
-//     '### 2. 自动特征选择：随机森林在构建决策树的过程中，可以评估特征的重要性，从而实现自动特征选择。\n' +
-//     '### 3. 强大的非线性拟合能力：随机森林能够处理高度复杂的数据模式，适用于非线性趋势的预测。\n' +
-//     '### 4. 鲁棒性：由于集成了多个决策树，随机森林对异常值和噪声具有较强的鲁棒性。\n' +
-//     '### 5. 易于实现和并行化：随机森林模型易于实现，并且其训练过程可以并行化，提高了计算效率。\n' +
-//     '### 6. 多变量处理能力：随机森林能够同时处理多个变量，捕捉它们与预测目标之间的复杂关系。\n',
-//   'SVM的趋势预测': '# 支持向量机（SVM）趋势预测\n' +
-//     '## 支持向量机是一种监督学习模型，用于分类和回归任务。在趋势预测中，SVM通过找到数据中的最优边界或超平面，对数据的未来趋势进行预测。\n' +
-//     '# 特点\n' +
-//     '### 1. 优秀的泛化能力：SVM通过选择支持向量来构建模型，这些向量定义了决策边界，使得模型具有很好的泛化能力。\n' +
-//     '### 2. 核技巧：SVM使用核函数将数据映射到高维空间，以处理非线性趋势预测问题。\n' +
-//     '### 3. 正则化控制：通过正则化参数控制模型的复杂度，避免过拟合，确保模型的稳定性。\n' +
-//     '### 4. 适用于小样本数据：SVM在小样本情况下也能表现出较好的预测性能，适合样本量不足的趋势预测任务。\n' +
-//     '### 5. 模型解释性：相比于一些黑盒模型，SVM具有一定的解释性，特别是通过支持向量可以了解模型决策的关键数据点。\n' +
-//     '### 6. 多类趋势预测：通过适当的策略，SVM可以扩展到多类趋势预测问题。\n',
-//   'GRU的趋势预测': '# 门控循环单元（GRU）趋势预测\n' +
-//     '## 门控循环单元是一种特殊类型的递归神经网络（RNN），设计用于处理序列数据，能够捕捉时间序列中的动态特征和长期依赖关系。在趋势预测中，GRU能够学习数据随时间变化的模式，并预测未来的趋势。\n' +
-//     '# 特点\n' +
-//     '### 1. 捕捉时间序列特性：GRU通过其门控机制能够捕捉时间序列数据中的短期和长期依赖关系，适用于具有时间连贯性的趋势预测。\n' +
-//     '### 2. 门控调节信息流：利用更新门和重置门，GRU能够有选择地更新或保留状态信息，从而适应不同时间尺度的趋势变化。\n' +
-//     '### 3. 处理非线性动态：GRU能够处理复杂的非线性时间序列数据，对于预测不规则或周期性变化的趋势特别有效。\n' +
-//     '### 4. 避免梯度消失问题：GRU的设计有助于缓解传统RNN中的梯度消失问题，使得网络能够学习长期时间依赖。\n' +
-//     '### 5. 易于集成和训练：现代深度学习框架提供了GRU的实现，易于集成到趋势预测模型中，并支持大规模数据集的训练。\n' +
-//     '### 6. 多步时间预测：GRU不仅可以进行单步预测，还可以通过序列到序列模型进行多步时间预测。\n',
-//   'LSTM的趋势预测': '# 长短期记忆网络（LSTM）在趋势预测中的应用\n' +
-//     '## 长短期记忆网络是一种高级的递归神经网络（RNN），专为解决传统RNN在处理长序列数据时遇到的梯度消失或梯度爆炸问题而设计。LSTM在趋势预测中能够学习时间序列数据中的长期依赖关系，并进行有效的预测。\n' +
-//     '# 特点\n' +
-//     '### 1. 长期依赖学习：LSTM的特别设计使其能够捕捉时间序列中相隔很远的依赖关系，这对于理解长期趋势至关重要。\n' +
-//     '### 2. 门控机制：过其复杂的门控机制（输入门、遗忘门、输出门），LSTM能够决定信息的保留和遗忘，从而适应时间序列数据的变化。\n' +
-//     '### 3. 处理非线性：LSTM能够处理时间序列数据中的非线性模式，适用于预测复杂的趋势变化。\n' +
-//     '### 4. 避免过拟合：由于其门控单元的结构，LSTM在训练过程中更不容易过拟合，提高了模型的泛化能力。\n' +
-//     '### 5. 多步预测能力：LSTM可以设计为序列到序列模型，进行多步趋势预测，而不仅仅是单步预测。\n',
-//   '添加噪声': '### 添加噪声算法可对输入信号添加如高斯噪声等常见的噪声\n***\n ### 添加噪声的主要应用有：\n **1. 增强信号检测。在某些特定的非线性系统中，噪声的存在能够增强微弱信号的检测能力，这种现象被称为随机共振。**\n \
-//   **2. 减小重构误差。如果在信号处理中只加入正的白噪声，那么在重构过程中可能会多出来加入的白噪声，从而增大了重构误差。因此，加入正负序列的白噪声可以在分解过程中相互抵消，减小重构误差。**\n### 本模块包含算法如下:\n **高斯白噪声： 高斯白噪声(White Gaussian Noise)在通信、信号处理及科学研究等\
-//   多个领域中扮演着重要角色。它作为一种理想的噪声模型，具有独特的统计特性和功率谱分布，为系统性能评估、算法测试及信号分析提供了有力工具**',
-//   '插值处理': '### 插值处理算法可以对输入信号进行插值操作\n***\n ### 插值处理的主要应用有：\n **1. 数值计算。函数逼近：插值方法，如拉格朗日插值多项式，可以用于在给定节点上逼近任意函数，从而在节点外的位置计算函数的近似值。**\n \
-//   **2. 图像处理。图像放大与缩小：双线性插值等方法可以用于图像的放大或缩小，以获取更高分辨率或适当尺寸的图像。图像平滑：线性插值等方法可以用于平滑图像中的噪声或异常值，提高图像质量。**\
-//   **3. 数据净化。缺失值处理：插值法是一种有效的缺失值处理方法，能够根据不同情况选择合适的插值类型进行估算，实现数据的完整性和连续性。数据平滑：插值法可以用于构建连续且平滑的函数模型来拟合数据，消除噪声和异常值的影响，提高数据质量。**\n \
-//   ### 本插值处理模块中包含算法：\n **多项式插值算法、双三次插值算法、拉格朗日插值算法、牛顿插值算法、线性插值算法**',
-//   'TDF': '### 特征提取算法可对输入信号进行人工特征提取\n***\n ### 特征提取算法中主要包括信号时域特征和频域特征的提取：\n **1. 时域特征。定义：时域特征描述的是信号随时间变化的关系。在时域中，信号被表示为时间的函数，其动态信号描述信号在不同时刻的取值。\
-//   特点：时域表示较为形象与直观，对于正弦信号等简单波形的时域表达，可以通过幅值、频率、相位三个基本特征值唯一确定。时域分析能够直接反映信号随时间的实时变化。**\n **2. 频域特征。定义：频域特征描述的是信号在频率方面的特性。\
-//   频域分析是通过对信号进行傅立叶变换等数学方法，将信号从时间域转换到频率域，从而研究信号的频率结构。特点：频域分析能够深入剖析信号的本质，揭示信号中不易被时域分析发现的特征。频域特征通常用于表达信号的周期性信息。**\n ### 本特征提取算法中提取的时域和频域的特征包括：\
-//   \n **1. 时域特征：均值、方差、标准差、峰度、偏度、四阶累积量、六阶累积量、最大值、最小值、中位数、峰峰值、整流平均值、均方根、方根幅度、波形因子、峰值因子、脉冲因子、裕度因子**\n \
-//   **1. 频域特征：重心频率、均方频率、均方根频率、频率方差、频率标准差、谱峭度的均值、谱峭度的标准差、谱峭度的峰度、谱峭度的偏度**',
-//   '层次分析模糊综合评估': '### 层次分析模糊综合评估法是一种将模糊综合评价法和层次分析法相结合的评价方法\n***\n ### 算法优点：\n **1. 可以综合考虑多个因素的影响，给出全面评价结果。**\n \
-//   **2. 评价结果是一个矢量，而不是一个点值，包含的信息比较丰富，既可以比较准确的刻画被评价对象，又可以进一步加工，得到参考信息。**\n **3. 模糊评价通过精确的数字手段处理模糊的评价对象，能对蕴藏信息呈现模糊性的资料作出比较科学、合理、贴近实际的量化评价。**'
-// }
+// 监听特征选择的规则对应的阈值的初始值，以适应性的调整阈值的初始值
 
 // 用于显示算法介绍
 const introductionToShow = ref('# 你好世界')  // 需要展示在可视化建模区的算法介绍
@@ -1345,23 +999,24 @@ const display_label_to_id = (display_label) => {
 //   })
 // }
 // 节点标签到节点标识id的转换
-function label_to_id(label) {
-  let node_list = nodeList.value.slice()
-  let nodeId_to_find = 0
-  node_list.forEach(node => {
+function labelToId(label) {
+  let nodeList1 = nodeList.value.slice()
+  let nodeIdToFind = 0
+  nodeList1.forEach(node => {
     if (node.label == label) {
-      nodeId_to_find = node.id
+      nodeIdToFind = node.id
     }
   })
-  return nodeId_to_find
+  return nodeIdToFind
 }
 
-// 建立模型的连线操作
+// 建立模型的连线操作, 挂在到onMounted中
 const linkedList = new LinkedList()
 onMounted(() => {
   username.value = window.localStorage.getItem('username') || '用户名未设置'
   console.log('username: ', username.value)
 
+  // 当进行建模的时候隐藏可视化建模区的背景文字
   document.querySelector('.el-main').classList.add('has-background');
   plumbIns = jsPlumb.getInstance()
   jsPlumbInit()
@@ -1397,14 +1052,13 @@ onMounted(() => {
     console.log('linked: ' + linked)
   })
 
-  plumbIns.bind('beforeConnect', function (info) {
-    console.log('调用')
-    let sourceId = info.connection.sourceId
-    let targetId = info.connection.targetId
-    if (sourceId == '3.1') {
-      return false
-    }
-  })
+  // plumbIns.bind('beforeConnect', function (info) {
+  //   let sourceId = info.connection.sourceId
+  //   let targetId = info.connection.targetId
+  //   if (sourceId == '3.1') {
+  //     return false
+  //   }
+  // })
 })
 
 const deff = {
@@ -1541,7 +1195,8 @@ const deff = {
 const done = ref(false) // 控制模型可拖拽，当其值为true时不可拖拽模型
 const dialogModle = ref(false)
 
-let model_check_right = false
+let modelCheckRight = false  // 为真时表明通过模型检查
+
 // 检查模型
 const checkModel = () => {
   console.log(linkedList.get_all_nodes())
@@ -1556,7 +1211,6 @@ const checkModel = () => {
   } else {
 
     // 如果有多个模块则需要根据用户的连接动作去形成正确的模型流程
-    // module_schedule = linkedList.get_all_nodes()
     let allConnections = plumbIns.getConnections();
     console.log('all_connections: ', allConnections)
     // 获取连线元素的单向映射
@@ -1571,9 +1225,8 @@ const checkModel = () => {
       }
       connectionsMap[sourceId].push(targetId);  
     })
-    // console.log('connectionsMap: ', connectionsMap)
     
-    // 寻找逻辑上的第一个元素
+    // 寻找用户建立的模型流程逻辑上的第一个元素
     function findStartElement(connectionsMap: any) {  
       // 创建一个集合来存储所有元素的ID  
       const allElements = new Set(Object.keys(connectionsMap).concat(...Object.values(connectionsMap).map(list => list)));  
@@ -1588,12 +1241,12 @@ const checkModel = () => {
               }  
           }  
           if (!hasIncomingConnection) {  
-              return elementId; // 找到没有入度的元素，即起点  
+              return elementId;     // 找到没有入度的元素，即起点  
           }  
       }  
     
       // 如果没有找到没有入度的元素，则可能图不是线性的，或者connectionsMap构建有误  
-      throw new Error("No start element found. The graph may not be linear or the connectionsMap may be incorrect.");  
+      throw new Error("未找到起点元素.");  
     }
     let startElementId = findStartElement(connectionsMap);
     
@@ -1602,13 +1255,14 @@ const checkModel = () => {
       
       const connections = connectionsMap[currentElementId];  
     
-      // 假设序列是线性的 
+      // 建立模型时，模型序列是线性的 
       if (connections && connections.length > 0) {  
           return connections[0]; // 返回序列中的下一个元素ID  
       }  
       return null;  
     }
     
+    // 生成所建立模型的运行流程
     function traverseLinearSequence(startElementId, connectionsMap, visited = new Set(), order = []) {  
       // 检查是否已访问过当前元素  
       if (visited.has(startElementId)) {  
@@ -1624,7 +1278,7 @@ const checkModel = () => {
           // 递归遍历下一个元素  
           traverseLinearSequence(nextElementId, connectionsMap, visited, order);  
       }  
-    
+      // 最终返回模型的运行流程
       return order;  
     }
     let sequenceOrder = traverseLinearSequence(startElementId, connectionsMap);  
@@ -1653,10 +1307,9 @@ const checkModel = () => {
   }
   
 
-  let moduleStr = Object.values(moduleSchedule).join('')
-  let algorithmStr = Object.values(algorithmSchedule).join('')
-  // console.log('module_str: ' + moduleStr)
-  // console.log('algorithm_str: ' + algorithmStr)
+  let moduleStr = Object.values(moduleSchedule).join('')   // 所有模块的名称按顺序拼接起来的字符串
+  let algorithmStr = Object.values(algorithmSchedule).join('')  // 所有模块中的算法名称按顺序拼接起来的字符串
+
   // 判断子串后是否有更多的文本
   const moreText = (text, substring) => {
     const position = text.indexOf(substring);
@@ -1675,7 +1328,7 @@ const checkModel = () => {
       for (const subStr2 of subStrs2) {
         const index2 = str.indexOf(subStr2, index1 + subStr1.length);
         if (index2 !== -1) {
-          // 如果在 subStr1 之后找到了 subStr2 中的任何一个  
+          // 如果在 subStr1 之后找到了 subStr2 中的任何一个则返回true  
           return true;
         }
       }
@@ -1683,35 +1336,86 @@ const checkModel = () => {
     return false;
   }
   if (nodeList.value.length) {
+    // 首先判断模型中是否存在1个以上的模块，如果模型中只有一个模块，判断其是否可以独立地运行而不需要其他模块的支持
     if (nodeList.value.length == 1) {
       if (!moduleStr.match('插值处理') && !moduleStr.match('特征提取') && !algorithmStr.match('GRU的故障诊断') && !algorithmStr.match('LSTM的故障诊断') && !algorithmStr.match('小波变换降噪')
-    && !algorithmStr.match('一维卷积模型的故障诊断') && !algorithmStr.match('基于时频图的故障诊断')) {
+    && !algorithmStr.match('一维卷积深度学习模型的故障诊断') && !algorithmStr.match('基于时频图的深度学习模型的故障诊断') && !moduleStr.match('无量纲化')) {
+        let tip
+        if (moduleStr.match('故障诊断')) {
+          tip = '模型中包含故障诊断，建议在此之前进行特征提取和特征选择等操作'
+        }
+        else if (moduleStr.match('层次分析模糊综合评估')) {
+          tip = '模型中包含层次分析模糊综合评估，建议在此之前进行特征提取和特征选择等操作'
+        }
+        else if (moduleStr.match('特征选择')) {
+          tip = '模型中包含特征选择，建议在此之前进行特征提取等操作'
+        }
+        else if (moduleStr.match('趋势预测')) {
+          tip = '模型中包含趋势预测，建议在此之前进行故障诊断'
+        }
+      
         ElMessage({
-          message: '该算法无法单独使用，请结合相应的算法',
-          type: 'warning'
+          message: '该算法无法单独使用，请结合相应的算法,' + tip,
+          type: 'warning',
+          showClose: true
         })
+        // ElMessageBox.alert(
+        //   '该算法无法单独使用，请结合相应的算法', '提示',
+        //   {
+        //     confirmButtonText: '确定',
+        //     draggable: true,
+        //     buttonSize: 'medium',
+        //   }
+        // )
+        // 检查单个模块是否可以单独运行，或者是否需要一些必要的其他模块的支持
+       
         return
       } else {
-        // 进行模型参数设置的检查
-        let check_params_right = checkModelParams()
-        if (check_params_right) {
+        // 无量纲化要检查是否使用模型训练师使用的标准化方法，对输入的原始信号无法使用模型训练时使用的标准化方法进行无量纲化
+        if (moduleStr.match('无量纲化')){
+          let node
+          for (let item of nodeList.value){
+            if (item.label == '无量纲化'){
+              node = item
+              break
+            }
+          }
+          if (node?.parameters[node.use_algorithm]['useLog'] == true){
+            // ElMessage({
+            //   message: '如果要使用模型训练是使用的标准化方法进行无量纲化，请确保无量纲化模块之前对数据进行了特征提取，或者选择不使用模型训练时使用的标准化方法',
+            //   type: 'warning',
+            //   showClose: true
+            // })
+            ElMessageBox.alert('如果要使用模型训练时使用的标准化方法进行无量纲化，请确保无量纲化模块之前对数据进行了特征提取，或者在参数设置中选择不使用模型训练时使用的标准化方法', '提示', {
+              confirmButtonText: '确定',
+              draggable: true,
+              buttonSize: 'medium',
+            })
+            
+            return
+          }
+        }
+        // 如果模块可以单独运行，再进行模型中各个模块的参数设置的检查
+        let checkParamsRight = checkModelParams()
+        if (checkParamsRight) {
           ElMessage({
             showClose: true,
             message: '模型正常，可以保存并运行',
             type: 'success'
           })
-          model_check_right = true
+          modelCheckRight = true
           updateStatus('模型建立并已通过模型检查')
         } else {
           ElMessage({
             showClose: true,
-            message: '模型参数未设置',
+            message: '请确保所有具有参数的模块的参数设置正确',
             type: 'warning'
           })
           return
         }
       }
     } else {
+      // 检查模型中是否存在未被连接的模块
       if (linkedList.length() != nodeList.value.length) {
         ElMessage({
           message: '请确保图中所有模块均已建立连接，且没有多余的模块',
@@ -1719,24 +1423,180 @@ const checkModel = () => {
         })
         return
       } else {
-        if (moduleStr.match('特征选择故障诊断') && !moduleStr.match('特征提取特征选择故障诊断') && !moduleStr.match('特征提取特征选择无量纲化故障诊断')
-            && !moduleStr.match('特征提取无量纲化特征选择故障诊断')) {
+        // 模型正常连接的情况下进行模型逻辑以及模型参数的检查
+        if (algorithmStr.match('多传感器') && algorithmStr.match('单传感器')) {
           ElMessage({
             showClose: true,
-            message: '因模型中包含故障诊断，建议在特征选择之前包含特征提取',
+            message: '多传感器和单传感器的算法不能混合使用！',
             type: 'warning'
           })
           return
-        } else if (moduleStr.match('特征提取故障诊断')) {
-          let source_id = label_to_id('特征提取')
+        }
+        // if (moduleStr.match('特征选择故障诊断') && !moduleStr.match('特征提取特征选择故障诊断') && !moduleStr.match('特征提取特征选择无量纲化故障诊断')
+        //     && !moduleStr.match('特征提取无量纲化特征选择故障诊断') && !algorithmStr.match('深度学习模型的故障诊断') && !algorithmStr.match('GRU的故障诊断') && !algorithmStr.match('LSTM的故障诊断')) {
+        //   ElMessage({
+        //     showClose: true,
+        //     message: '因模型中包含故障诊断，建议在特征选择之前包含特征提取',
+        //     type: 'warning'
+        //   })
+        //   return
+        // } 
+        if(moduleStr.match('故障诊断')) {
+          // 如果是深度学习模型的故障诊断
+          if (algorithmStr.match('深度学习模型的故障诊断') || algorithmStr.match('GRU的故障诊断') || algorithmStr.match('LSTM的故障诊断')){
+            if (moduleStr.indexOf('故障诊断') > 0){
+              // 检查深度学习模型的故障诊断之前是否包含不必要的模块
+              let preModuleText = moduleStr.substring(0, moduleStr.indexOf('故障诊断'))
+              if (preModuleText.match('特征提取') || preModuleText.match('特征选择') || preModuleText.match('无量纲化') || preModuleText.match('趋势预测')) {
+                ElMessage({
+                  message: '深度学习模型的故障诊断不需要人工提取特征，因此其之前不需要包含如特征提取、特征选择、无量纲化、趋势预测等不必要的模块！',
+                  type: 'warning',
+                  showClose: true
+                })
+                return
+              }
+            }
+            // 如果使用深度学习模型的故障诊断之后有其他的模块
+            if (moreText(moduleStr, '故障诊断')){
+              let nextModuleText = moduleStr.substring(moduleStr.indexOf('故障诊断'), moduleStr.length)
+              if (nextModuleText.match('趋势预测') || nextModuleText.match('层次分析模糊综合评估')) {
+                // 如果同时包含趋势预测以及层次分析模糊综合评估
+                let current: String
+                if (nextModuleText.match('趋势预测') && nextModuleText.match('层次分析模糊综合评估')){
+                  if (nextModuleText.indexOf('趋势预测') > nextModuleText.indexOf('层次分析模糊综合评估')){
+                    ElMessage({
+                      message: '注意趋势预测应该在层次分析模糊综合评估之前运行',
+                      type: 'warning',
+                      showClose: true
+                    })
+                    return 
+                  }
+                  else {
+                    current = '趋势预测'
+                  }
+                }
+                
+                // 因为之前的深度学习模型的故障诊断无法为趋势预测或是健康评估提供样本特征，因此需要进行特征提取和特征选择
+                if (nextModuleText.indexOf('趋势预测') == -1){
+                  current = '层次分析模糊综合评估'
+                }
+                if (nextModuleText.indexOf('层次分析模糊综合评估') == -1){
+                  current = '趋势预测'
+                }
+                // if (nextModuleText.indexOf('趋势预测') > nextModuleText.indexOf('层次分析模糊综合评估')){
+                //   current = '层次分析模糊综合评估'
+                // }else{
+                //   current = '趋势预测'
+                // }
+                let preModuleText = nextModuleText.substring(0, nextModuleText.indexOf(current))
+                if (!preModuleText.match('特征提取特征选择') && !preModuleText.match('特征提取无量纲化特征选择') && !preModuleText.match('特征提取特征选择无量纲化')){
+                  ElMessage({
+                    message: '建议在深度学习模型的故障诊断之后包含特征提取和特征选择模块',
+                    type: 'warning',
+                    showClose: true
+                  })
+                  return
+                }
+           
+              }
+            }
+          }
+          else {
+            // 如果是传统机器学习的故障诊断
+            let preModuleText = moduleStr.substring(0, moduleStr.indexOf('故障诊断'))
+            // if (!preModuleText.match('特征提取') && !preModuleText.match('特征选择') && !preModuleText.match('特征提取无量纲化特征选择')){
+            //   ElMessage({
+            //     message: '因模型中包含机器学习的故障诊断，建议在故障诊断之前包含特征提取及特征选择',
+            //     type: 'warning'
+            //   })
+            //   return
+            // }
+            // if (!preModuleText.match('特征提取特征选择') && !preModuleText.match('特征提取无量纲化特征选择') && !preModuleText.match('特征提取特征选择无量纲化')){
+              
+            //   ElMessage({
+            //     message: '建议在特征提取之后进行特征选择',
+            //     type: 'warning',
+            //     showClose: true
+            //   })
+            //   return 
+            // }
+            // 机器学习的故障诊断之前不包含特征提取和特征选择
+            if (!preModuleText.match('特征提取') && !preModuleText.match('特征选择')){
+              ElMessage({
+                message: '建议在故障诊断之前进行特征提取和特征选择',
+                type: 'warning',
+                showClose: true
+              })
+              return
+            }
+            else {
+              // 如果特征提取和特征选择同时存在
+              if (preModuleText.match('特征提取') && preModuleText.match('特征选择')){
+                // 特征提取在特征选择之后，此时逻辑错误
+                if (preModuleText.indexOf('特征提取') > preModuleText.indexOf('特征选择')){
+                  ElMessage({
+                    message: '建议在特征提取之后进行特征选择',
+                    type: 'warning',
+                    showClose: true
+                  })
+                  return
+                }
+              }
+              else {
+                // 只包含特征选择
+                if (preModuleText.match('特征选择')) {
+                  ElMessage({
+                    message: '建议在特征提取之后再进行特征选择',
+                    type: 'warning',
+                    showClose: true
+                  })
+                  return
+                }
+                // 只包含特征提取
+                if (preModuleText.match('特征提取')) {
+                  ElMessage({
+                    message: '因模型中包含机器学习的故障诊断，建议在特征提取之后进行特征选择',
+                    type: 'warning',
+                    showClose: true
+                  })
+                  return
+                }
+              }
+            }
+          }
+        }
+          // else {
+          //   // 如果是机器学习的故障诊断
+          //   if (moduleStr.indexOf('故障诊断') > 0) {
+          //     let preModuleText = moduleStr.substring(0, moduleStr.indexOf('故障诊断'))
+          //     if (!preModuleText.match('特征提取') && !preModuleText.match('特征选择') && !preModuleText.match('特征提取无量纲化特征选择')){
+          //       ElMessage({
+          //         message: '因模型中包含故障诊断，建议在故障诊断之前包含特征提取及特征选择',
+          //         type: 'warning'
+          //       })
+          //       return
+          //     }
+          //     if (!preModuleText.match('特征提取特征选择') && !preModuleText.match('特征提取无量纲化特征选择') && !preModuleText.match('特征提取特征选择无量纲化')){
+                
+          //       ElMessage({
+          //         message: '建议在特征提取之后进行特征选择',
+          //         type: 'warning',
+          //         showClose: true
+          //       })
+          //       return 
+          //     }
+          //   }
+          // }
+        if (moduleStr.match('特征提取故障诊断')) {
+          let sourceId = labelToId('特征提取')
           let current = linkedList.search('特征提取')
           let next = current.next.value
-          let target_id = label_to_id(next)
+          let targetId = labelToId(next)
 
-          let connection = plumbIns.getConnections({ source: source_id, traget: target_id })
+          let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
           console.log('connection: ', connection)
 
-          plumbIns.select({ source: source_id, target: target_id }).setPaintStyle({
+          plumbIns.select({ source: sourceId, target: targetId }).setPaintStyle({
             stroke: '#E53935',
             strokeWidth: 7,
             outlineStroke: 'transparent',
@@ -1749,7 +1609,8 @@ const checkModel = () => {
             type: 'warning'
           })
           return
-        } else if (moduleStr.match('层次分析模糊综合评估') && !moduleStr.match('特征提取')) {
+        } 
+        if (moduleStr.match('层次分析模糊综合评估') && !moduleStr.match('特征提取')) {
 
           ElMessage({
             showClose: true,
@@ -1760,8 +1621,8 @@ const checkModel = () => {
           let current = linkedList.searchPre('层次分析模糊综合评估') // 寻找健康评估之前的节点，即不符合规则的节点
           // 红色表明报错连线
           
-          let sourceId = label_to_id(current.value)
-          let targetId = label_to_id('层次分析模糊综合评估')
+          let sourceId = labelToId(current.value)
+          let targetId = labelToId('层次分析模糊综合评估')
           
           let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
           console.log('connection: ', connection)
@@ -1774,21 +1635,37 @@ const checkModel = () => {
 
           });
           return
-        } else if (moduleStr.match('层次分析模糊综合评估') && (moduleStr.match('LSTM的故障诊断') || moduleStr.match('GRU的故障诊断'))) {
-          ElMessage({
-            showClose: true,
-            message: '使用深度学习模型的故障诊断无法为健康评估提供有效的评估依据，建议使用机器学习的故障诊断配合健康评估！',
-            type: 'warning'
-          })
-          return
-        } else if (moduleStr.match('层次分析模糊综合评估') && moreText(moduleStr, '层次分析模糊综合评估')) {
-          let sourceId = label_to_id('层次分析模糊综合评估')
+        } 
+        if (algorithmStr.match('深度学习模型的故障诊断') || algorithmStr.match('GRU的故障诊断') || algorithmStr.match('LSTM的故障诊断')) {
+          // 如果使用深度学习的故障诊断之前有其他模块，则要进行限定
+           
+          if (moduleStr.indexOf('故障诊断') != 0){
+            let preText = moduleStr.substring(0, moduleStr.indexOf('故障诊断')) 
+            // 检查使用深度学习的故障诊断之前是否有特征提取等不合理的模块
+            if (preText.match('特征提取') || preText.match('特征选择') || preText.match('无量纲化')) {
+              ElMessage({
+                showClose: true,
+                message: '使用深度学习模型的故障诊断不需要进行特征提取或是特征选择，请删除相关模块！',
+                type: 'warning'
+              })
+            }
+            return
+          }
+        }
+        // if (moduleStr.match('层次分析模糊综合评估') && (moduleStr.match('LSTM的故障诊断') || moduleStr.match('GRU的故障诊断'))) {
+        //   ElMessage({
+        //     showClose: true,
+        //     message: '使用深度学习模型的故障诊断无法为健康评估提供有效的评估依据，建议使用机器学习的故障诊断配合健康评估！',
+        //     type: 'warning'
+        //   })
+        //   return
+        // }
+        // 健康评估之后无法连接其他模块
+        if (moduleStr.match('层次分析模糊综合评估') && moreText(moduleStr, '层次分析模糊综合评估')) {
+          let sourceId = labelToId('层次分析模糊综合评估')
           let current = linkedList.search('层次分析模糊综合评估')
           let next = current.next.value
-          let targetId = label_to_id(next)
-
-          let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
-          console.log('connection: ', connection)
+          let targetId = labelToId(next)
 
           plumbIns.select({ source: sourceId, target: targetId }).setPaintStyle({
             stroke: '#E53935',
@@ -1803,38 +1680,105 @@ const checkModel = () => {
             type: 'warning'
           })
           return
-        } else if (algorithmStr.match('多传感器') && algorithmStr.match('单传感器')) {
+        }
+        if (algorithmStr.match('多传感器') && algorithmStr.match('单传感器')) {
           ElMessage({
             showClose: true,
             message: '针对单传感器的算法无法与针对多传感器的算法共用',
             type: 'warning'
           })
           return
-        } else if ((algorithmStr.match('LSTM的故障诊断') || algorithmStr.match('GRU的故障诊断')) && (checkSubstrings(moduleStr, '故障诊断', ['趋势预测', '健康评估']))){
-          ElMessage({
-            message: '注意深度学习的算法并不能为线性回归的趋势预测或是健康评估提供需要的特征。',
-            type: 'warning',
-            showClose: true
-          })
-          
-          let sourceId = label_to_id('故障诊断')
-          let current = linkedList.search('故障诊断')
-          // 红色表明报错连线
-          let next = current.next.value       // 寻找目标连线的源节点和目标节点
-          let targetId = label_to_id(next)
-          
-          let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
-          console.log('connection: ', connection)
+        }
+        if(moduleStr.match('无量纲化')) {
+          console.log('算法中包含无量纲化')
+          let node
+          for(let item of nodeList.value){
+            if (item.label.match('无量纲化')){
+              node = item
+              break
+            }
+          }
+          let useLog = node.parameters[node.use_algorithm]['useLog']  // 获取无量纲化模块的参数
+          if (moduleStr.indexOf('无量纲化') == 0){
+            // 无量纲化处理前没有其他模块
+            
+            // 检查无量纲化参数设置是否合理
+            if (useLog == true) {
+             
+              ElMessageBox.alert('如果要使用模型训练时使用的标准化方法进行无量纲化，请确保无量纲化模块之前对数据进行了特征提取，或者在参数设置中选择不使用模型训练时使用的标准化方法', '提示', {
+                confirmButtonText: '确定',
+                draggable: true,
+                buttonSize: 'medium',
+              })
+              return
+            }
+          }
+          else{
+            
+            // 检查无量纲化处理前的其他模块
+            let preModule = moduleStr.substring(0, moduleStr.indexOf('无量纲化')) 
+            if(preModule.match('特征提取') && useLog == false){
+              ElMessageBox.alert(
+                '因为无量纲化模块之前已经进行了特征提取，请在无量纲化的参数设置中选择使用模型训练时使用的标准化方法进行无量纲化',
+                '提示',
+                {
+                  confirmButtonText: '确定',
+                  draggable: true,
+                  buttonSize: 'medium',
+                }
+              )
+              return
+            }
+            else if (!preModule.match('特征提取') && useLog == true){
+              ElMessageBox.alert(
+                '无量纲化模块之前未进行特征提取，因此无法使用模型训练时使用的标准化方法进行无量纲化，请在无量纲化的参数设置中选择不使用模型训练时使用的标准化方法进行无量纲化',
+                '提示',
+                {
+                  confirmButtonText: '确定',
+                  draggable: true,
+                  buttonSize: 'medium',
+                }
+              )
+            }
+          }
 
-          plumbIns.select({ source: sourceId, target: targetId }).setPaintStyle({
-            stroke: '#E53935',
-            strokeWidth: 7,
-            outlineStroke: 'transparent',
-            outlineWidth: 5,
+        }
+        // if ((algorithmStr.match('LSTM的故障诊断') || algorithmStr.match('GRU的故障诊断')) && (checkSubstrings(moduleStr, '故障诊断', ['趋势预测', '健康评估']))){
+        //   let nextModuleText = moduleStr.substring(moduleStr.indexOf('故障诊断'), moduleStr.length)
+        //   if (!nextModuleText.match('特征提取') && !nextModuleText.match('特征选择')){
+        //     ElMessage({
+        //       message: '注意深度学习的算法并不能为线性回归的趋势预测或是健康评估提供需要的特征。',
+        //       type: 'warning',
+        //       showClose: true
+        //     })
+        //     return
+        //   }
+        //   // ElMessage({
+        //   //   message: '注意深度学习的算法并不能为线性回归的趋势预测或是健康评估提供需要的特征。',
+        //   //   type: 'warning',
+        //   //   showClose: true
+        //   // })
+          
+        //   let sourceId = labelToId('故障诊断')
+        //   let current = linkedList.search('故障诊断')
+        //   // 红色表明报错连线
+        //   let next = current.next.value       // 寻找目标连线的源节点和目标节点
+        //   let targetId = labelToId(next)
+          
+        //   // let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
+        //   // console.log('connection: ', connection)
 
-          });
-          return
-        } else if (moduleStr.match('故障诊断')) {
+        //   // 通过jsPlumb实例对象的select方法选择连线，并设置连线的样式
+        //   plumbIns.select({ source: sourceId, target: targetId }).setPaintStyle({
+        //     stroke: '#E53935',
+        //     strokeWidth: 7,
+        //     outlineStroke: 'transparent',
+        //     outlineWidth: 5,
+
+        //   });
+        //   return
+        // }
+        if (moduleStr.match('故障诊断')) {
           if (moreText(moduleStr, '故障诊断')) {
             if (!checkSubstrings(moduleStr, '故障诊断', ['层次分析模糊综合评估', '趋势预测'])) {
               ElMessage({
@@ -1843,14 +1787,14 @@ const checkModel = () => {
                 type: 'warning'
               })
               // 将报错的连线标注为红色
-              let sourceId = label_to_id('故障诊断')
+              let sourceId = labelToId('故障诊断')
               let current = linkedList.search('故障诊断')
               let next = current.next.value       // 寻找目标连线的源节点和目标节点
-              let targetId = label_to_id(next)
+              let targetId = labelToId(next)
               
-              let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
-              console.log('connection: ', connection)
-
+              // let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
+              // console.log('connection: ', connection)
+              // 通过jsPlumb实例对象的select方法选择连线，并设置连线的样式
               plumbIns.select({ source: sourceId, target: targetId }).setPaintStyle({
                 stroke: '#E53935',
                 strokeWidth: 7,
@@ -1858,32 +1802,7 @@ const checkModel = () => {
                 outlineWidth: 5,
 
               });
-              // connection.addOverlay(
-              //   [  
-              //     "Custom", {  
-              //       create: function(component) {  
-              //         // 创建一个img元素来引用SVG文件（注意：这里使用相对路径或Vue CLI处理后的路径）  
-              //         var img = document.createElement('img');  
-              //         img.src = require('/assets/叉号.svg'); // 注意：这里的@是Vue CLI的别名，指向src目录  
-              //         img.style.width = '20px'; // 设置图标大小  
-              //         img.style.height = 'auto'; // 保持宽高比  
-
-              //         // 或者，如果你想要直接嵌入SVG代码（假设你已经有了SVG的字符串表示）  
-              //         // var svgString = '<svg>...</svg>'; // SVG代码  
-              //         // var parser = new DOMParser();  
-              //         // var svgDoc = parser.parseFromString(svgString, "image/svg+xml");  
-              //         // var svgElement = svgDoc.documentElement;  
-              //         // return svgElement; // 直接返回SVG元素  
-
-              //         return img; // 返回img元素作为overlay  
-              //       },  
-              //       location: 0.5, // 在连接的中点添加overlay  
-              //       id: "crossOverlay" // 可选ID  
-              //     }  
-              //   ]
-              // )
-
-              // console.log('connection2: ', connection2)
+              
               return
             }
           }
@@ -1895,14 +1814,14 @@ const checkModel = () => {
                 type: 'warning'
               })
               // 将报错的连线标注为红色
-              let sourceId = label_to_id('特征选择')
+              let sourceId = labelToId('特征选择')
               let current = linkedList.search('特征选择')
               let next = current.next.value       // 寻找目标连线的源节点和目标节点
-              let targetId = label_to_id(next)
+              let targetId = labelToId(next)
               
-              let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
-              console.log('connection: ', connection)
-
+              // let connection = plumbIns.getConnections({ source: sourceId, traget: targetId })
+              // console.log('connection: ', connection)
+              // 通过jsPlumb实例对象的select方法选择连线，并设置连线的样式
               plumbIns.select({ source: sourceId, target: targetId }).setPaintStyle({
                 stroke: '#E53935',
                 strokeWidth: 7,
@@ -1914,16 +1833,6 @@ const checkModel = () => {
             }
           }
         }
-        // else if (algorithm_str.match('SVM的故障诊断')) {
-        //   if (!module_str.match('无量纲化')){
-        //     ElMessage({
-        //       showClose: true,
-        //       message: '因模型中包含SVM的故障诊断，需要在此之前加入标准化操作',
-        //       type: 'warning'
-        //     })
-        //     return
-        //   }
-        // }
         // 进行模型参数设置的检查
         let check_params_right = checkModelParams()
         if (check_params_right) {
@@ -1932,12 +1841,12 @@ const checkModel = () => {
             message: '模型正常，可以保存并运行',
             type: 'success'
           })
-          model_check_right = true
+          modelCheckRight = true
           updateStatus('模型建立并已通过模型检查')
         } else {
           ElMessage({
             showClose: true,
-            message: '模型参数未设置',
+            message: '请确保所有具有参数的模块的参数设置正确',
             type: 'warning'
           })
           return
@@ -2166,7 +2075,7 @@ const handleClear = () => {
   modelSetup.value = false   // 模型设置完成
   showPlainIntroduction.value = false
   showStatusMessage.value = false
-  model_has_been_saved = false  //复用历史模型，不做模型检查
+  modelHasBeenSaved = false  //复用历史模型，不做模型检查
   toRectifyModel.value = false  // 禁用修改模型
   canCompleteModeling.value = true
   canCheckModel.value = true
@@ -2207,9 +2116,9 @@ const handleDragend = (ev, algorithm, node) => {
   
   let top = 50 + 'px'
   const nodeId = node.id
-  const nodeInfo = {
-    label_display: labelsForAlgorithms[algorithm],
-    label: node.label,
+  const nodeInfo = { 
+    label_display: labelsForAlgorithms[algorithm],   // 具体算法的名称
+    label: node.label,      // 算法模块名称
     id: node.id,
     nodeId,
     nodeContainerStyle: {
@@ -2328,14 +2237,30 @@ const checkModelParams = () => {
   for (let i = 0; i < nodeList.value.length; i++) {
     let dict = nodeList.value[i]
 
-    if (!dict.use_algorithm) {
+    if (!dict.use_algorithm) 
+    {
+      console.log('')
       return false
-    }
-
-    if (dict.id == '1.2') {
-      if (!features.value.length) {
-        return false
+    } 
+    else 
+    {
+      // 检查特征选择的规则参数
+      if (dict.id == '1.3'){
+        let threshold = false
+        // 检查选择特征的规则参数是否正确设置
+        let rule = dict.parameters[dict.use_algorithm].rule
+        if (dict.parameters[dict.use_algorithm]['threshold'+rule]){
+          threshold = true
+        }
+        if (!threshold){
+          return false
+        }
       }
+      else if (dict.id == '1.2'){
+        if (!features.value.length) {
+          return false
+        }
+      } 
     }
   }
 
@@ -2389,7 +2314,7 @@ const saveModelSetting = (saveModel, schedule) => {
     // console.log(dict.use_algorithm + '\'s params are: ' + dict.parameters[dict.use_algorithm])
 
   }
-  if (!model_check_right && saveModel) {
+  if (!modelCheckRight && saveModel) {
     ElMessage({
       message: '请先建立模型并通过模型检查！',
       type: 'warning'
@@ -2429,15 +2354,9 @@ const saveModelSetting = (saveModel, schedule) => {
 const saveModelConfirm = () => {
   let data = new FormData()
   data.append('model_name', modelInfoForm.value.name)
-  let nodelist_length = nodeList.value.length
-  let nodelist_info = nodeList.value
-  // for (let i = 0; i < nodelist_length; i++){
-  //   nodelist_info[i].nodeContainerStyle.left += 'px'
-  //   nodelist_info[i].nodeContainerStyle.top += 'px'
-  // }
-
-  let model_info = { "nodeList": nodelist_info, "connection": contentJson.schedule }
-  data.append('model_info', JSON.stringify(model_info))
+  let nodelistInfo = nodeList.value
+  let modelInfo = { "nodeList": nodelistInfo, "connection": contentJson.schedule }
+  data.append('model_info', JSON.stringify(modelInfo))
   // data.append('username', window.localStorage.getItem('username'))
   // axios.post('http://127.0.0.1:8000/save_model/', data,
   //   {
@@ -2463,7 +2382,7 @@ const saveModelConfirm = () => {
   //     })
   //   }
   // })
-  api.post('/user_save_model/', data,
+  api.post('/user/save_model/', data,
     {
       headers: { "Content-Type": 'multipart/form-data' }
     }
@@ -2536,21 +2455,22 @@ const displayFeatureExtraction = ref(false)
 const transformedData = ref([])
 const columns = ref([])
 
-const featureExtractionDisplay = (results_object) => {
+const featureExtractionDisplay = (resultsObject) => {
 
   displayFeatureExtraction.value = true
-  let features_with_name = Object.assign({}, results_object.features_with_name)
-  let features_name = features_with_name.features_name.slice()
-  let features_group_by_sensor = Object.assign(features_with_name.features_extracted_group_by_sensor)
+  // 获取后端传回的提取的特征
+  let featuresWithName = Object.assign({}, resultsObject.features_with_name)
+  let featuresName = featuresWithName.features_name.slice()
+  let featuresGroupBySensor = Object.assign(featuresWithName.features_extracted_group_by_sensor)
   let datas = []        // 表格中每一行的数据
-  features_name.unshift('传感器')  // 表格的列名
-  for (const sensor in features_group_by_sensor) {
-    let features_of_sensor = features_group_by_sensor[sensor].slice()
-    features_of_sensor.unshift(sensor)
-    datas.push(features_of_sensor)
+  featuresName.unshift('传感器')  // 表格的列名
+  for (const sensor in featuresGroupBySensor) {
+    let featuresOfSensor = featuresGroupBySensor[sensor].slice()
+    featuresOfSensor.unshift(sensor)
+    datas.push(featuresOfSensor)
   }
   columns.value.length = 0
-  features_name.forEach(element => {
+  featuresName.forEach(element => {
     columns.value.push({ prop: element, label: element, width: 180 })
   });
 
@@ -2570,12 +2490,14 @@ const featureExtractionDisplay = (results_object) => {
 const displayFeatureSelection = ref(false)
 const featureSelectionFigure = ref('')
 const featuresSelected = ref('')
+const selectFeatureRule = ref('')
 
-const featuresSelectionDisplay = (results_object) => {
+const featuresSelectionDisplay = (resultsObject) => {
   displayFeatureSelection.value = true
 
-  let figure1 = results_object.figure_Base64
-  featuresSelected.value = results_object.selected_features.join('、')
+  let figure1 = resultsObject.figure_Base64
+  featuresSelected.value = resultsObject.selected_features.join('、')
+  selectFeatureRule.value = resultsObject.rule
   featureSelectionFigure.value = 'data:image/png;base64,' + figure1
 
 }
@@ -2603,7 +2525,7 @@ const faultDiagnosisDisplay = (resultsObject) => {
 
 // 故障预测结果展示
 const displayFaultRegression = ref(false)
-const have_fault = ref(0)
+const haveFault = ref(0)
 const faultRegression = ref('')
 const timeToFault = ref('')
 const faultRegressionFigure = ref('')
@@ -2616,10 +2538,10 @@ const faultRegressionDisplay = (resultsObject) => {
   // let fault_time = results_object.time_to_fault
 
   if (resultsObject.time_to_fault == 0) {
-    have_fault.value = 1
+    haveFault.value = 1
     faultRegression.value = '已经出现故障'
   } else {
-    have_fault.value = 0
+    haveFault.value = 0
     faultRegression.value = '还未出现故障'
     timeToFault.value = resultsObject.time_to_fault_str
   }
@@ -2645,23 +2567,26 @@ const interpolationDisplay = (resultsObject: any) => {
   }
   console.log('interpolationResultsOfSensors: ', interpolationResultsOfSensors)
   console.log('interpolationFigures: ', interpolationFigures)
-  displayDenoise.value = true
+  // displayDenoise.value = true
 }
 
 // 无量纲化可视化
+const activeName4 = ref('1')
 const displayNormalization = ref(false)
 const normalizationFormdataRaw = ref([])
-const normalizationFormdataScaled = ref([])
+const normalizationFormdataScaled = ref([])  // 无量纲的结果表格
 const normalizationColumns = ref([])
+const normalizationResultFigures = ref([])   // 无量纲结果图像
+const normalizationResultsSensors = ref([])
 
 const transformDataToFormdata = (features_with_name: any, columns: any, formdata: any) => {
 
-  let features_name = features_with_name.features_name.slice()
-  let features_group_by_sensor = Object.assign(features_with_name.features_extracted_group_by_sensor)
+  let featuresName = features_with_name.features_name.slice()
+  let featuresGroupBySensor = Object.assign(features_with_name.features_extracted_group_by_sensor)
   let datas = []        // 表格中每一行的数据
-  features_name.unshift('传感器')  // 表格的列名
-  for (const sensor in features_group_by_sensor) {
-    let features_of_sensor = features_group_by_sensor[sensor].slice()
+  featuresName.unshift('传感器')  // 表格的列名
+  for (const sensor in featuresGroupBySensor) {
+    let features_of_sensor = featuresGroupBySensor[sensor].slice()
     features_of_sensor.unshift(sensor)
     // console.log('features_of_sensor: ', features_of_sensor)
     datas.push(features_of_sensor)
@@ -2671,7 +2596,7 @@ const transformDataToFormdata = (features_with_name: any, columns: any, formdata
   // console.log('datas: ', datas)
   // let i = { prop: '', label: '', width: '' }
   columns.value.length = 0
-  features_name.forEach(element => {
+  featuresName.forEach(element => {
     // console.log('element: ', element)
     columns.value.push({ prop: element, label: element, width: 180 })
   });
@@ -2687,17 +2612,37 @@ const transformDataToFormdata = (features_with_name: any, columns: any, formdata
   });
 }
 
+const normalizationResultType = ref('table')   // 无量纲化的结果类型，table表示表格，figure表示图像
+
 const normalizationDisplay = (resultsObject: any) => {
   displayNormalization.value = true
 
   let rawData = Object.assign({}, resultsObject.raw_data)
   let scaledData = Object.assign({}, resultsObject.scaled_data)
 
-  transformDataToFormdata(rawData, normalizationColumns, normalizationFormdataRaw)
-  transformDataToFormdata(scaledData, normalizationColumns, normalizationFormdataScaled)
-  console.log('normalization_formdata_raw: ', normalizationFormdataRaw)
-  console.log('normalization_formdata_scaled: ', normalizationFormdataScaled)
-  console.log('normalization_columns: ', normalizationColumns)
+  if (resultsObject.datatype == 'table') {
+    normalizationResultType.value = 'table'
+    transformDataToFormdata(rawData, normalizationColumns, normalizationFormdataRaw)
+    transformDataToFormdata(scaledData, normalizationColumns, normalizationFormdataScaled)
+  }
+  else {
+    normalizationResultType.value = 'figure'
+    let sensorId = 0
+    normalizationResultFigures.value.length = 0
+    normalizationResultsSensors.value.length = 0
+    for(const [key, value] of Object.entries(resultsObject)){
+      if (key=='datatype') {
+        continue
+      }
+      sensorId += 1
+      normalizationResultFigures.value.push('data:image/png;base64,' + value)
+      normalizationResultsSensors.value.push({label: key.split('_')[0], name: sensorId.toString()})
+    }
+  }
+  
+  // console.log('normalization_formdata_raw: ', normalizationFormdataRaw)
+  // console.log('normalization_formdata_scaled: ', normalizationFormdataScaled)
+  // console.log('normalization_columns: ', normalizationColumns)
 
 }
 
@@ -2826,7 +2771,7 @@ const fetchModels = () => {
   dataDrawer.value = false
   modelsDrawer.value = true
   // 向后端发送请求获取用户的历史模型
-  api.get('/user_fetch_models/').then((response) => {
+  api.get('/user/fetch_models/').then((response) => {
     let modelsInfo = response.data
     fetchedModelsInfo.value.length = 0
     for (let item of modelsInfo) {
@@ -2840,7 +2785,7 @@ const fetchedModelsInfo = ref([])
 
 
 // 复用历史模型，不需要进行模型检查等操作
-let model_has_been_saved = false
+let modelHasBeenSaved = false
 const modelLoaded = ref('无')  // 已加载的历史模型
 
 // 点击历史模型表格中使用按钮触发复现历史模型
@@ -2851,15 +2796,15 @@ const useModel = (row) => {
   }
   handleClear()
   updateStatus('当前模型已保存')
-  model_has_been_saved = true
+  modelHasBeenSaved = true
   canStartProcess.value = false
   modelLoaded.value = row.model_name
   let objects = JSON.parse(row.model_info)
-  let node_list = objects.nodeList         // 模型节点信息   
+  let nodeList1 = objects.nodeList         // 模型节点信息   
   let connection = objects.connection      // 模型连线信息
 
   // 恢复节点
-  for (let node of node_list) {
+  for (let node of nodeList1) {
 
     nodeList.value.push(node)
 
@@ -2940,16 +2885,16 @@ let index = 0
 let row = 0
 const deleteModelConfirmVisible = ref(false)
 // 删除模型操作
-const deleteModel = (index_in, row_in) => {
-  index = index_in
-  row = row_in
+const deleteModel = (indexIn, rowIn) => {
+  index = indexIn
+  row = rowIn
   deleteModelConfirmVisible.value = true
 }
 // 用户删除模型操作确认
 const deleteModelConfirm = () => {
 
   // 发送删除请求到后端，row 是要删除的数据行
-  api.get('/user_delete_model/?row_id=' + row.id).then((response) => {
+  api.get('/user/delete_model/?row_id=' + row.id).then((response) => {
     if (response.data.message == 'deleteSuccessful') {
       if (index !== -1) {
         // 删除前端表中数据
@@ -3053,14 +2998,14 @@ const rectifyModel = () => {
 
 //检查模型
 const checkModeling = () => {
-  if (nodeList.value.length == 0 && !model_has_been_saved) {
+  if (nodeList.value.length == 0 && !modelHasBeenSaved) {
     canCheckModel.value = true
   }
 }
 
 //保存模型
 const saveModeling = () => {
-  if (nodeList.value.length == 0 || model_has_been_saved) {
+  if (nodeList.value.length == 0 || modelHasBeenSaved) {
     canSaveModel.value = true
   }
 }
@@ -3114,7 +3059,7 @@ const deleteDataset = (index_in: any, row_in: any) => {
 
 const deleteDatasetConfirm = () => {
 
-  api.get('/delete_datafile?filename=' + rowDataset.dataset_name)
+  api.get('/user/delete_datafile?filename=' + rowDataset.dataset_name)
     .then((response: any) => {
       if (response.data.code == 200){
         // 删除前端表中数据

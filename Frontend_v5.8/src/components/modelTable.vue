@@ -1,10 +1,11 @@
 <template>
   <div style="display: flex; flex-direction: column; ">
-    <el-col>
+    <div class="shadow-border title-container" style="">
+      用户模型管理
+    </div>
 
-      <!-- <h2 style=" margin-bottom: 25px; color: #253b45;">模型管理</h2> -->
-
-      <el-table :data="fetchedModelsInfo" stripe style="width: 100%">
+    <div  class="table-container">
+      <el-table :data="fetchedModelsInfo" stripe style="width: 100%; " height="500px" :stripe="true" border :header-cell-style="{ backgroundColor: '#f5f7fa', color: '#606266' }">
         <el-popover placement="bottom-start" title="模型信息" :width="400" trigger="hover" content="这是模型信息">
         </el-popover>
         <el-table-column  property="id" label="序号" />
@@ -16,13 +17,13 @@
           <template #default="scope">
 
             <el-button size="small" type="danger" style="width: 50px;"
-                       @click="delete_model(scope.$index, scope.row)">
+                        @click="delete_model(scope.$index, scope.row)">
               删除
             </el-button>
             <template></template>
             <el-popover placement="bottom" :width='500' trigger="click">
               <el-descriptions :title="model_name" :column="3" :size="size" direction="vertical"
-                               >
+                                >
                 <el-descriptions-item label="使用模块" :span="3">
                   <el-tag size="small" v-for="algorithm in model_algorithms">{{ algorithm }}</el-tag>
                 </el-descriptions-item>
@@ -39,18 +40,18 @@
           </template>
         </el-table-column>
       </el-table>
+    </div>
+    
 
-      <el-dialog v-model="delete_model_confirm_visible" title="提示" width="500">
-        <span style="font-size: 20px;">确定删除该模型吗？</span>
-        <template #footer>
-          <el-button style=" width: 150px;" @click="delete_model_confirm_visible = false">取消</el-button>
-          <el-button style="width: 150px; margin-right: 70px;" type="primary"
-                     @click="delete_model_confirm">确定</el-button>
-        </template>
-      </el-dialog>
+    <el-dialog v-model="delete_model_confirm_visible" title="提示" width="500">
+      <span style="font-size: 20px;">确定删除该模型吗？</span>
+      <template #footer>
+        <el-button style=" width: 150px;" @click="delete_model_confirm_visible = false">取消</el-button>
+        <el-button style="width: 150px; margin-right: 70px;" type="primary"
+                    @click="delete_model_confirm">确定</el-button>
+      </template>
+    </el-dialog>
 
-
-    </el-col>
 
   </div>
 
@@ -136,3 +137,40 @@ const delete_model_confirm = () => {
 
 }
 </script>
+
+<style scoped>
+.shadow-border {
+  width: 200px;
+  height: 200px;
+  /* border: 1px solid #888; */
+  box-shadow: 4px 4px 8px 0 rgba(136, 136, 136, 0.5); /* 水平偏移, 垂直偏移, 模糊距离, 扩展距离, 颜色 */
+}
+
+.title-container {
+  display: flex;        
+  align-items: center;  
+  justify-content: flex-start;
+  background-color: white;
+  width: 89%; 
+  height: 100px; 
+  font-weight: 8px; 
+  font-size: 30px; 
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-top: 20px;
+  padding-left: 20px;
+  border-radius: 5px;
+  font-family: '微软雅黑', sans-serif;
+}
+
+.table-container {
+  width: 86%;
+  height: 510px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  margin-left: 30px;
+}
+</style>
