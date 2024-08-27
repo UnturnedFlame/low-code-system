@@ -1449,7 +1449,7 @@ const checkModel = () => {
               let preModuleText = moduleStr.substring(0, moduleStr.indexOf('故障诊断'))
               if (preModuleText.match('特征提取') || preModuleText.match('特征选择') || preModuleText.match('无量纲化') || preModuleText.match('趋势预测')) {
                 ElMessage({
-                  message: '深度学习模型的故障诊断不需要人工提取特征，因此其之前不需要包含如特征提取、特征选择、无量纲化、趋势预测等不必要的模块！',
+                  message: '深度学习模型的故障诊断不需要人工提取特征，因此其之前不需要包含如特征提取、特征选择等不必要的模块！',
                   type: 'warning',
                   showClose: true
                 })
@@ -1609,6 +1609,18 @@ const checkModel = () => {
             type: 'warning'
           })
           return
+        }
+        if (moduleStr.indexOf('小波变换') > 0){
+          // 小波变换只能针对信号序列，之前不能已经进行了特征提取
+          let preModuleText = moduleStr.substring(0, moduleStr.indexOf('小波变换'))
+          if (preModuleText.match('特征提取')){
+            ElMessage({
+              showClose: true,
+              message: '模型中对原始信号进行了特征提取，而小波变换只能针对信号序列',
+              type: 'warning'
+            })
+            return
+          }
         } 
         if (moduleStr.match('层次分析模糊综合评估') && !moduleStr.match('特征提取')) {
 
@@ -1648,8 +1660,9 @@ const checkModel = () => {
                 message: '使用深度学习模型的故障诊断不需要进行特征提取或是特征选择，请删除相关模块！',
                 type: 'warning'
               })
+              return
             }
-            return
+            
           }
         }
         // if (moduleStr.match('层次分析模糊综合评估') && (moduleStr.match('LSTM的故障诊断') || moduleStr.match('GRU的故障诊断'))) {
@@ -1778,9 +1791,26 @@ const checkModel = () => {
         //   });
         //   return
         // }
+        const useDeepLearningModule = (algorithmStr: string) =>{
+          return algorithmStr.match('LSTM的故障诊断') || algorithmStr.match('GRU的故障诊断') || algorithmStr.match('一维卷积深度学习模型的故障诊断') || algorithmStr.match('时频图深度学习模型的故障诊断')
+        }
+        // 规定插值处理只能是在模型中的开始位置
+        if (moduleStr.match('插值处理')){
+          if (moduleStr.indexOf('插值处理') != 0) {
+            ElMessage({
+              showClose: true,
+              message: '插值处理只能处在模型中的开始位置',
+              type: 'warning'
+            })
+            return
+          }
+        }
         if (moduleStr.match('故障诊断')) {
+          let useDeepLearning = useDeepLearningModule(algorithmStr)
           if (moreText(moduleStr, '故障诊断')) {
-            if (!checkSubstrings(moduleStr, '故障诊断', ['层次分析模糊综合评估', '趋势预测'])) {
+            // 机器学习的故障诊断之后只能是进行趋势预测或是健康评估
+            
+            if (!useDeepLearning && !checkSubstrings(moduleStr, '故障诊断', ['层次分析模糊综合评估', '趋势预测'])) {
               ElMessage({
                 showClose: true,
                 message: '注意故障诊断之后仅能进行趋势预测或是健康评估！',
@@ -1806,11 +1836,12 @@ const checkModel = () => {
               return
             }
           }
+          
           if (algorithmStr.match('SVM的故障诊断')) {
             if (!moduleStr.match('无量纲化') || !checkSubstrings(moduleStr, '无量纲化', ['故障诊断'])) {
               ElMessage({
                 showClose: true,
-                message: '因模型中包含SVM的故障诊断，需要在此之前加入标准化操作',
+                message: '因模型中包含SVM的故障诊断，需要在此之前加入z-score标准化操作',
                 type: 'warning'
               })
               // 将报错的连线标注为红色
@@ -1830,7 +1861,17 @@ const checkModel = () => {
 
               });
               return
+            } else {
+              if (!algorithmStr.match('z-score标准化')){
+                ElMessage({
+                  showClose: true,
+                  message: '因模型中包含SVM的故障诊断，需要在此之前加入z-score标准化操作',
+                  type: 'warning'
+                })
+                return
+              }
             }
+            
           }
         }
         // 进行模型参数设置的检查
